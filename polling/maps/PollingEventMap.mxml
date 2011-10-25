@@ -1,0 +1,160 @@
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<EventMap xmlns:mx="http://www.adobe.com/2006/mxml" xmlns="http://mate.asfusion.com/">
+
+	<mx:Script>
+		<![CDATA[
+
+			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			import org.bigbluebutton.modules.polling.managers.ToolbarButtonManager;
+			//EVENTS
+			import org.bigbluebutton.modules.polling.events.ModuleEvent;
+			import org.bigbluebutton.modules.polling.events.OpenInstructionsEvent;
+			import org.bigbluebutton.modules.polling.events.CloseInstructionsEvent;
+			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsEvent;
+			
+			import mx.events.FlexEvent;	
+			
+			import org.bigbluebutton.common.events.OpenWindowEvent;
+			import org.bigbluebutton.common.events.CloseWindowEvent;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.BBBEvent;	
+			import mx.events.FlexEvent;	
+		     
+			import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
+			import org.bigbluebutton.modules.polling.views.PollingViewWindow;
+			import org.bigbluebutton.modules.polling.views.PollingAcceptWindow;
+			
+			import org.bigbluebutton.modules.polling.service.PollingService;
+			
+			
+		public var module:PollingModule;
+	    private var manager:PollingManager;
+	    private var toolbarButtonManager:ToolbarButtonManager;
+	    private var instructionsWindow:PollingInstructionsWindow;
+	    private var pollingWindow:PollingViewWindow;
+	    //public var proxy:PollingProxy;
+	    private var acceptPollingWindow:PollingAcceptWindow;
+
+	
+	
+		// Opening Instructions Window 	
+		private function handleOpenInstructionsWindowEvent():void{
+			
+			instructionsWindow = new PollingInstructionsWindow();
+			LogUtil.debug("Polling:: Inside EventMap :: handleOpenInstructionsWindowEvent()");
+			var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				windowEvent.window = instructionsWindow; 
+				globalDispatcher.dispatchEvent(windowEvent);
+			}
+			
+		// Opening Accept Instructions Window 	
+		private function handleAcceptInstructionsWindowEvent():void{
+			
+			acceptPollingWindow = new PollingAcceptWindow();
+			LogUtil.debug("Polling:: Inside EventMap :: handleAcceptInstructionsWindowEvent()");
+			var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
+				windowEvent.window = acceptPollingWindow; 
+				globalDispatcher.dispatchEvent(windowEvent);
+			}	
+				
+		//sending Start Polling request
+		public function handleStartPollingEvent(e:StartPollingEvent):void{
+		    	
+			LogUtil.debug("Polling:: Polling EventMap :: View :: inside handleStartPollingEvent");
+			var event: PollingManager = new PollingManager();
+			pollingWindow = new PollingViewWindow();			
+				//pollingWindow.userId = module.userid;
+				pollingWindow.userrole = module.role;
+			    event.handleOpenPollingViewWindow(pollingWindow);
+				event.handleCloseInstructionsWindowEvent(instructionsWindow);
+		}
+				
+				
+		//Closing Instructions Window	
+		public function  handleCloseInstructionsWindowEvent(e:CloseInstructionsEvent):void {
+			var event:PollingManager = new PollingManager();
+			event.handleCloseInstructionsWindowEvent(instructionsWindow);
+		}		
+		
+		// close accept Instructions Window
+		public function  handleCloseAcceptInstructionsWindowEvent(e:AcceptPollingInstructionsEvent):void {
+			var event:PollingManager = new PollingManager();
+			event.handleCloseInstructionsWindowEvent(acceptPollingWindow);
+		}
+				 
+
+		
+		
+				]]>
+				
+	</mx:Script>
+	
+	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
+		<ObjectBuilder generator="{PollingManager}"/>	
+		<ObjectBuilder generator="{PollingService}"/>	
+		
+	</EventHandlers>	
+	
+	<EventHandlers type="{ModuleEvent.START}">
+		<MethodInvoker generator="{PollingService}" method="handleStartModuleEvent" arguments="{event.module}"/>
+	</EventHandlers>	
+		
+	 <EventHandlers type="{OpenInstructionsEvent.OPEN_POLLING_INSTRUCTIONS}">
+		<InlineInvoker   method="handleOpenInstructionsWindowEvent"  />
+	  </EventHandlers>
+		
+	  
+	 <EventHandlers type="{StartPollingEvent.START_POLLING}">
+		<InlineInvoker   method="handleStartPollingEvent" arguments="{event}"/>
+		<MethodInvoker generator="{PollingManager}" method="handleOpenViewWindowEvent" arguments="{event}"/>
+	 </EventHandlers>
+	 
+	  <EventHandlers type="{AcceptPollingInstructionsEvent.ACCEPT_POLLING_INSTRUCTIONS}">
+		<InlineInvoker   method=" handleAcceptInstructionsWindowEvent" />
+	 </EventHandlers>
+	 
+	  <EventHandlers type="{AcceptPollingInstructionsEvent.CLOSE_ACCEPT_POLLING_INSTRUCTIONS}">
+		<InlineInvoker method="handleCloseAcceptInstructionsWindowEvent"  arguments="{event}"/>
+	 </EventHandlers>
+	 
+	 
+	 <EventHandlers type="{MadePresenterEvent.SWITCH_TO_PRESENTER_MODE}">
+			<MethodInvoker generator="{PollingManager}" method="handleMadePresenterEvent" arguments="{event}"/>
+  	   </EventHandlers>
+	
+	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
+		<MethodInvoker generator="{PollingManager}" method="handleMadeViewerEvent" arguments="{event}"/>
+	</EventHandlers>	
+	
+	<EventHandlers type="{CloseInstructionsEvent.CLOSE_POLLING_INSTRUCTIONS}">
+		<InlineInvoker method="handleCloseInstructionsWindowEvent"   arguments="{event}"/>
+		<MethodInvoker generator="{PollingManager}" method="handleCloseInstructionsWindow"  arguments="{event}"/>
+	</EventHandlers>
+	
+	
+
+			
+	
+</EventMap>
