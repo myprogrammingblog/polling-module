@@ -22,12 +22,12 @@ package org.bigbluebutton.modules.polling.events
 	
 	public class StartPollingEvent extends Event
 	{
-		public static const START_POLLING:String = "START_POLLING";
+		public static const START:String = "START Polling";
 		
-		public function StartPollingEvent(type:String = START_POLLING)
+		public function StartPollingEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
-			super(type, true, false);
+			super(type, bubbles, cancelable);
 		}
-
+		
 	}
 }

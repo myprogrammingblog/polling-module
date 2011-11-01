@@ -42,13 +42,13 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.common.LogUtil;	 
 			import org.bigbluebutton.modules.polling.events.CloseInstructionsEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsEvent;
 		
-	
+			public static const LOGNAME:String = "[PollingInstructionsWindow] ";	
 
 
 			public var moduleAttributes:Object;
-			
 			private var userName:String;
 			
 			public function getPrefferedPosition():String{
@@ -56,8 +56,8 @@ Notes.mxml is the main view of the SharedNotes application
 			}
  
 			private function onCreationComplete():void{
-				LogUtil.debug("Polling:: Inside Creation Complete");
-				//proxy = new PollingProxy(this, moduleAttributes);
+				LogUtil.debug(LOGNAME + "Inside Creation Complete");
+				LogUtil.debug(LOGNAME + "Instructions Window is Created");
 				userName = moduleAttributes.username;
 			}
 			
@@ -81,22 +81,23 @@ Notes.mxml is the main view of the SharedNotes application
 			}		
 			
 			private function closeInstructionsWindow():void {	
-				LogUtil.debug("Polling:: in the view -> closeInstructionsWindow()");		
-				ExternalInterface.call("stopApplet");	
+				LogUtil.debug(LOGNAME + "inside  closeinstructionsWindow");		
+
 				dispatchEvent(new CloseInstructionsEvent(CloseInstructionsEvent.CLOSE_POLLING_INSTRUCTIONS));				
 			}		
 			
 			private function acceptInstructions():void {
-				LogUtil.debug("Polling:: inside acceInstructions()");	
+				LogUtil.debug(LOGNAME + "inside  acceptInstructions");		
 				dispatchEvent(new AcceptPollingInstructionsEvent(AcceptPollingInstructionsEvent.ACCEPT_POLLING_INSTRUCTIONS));
 				closeInstructionsWindow()
 			
 			}
 			
+			// FOR TEST PURPOSES!!!!
 			private function StartPolling():void {
-				LogUtil.debug("Polling:: inside StartPolling()");	
-				dispatchEvent(new StartPollingEvent(StartPollingEvent.START_POLLING));
-			
+				LogUtil.debug(LOGNAME + "inside  StartPolling calling StartPollingEvent ");		
+				dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
+				
 			}
 			
 		]]>
@@ -126,7 +127,7 @@ Notes.mxml is the main view of the SharedNotes application
        </mx:VBox>
        <mx:ControlBar width="100%" >
 	<mx:HBox paddingLeft="70" paddingRight="10" paddingTop="10" paddingBottom="10">  
-       		<mx:Button id="CreatePoll" label="Create Poll" click=" acceptInstructions()"  width="100" height="30"/>
+       		<mx:Button id="CreatePoll" label="Create Poll" click="StartPolling()"  width="100" height="30"/><!--acceptInstructions(),-->
 		<mx:Button id="Cancell" label="Cancel" click="closeInstructionsWindow()"  width="100" height="30"/>
 	</mx:HBox>	 
 		</mx:ControlBar> 	 

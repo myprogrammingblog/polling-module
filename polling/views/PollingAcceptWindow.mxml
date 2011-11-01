@@ -42,7 +42,7 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsEvent;
            
-		
+			public static const LOGNAME:String = "[PollingAcceptWindow] ";
 	
 			
 
@@ -65,7 +65,8 @@ Notes.mxml is the main view of the SharedNotes application
 			
  
 			private function onCreationComplete():void{
-				LogUtil.debug("Polling:: Inside Creation Complete");
+				LogUtil.debug(LOGNAME + "Inside Creation Complete");
+				LogUtil.debug(LOGNAME + "Accept window is Created");
 				
 				userName = moduleAttributes.username;
 			}
@@ -82,6 +83,7 @@ Notes.mxml is the main view of the SharedNotes application
 			//}
 			
  			public function closeAcceptPollingWindow():void{
+ 				LogUtil.debug(LOGNAME + "Inside Close Accept Polling Window");
 				ExternalInterface.call("stopApplet");	
 				dispatchEvent(new AcceptPollingInstructionsEvent(AcceptPollingInstructionsEvent.CLOSE_ACCEPT_POLLING_INSTRUCTIONS));			
 			}

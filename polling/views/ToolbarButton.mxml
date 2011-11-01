@@ -42,13 +42,13 @@
 			private var images:Images = new Images();
 			
 			[Bindable] public var pollIcon:Class = images.pollIcon;
-			
+			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
 			
 			private function openPollingInstructions():void {
-				LogUtil.debug("Polling:: inside ToolBarButton ::openPollingInstructions() --> clicked icon");
+				LogUtil.debug(LOGNAME +"openPollingInstructions() --> clicked icon");
 				dispatchEvent(new OpenInstructionsEvent(OpenInstructionsEvent.OPEN_POLLING_INSTRUCTIONS ));
 				this.enabled = false;
-				LogUtil.debug("Polling:: inside ToolBarButton  icon disabled");
+				LogUtil.debug(LOGNAME +"inside ToolBarButton  icon disabled");
 			}
 			
 			public function getAlignment():String{

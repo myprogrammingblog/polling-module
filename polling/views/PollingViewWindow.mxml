@@ -40,15 +40,21 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.common.LogUtil;	 
 			import org.bigbluebutton.modules.polling.events.CloseInstructionsEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.common.IBbbModuleWindow;
            
-		
+            import org.bigbluebutton.modules.polling.managers.ViewerWindowManager;
+		   public static const LOGNAME:String = "[PollingViewWindow] ";
 	
-			
 
 			public var moduleAttributes:Object;
 			private var userName:String;
 			private var _userrole:String;
 			private var _userid:Number;
+			private var ns:NetStream;
+			private var stream:String;
+			private var window:PollingViewWindow;
+			private var manager:ViewerWindowManager;
+			
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
 			}
@@ -64,24 +70,55 @@ Notes.mxml is the main view of the SharedNotes application
 			
  
 			private function onCreationComplete():void{
-				LogUtil.debug("Polling:: Inside Creation Complete");
+				LogUtil.debug(LOGNAME + " Inside Creation Complete");
 				
 				userName = moduleAttributes.username;
 			}
 			
-			public function sendNewMessage():void{
-				//proxy.sendMessage(userName + "::: " + txtInput.text);
+			public function onButtonClick():void{
+				LogUtil.debug(LOGNAME + " button clicked");
 			}
 			
-			public function displayNewMessage(message:String):void{
-				//txtArea.text += "\n" + message;
+			
+			
+			
+			public function startPolling(nc:NetConnection, stream:String):void{
+				LogUtil.debug(LOGNAME + " inside start polling");
+				
+				ns = new NetStream(nc);
+				LogUtil.debug(LOGNAME+ "initliazed NetStream with New connection ns: " +ns);
+				
+				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
+				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
+				ns.client = this;
+				ns.publish(stream);	
+				this.stream = stream;
+				this.title = "Polling  INVOKED FROM STREAM";
+				
+				
+				
 			}
-			//public function displayradiobuttons(message:String):void{
-			//	txtArea.text += "\n" + message;
-			//}
 			
 			
+			private function onNetStatus(e:NetStatusEvent):void{
+				switch(e.info.code){
+				case "NetStream.Publish.Start":
+					LogUtil.debug(LOGNAME + " Listener :: Publishing Started for broadcast stream " + stream);
+					break;
+				case "NetStream.Play.UnpublishNotify":
+					LogUtil.debug(LOGNAME + "Listener :: NetStream.Play.UnpublishNotify for broadcast stream " + stream);
+					break;
+				case "NetStream.Play.Start":
+					LogUtil.debug(LOGNAME + "Listener :: Netstatus: " + e.info.code);
+				}
+			}
 			
+				private function onAsyncError(event:AsyncErrorEvent):void
+		{
+			LogUtil.debug(LOGNAME + "pollingSO asynchronous error.");
+		}
+			
+			//Event Listeners
 			
 			
 		]]>
@@ -115,7 +152,7 @@ Notes.mxml is the main view of the SharedNotes application
         	
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
-       <mx:Button id="btnAcceptPoll" label="Vote" click="sendNewMessage()"  width="100" height="30"/>
+       <mx:Button id="btnAcceptPoll" label="Vote" click="onButtonClick()"  width="100" height="30"/>
 		 
 		</mx:ControlBar> 	 
        
