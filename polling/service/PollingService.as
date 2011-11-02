@@ -80,9 +80,9 @@ package org.bigbluebutton.modules.polling.service
 		/*###################################################*/
 		public function connect():void {
 			LogUtil.debug(LOGNAME + "inside connect ()  ");
+			pollingSO = SharedObject.getRemote(SHARED_OBJECT, uri, false);
 	 		pollingSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			pollingSO.addEventListener(NetStatusEvent.NET_STATUS, handleResult);
-				pollingSO = SharedObject.getRemote(SHARED_OBJECT, uri, false);
 				pollingSO.client = this;
 				pollingSO.connect(nc); 	
 			//LogUtil.debug(LOGNAME + "shared object pollingSO connected via uri: "+uri);    
