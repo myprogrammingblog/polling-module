@@ -85,7 +85,7 @@ package org.bigbluebutton.modules.polling.service
 			pollingSO.addEventListener(NetStatusEvent.NET_STATUS, handleResult);
 				pollingSO.client = this;
 				pollingSO.connect(nc); 	
-			//LogUtil.debug(LOGNAME + "shared object pollingSO connected via uri: "+uri);    
+			LogUtil.debug(LOGNAME + "shared object pollingSO connected via uri: "+uri);    
 		}
 		
 			public function getConnection():NetConnection{
@@ -101,7 +101,7 @@ package org.bigbluebutton.modules.polling.service
          public function sharePollingWindow():void{
          		LogUtil.debug(LOGNAME + "inside sharePollingWindow calling pollingSO.send()");
          	
-         	if (isConnected = true) {
+         	if (isConnected = true ) {
          			pollingSO.send("openPollingWindow"); 
          	}
          }

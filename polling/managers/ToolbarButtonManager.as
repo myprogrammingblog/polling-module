@@ -75,5 +75,10 @@ package org.bigbluebutton.modules.polling.managers
 			LogUtil.debug(LOGNAME + " inside enableToolbarButton");
 			button.enabled = true;
 		}
+		
+		public function disableToolbarButton():void {
+			LogUtil.debug(LOGNAME + " inside disableToolbarButton");
+			button.enabled = false;
+		}
 	}
 }

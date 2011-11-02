@@ -38,9 +38,10 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.main.views.MainCanvas;
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.LogUtil;	 
-			import org.bigbluebutton.modules.polling.events.CloseInstructionsEvent;
+			//import org.bigbluebutton.modules.polling.events.CloseInstructionsEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.common.IBbbModuleWindow;
+			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
            
             import org.bigbluebutton.modules.polling.managers.ViewerWindowManager;
 		   public static const LOGNAME:String = "[PollingViewWindow] ";
@@ -59,15 +60,19 @@ Notes.mxml is the main view of the SharedNotes application
 				return MainCanvas.POPUP;
 			}
 			
-			private function isPresenter():Boolean{
-				if (this._userrole == "MODERATOR" || this._userrole == "PRESENTER") return true;
-				else return false;
-			}
+			//private function isPresenter():Boolean{
+			//	if (this._userrole == "MODERATOR" || this._userrole == "PRESENTER") return true;
+			//	else return false;
+			//}
 			
 			public function set userrole(role:String):void{
 				this._userrole = role;
 			}
 			
+			private function closeWindow():void{
+				LogUtil.debug(LOGNAME + "inside closeWindow()");
+				dispatchEvent(new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE));
+			}
  
 			private function onCreationComplete():void{
 				LogUtil.debug(LOGNAME + " Inside Creation Complete");
@@ -81,37 +86,13 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			
 			
+		
 			
-			public function startPolling(nc:NetConnection, stream:String):void{
-				LogUtil.debug(LOGNAME + " inside start polling");
-				
-				ns = new NetStream(nc);
-				LogUtil.debug(LOGNAME+ "initliazed NetStream with New connection ns: " +ns);
-				
-				ns.addEventListener( NetStatusEvent.NET_STATUS, onNetStatus );
-				ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, onAsyncError);
-				ns.client = this;
-				ns.publish(stream);	
-				this.stream = stream;
-				this.title = "Polling  INVOKED FROM STREAM";
-				
-				
+			private function Vote():void{
+				closeWindow();
 				
 			}
 			
-			
-			private function onNetStatus(e:NetStatusEvent):void{
-				switch(e.info.code){
-				case "NetStream.Publish.Start":
-					LogUtil.debug(LOGNAME + " Listener :: Publishing Started for broadcast stream " + stream);
-					break;
-				case "NetStream.Play.UnpublishNotify":
-					LogUtil.debug(LOGNAME + "Listener :: NetStream.Play.UnpublishNotify for broadcast stream " + stream);
-					break;
-				case "NetStream.Play.Start":
-					LogUtil.debug(LOGNAME + "Listener :: Netstatus: " + e.info.code);
-				}
-			}
 			
 				private function onAsyncError(event:AsyncErrorEvent):void
 		{
@@ -152,7 +133,7 @@ Notes.mxml is the main view of the SharedNotes application
         	
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
-       <mx:Button id="btnAcceptPoll" label="Vote" click="onButtonClick()"  width="100" height="30"/>
+       <mx:Button id="btnAcceptPoll" label="Vote" click="Vote()"  width="100" height="30"/>
 		 
 		</mx:ControlBar> 	 
        

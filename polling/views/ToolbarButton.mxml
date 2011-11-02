@@ -36,7 +36,7 @@
 			import org.bigbluebutton.common.LogUtil;
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
-	       import org.bigbluebutton.modules.polling.events.OpenInstructionsEvent;
+	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 			
 			
 			private var images:Images = new Images();
@@ -46,7 +46,7 @@
 			
 			private function openPollingInstructions():void {
 				LogUtil.debug(LOGNAME +"openPollingInstructions() --> clicked icon");
-				dispatchEvent(new OpenInstructionsEvent(OpenInstructionsEvent.OPEN_POLLING_INSTRUCTIONS ));
+				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.OPEN));
 				this.enabled = false;
 				LogUtil.debug(LOGNAME +"inside ToolBarButton  icon disabled");
 			}

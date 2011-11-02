@@ -38,9 +38,8 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.main.views.MainCanvas;
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.LogUtil;	 
-			import org.bigbluebutton.modules.polling.events.CloseInstructionsEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsEvent;
+			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
            
 			public static const LOGNAME:String = "[PollingAcceptWindow] ";
 	
@@ -84,12 +83,10 @@ Notes.mxml is the main view of the SharedNotes application
 			
  			public function closeAcceptPollingWindow():void{
  				LogUtil.debug(LOGNAME + "Inside Close Accept Polling Window");
-				ExternalInterface.call("stopApplet");	
-				dispatchEvent(new AcceptPollingInstructionsEvent(AcceptPollingInstructionsEvent.CLOSE_ACCEPT_POLLING_INSTRUCTIONS));			
-			}
+				dispatchEvent(new AcceptPollingInstructionsWindowEvent(AcceptPollingInstructionsWindowEvent.CLOSE));
 	
 			
-			
+ 			}
 			
 		]]>
 	</mx:Script>
