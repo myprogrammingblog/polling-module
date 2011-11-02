@@ -23,10 +23,10 @@ package org.bigbluebutton.modules.polling.service
 	import flash.events.IEventDispatcher;
 	import flash.events.NetStatusEvent;
 	import flash.events.SyncEvent;
+
 	import flash.net.NetConnection;
-	import flash.net.NetStream;
-	import flash.net.Responder;
 	import flash.net.SharedObject;
+
 	
 	import mx.controls.Alert;
 	
@@ -44,16 +44,19 @@ package org.bigbluebutton.modules.polling.service
 		public static const LOGNAME:String = "[PollingService] ";
 
 
+
 		private var pollingSO:SharedObject;
+		private var nc:NetConnection;
 		private var uri:String;
 		private var module:PollingModule;
 		private var dispatcher:Dispatcher;
 		private var attributes:Object;
-		private var room:String;
-		private var responder:Responder;
 		private var windowManager: ViewerWindowManager;
+		
+		
 		private static const SHARED_OBJECT:String = "pollingSO";
 		private var isPolling:Boolean = false;
+		private var isConnected:Boolean = false;
 		
 		private var viewWindow:PollingViewWindow;
 					
@@ -67,27 +70,22 @@ package org.bigbluebutton.modules.polling.service
 		public function handleStartModuleEvent(module:PollingModule):void {
 			
 			this.module = module;
-			this.uri = module.uri;
-			LogUtil.debug(LOGNAME +"inside handleStartModuleEvent :: calling connect("+uri+")");	
-			connect(uri);
-	
+			nc = module.connection
+			uri = module.uri;
+			connect();
 		}
 		
 		
 		 // CONNECTION
 		/*###################################################*/
-		public function connect(uri:String):void {
-			
-	 		var nc:NetConnection = new NetConnection();
-     		nc.connect(uri);
-	
+		public function connect():void {
 			LogUtil.debug(LOGNAME + "inside connect ()  ");
-			pollingSO = SharedObject.getRemote(SHARED_OBJECT, module.uri, false);
-			pollingSO.addEventListener(NetStatusEvent.NET_STATUS, connectionHandler);
-			pollingSO.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
-			pollingSO.client = this;
-			pollingSO.connect(nc);
-			LogUtil.debug(LOGNAME + "shared object pollingSO connected via uri: "+uri);    
+	 		pollingSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
+			pollingSO.addEventListener(NetStatusEvent.NET_STATUS, handleResult);
+				pollingSO = SharedObject.getRemote(SHARED_OBJECT, uri, false);
+				pollingSO.client = this;
+				pollingSO.connect(nc); 	
+			//LogUtil.debug(LOGNAME + "shared object pollingSO connected via uri: "+uri);    
 		}
 		
 			public function getConnection():NetConnection{
@@ -101,9 +99,11 @@ package org.bigbluebutton.modules.polling.service
           /*#######################################################*/
           
          public function sharePollingWindow():void{
-         	LogUtil.debug(LOGNAME + "inside sharePollingWindow calling pollingSO.send()");
-         	pollingSO.send("openPollingWindow"); 
+         		LogUtil.debug(LOGNAME + "inside sharePollingWindow calling pollingSO.send()");
          	
+         	if (isConnected = true) {
+         			pollingSO.send("openPollingWindow"); 
+         	}
          }
          
          public function openPollingWindow():void{
@@ -122,41 +122,10 @@ package org.bigbluebutton.modules.polling.service
 		
         //Event Handlers
         /*######################################################*/
-    	private function connectionHandler (e:NetStatusEvent):void
-		{
-			
-			LogUtil.debug(LOGNAME+"Inside  connectionHandler PollingService: ");
-			switch (e.info.code) 
-			{
-				case "NetConnection.Connect.Success":
-					LogUtil.debug(LOGNAME + "Connection Success");			
-					break;
-			
-				case "NetConnection.Connect.Failed":	
-					LogUtil.error(LOGNAME+ "pollingSO connection failed.");		
-					break;
-					
-				case "NetConnection.Connect.Closed":			
-					LogUtil.error(LOGNAME + "Connection to pollingSO was closed.");						
-					break;
-					
-			
-					
-				case "NetConnection.Connect.Rejected":
-					LogUtil.error(LOGNAME +"No permissions to connect to the pollingSO");
-					break;
-					
-				default:
-					LogUtil.error(LOGNAME +" default case - " +e.info.code );
-			}
-		}
+        
+
 		
-		private function asyncErrorHandler (event:AsyncErrorEvent):void
-		{
-			LogUtil.error(LOGNAME+"asynchronous error.");
-		}
-		
-			public function disconnect():void{
+		public function disconnect():void{
 			if (module.connection != null) module.connection.close();
 		}
 		
@@ -164,5 +133,37 @@ package org.bigbluebutton.modules.polling.service
                 //called from asc
                 trace("onBandwithDone");
             } 
-	   }
+	   
+	   
+	   	public function handleResult(e:NetStatusEvent):void {
+	   	LogUtil.debug(LOGNAME + "inside handleResult(nc)");	
+	   		
+			var statusCode : String = e.info.code;
+
+			switch ( statusCode ) 
+			{
+				case "NetConnection.Connect.Success":
+					LogUtil.debug(LOGNAME + ":Connection to Polling Module succeeded.");
+					isConnected = true;
+					break;
+				case "NetConnection.Connect.Failed":					
+						LogUtil.debug(LOGNAME + ":Connection to Polling Module failed");
+					break
+				case "NetConnection.Connect.Rejected":
+						LogUtil.debug(LOGNAME + "Connection to Polling Module Rejected");		
+					 break 
+				default :
+				   LogUtil.debug(LOGNAME + ":Connection default case" );
+				   break;
+			}
+		}
+		
+		private function sharedObjectSyncHandler(e:SyncEvent) : void
+		{	
+		
+			LogUtil.debug(LOGNAME+"Shared object is connected");
+			
+		}
+	   
 	}
+}
