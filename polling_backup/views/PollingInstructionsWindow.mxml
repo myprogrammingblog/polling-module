@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<!--
+Notes.mxml is the main view of the SharedNotes application
+-->
+<MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="400" height="500" 
+	xmlns:mate="http://mate.asfusion.com/" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	creationComplete="onCreationComplete()"
+	label="Create New Poll" layout="absolute" 
+	title="Create New Poll">
+	
+	
+	
+	<mx:Script>
+		<![CDATA[
+			import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.bigbluebutton.main.views.MainCanvas;
+			import mx.controls.Alert;
+			import org.bigbluebutton.common.LogUtil;	
+			
+			//EVENTS
+			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent; 
+			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
+		
+			public static const LOGNAME:String = "[PollingInstructionsWindow] ";	
+
+
+			public var moduleAttributes:Object;
+			private var userName:String;
+			
+			public function getPrefferedPosition():String{
+				return MainCanvas.POPUP;
+			}
+ 
+			private function onCreationComplete():void{
+				LogUtil.debug(LOGNAME + "Inside Creation Complete");
+				LogUtil.debug(LOGNAME + "Instructions Window is Created");
+				userName = moduleAttributes.username;
+			}
+			
+			public function sendNewMessage():void{
+				//proxy.sendMessage(userName + "::: " + txtInput.text);
+			}
+			
+			public function displayNewMessage(message:String):void{
+				//txtArea.text += "\n" + message;
+			}
+			
+			/*
+			 * Override the close handler. We want the Event Map to send a message to
+			 * the MDIManager to close this window;
+			 */
+			override public function close(event:MouseEvent = null):void {
+				closeInstructionsWindow();
+			}		
+			
+			private function closeInstructionsWindow():void {	
+				LogUtil.debug(LOGNAME + "inside  closeinstructionsWindow");		
+
+				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.CLOSE));				
+			}		
+			
+			private function openAcceptInstructions():void {
+				LogUtil.debug(LOGNAME + "inside  acceptInstructions");		
+				dispatchEvent(new AcceptPollingInstructionsWindowEvent(AcceptPollingInstructionsWindowEvent.OPEN));
+				closeInstructionsWindow()
+			
+			}
+			
+			// FOR TEST PURPOSES!!!!
+			private function StartPolling():void {
+				LogUtil.debug(LOGNAME + "inside  StartPolling calling StartPollingEvent ");		
+				dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
+				closeInstructionsWindow();
+			}
+			
+		]]>
+	</mx:Script>
+	<!-- Prorotype of Polling Instructions Design -->
+        <mx:VBox width="90%" height="90%"  >
+          
+	<mx:HBox paddingLeft="10" paddingRight="10" paddingTop="40" paddingBottom="10" >               
+		<mx:Label fontWeight="bold"   text="Title :" paddingLeft="35" />
+		<mx:TextInput id="src" text=" "/> 
+	</mx:HBox>
+	
+        <mx:HBox paddingLeft="40" paddingRight="10" paddingTop="10" paddingBottom="10">  	
+		<mx:Label fontWeight="bold" text="Questions :" />
+		<mx:TextArea id="questions" width="200" height="100"/> 
+	</mx:HBox>
+
+	 <mx:HBox paddingLeft="40" paddingRight="10" paddingTop="10" paddingBottom="10">  
+          	<mx:Label fontWeight="bold"  text="Responses :" />
+		<mx:TextArea id="responses" width="200" height="100" /> 
+	</mx:HBox>
+	
+	 <mx:HBox paddingLeft="30" paddingRight="10" paddingTop="10" paddingBottom="10">  
+		<mx:CheckBox id="multiple_response" label="Allow users to choose more than one response" click=""/>
+	</mx:HBox>
+	
+       </mx:VBox>
+       <mx:ControlBar width="100%" >
+	<mx:HBox paddingLeft="70" paddingRight="10" paddingTop="10" paddingBottom="10">  
+       	<mx:Button id="CreatePoll" label="Create Poll" click="StartPolling()"  width="100" height="30"/>
+		<mx:Button id="Cancell" label="Cancel" click="closeInstructionsWindow()"  width="100" height="30"/>
+	</mx:HBox>	 
+		</mx:ControlBar> 	 
+       
+       
+	
+		
+	
+
+
+
+
+
+</MDIWindow>
