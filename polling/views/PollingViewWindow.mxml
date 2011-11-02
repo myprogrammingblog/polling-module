@@ -38,37 +38,26 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.main.views.MainCanvas;
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.LogUtil;	 
-			//import org.bigbluebutton.modules.polling.events.CloseInstructionsEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-			import org.bigbluebutton.common.IBbbModuleWindow;
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-           
-            import org.bigbluebutton.modules.polling.managers.ViewerWindowManager;
+
 		   public static const LOGNAME:String = "[PollingViewWindow] ";
 	
 
 			public var moduleAttributes:Object;
-			private var userName:String;
-			private var _userrole:String;
-			private var _userid:Number;
-			private var ns:NetStream;
-			private var stream:String;
+			private var _userid:Number; 
 			private var window:PollingViewWindow;
-			private var manager:ViewerWindowManager;
+
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
 			}
-			
-			//private function isPresenter():Boolean{
-			//	if (this._userrole == "MODERATOR" || this._userrole == "PRESENTER") return true;
-			//	else return false;
-			//}
-			
-			public function set userrole(role:String):void{
-				this._userrole = role;
+				
+				
+			private function Vote():void{
+				closeWindow();
+				
 			}
-			
 			private function closeWindow():void{
 				LogUtil.debug(LOGNAME + "inside closeWindow()");
 				dispatchEvent(new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE));
@@ -76,30 +65,8 @@ Notes.mxml is the main view of the SharedNotes application
  
 			private function onCreationComplete():void{
 				LogUtil.debug(LOGNAME + " Inside Creation Complete");
-				
-				userName = moduleAttributes.username;
 			}
 			
-			public function onButtonClick():void{
-				LogUtil.debug(LOGNAME + " button clicked");
-			}
-			
-			
-			
-		
-			
-			private function Vote():void{
-				closeWindow();
-				
-			}
-			
-			
-				private function onAsyncError(event:AsyncErrorEvent):void
-		{
-			LogUtil.debug(LOGNAME + "pollingSO asynchronous error.");
-		}
-			
-			//Event Listeners
 			
 			
 		]]>

@@ -35,7 +35,7 @@ package org.bigbluebutton.modules.polling.service
 
 	//TESTING
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
-	import org.bigbluebutton.modules.polling.managers.ViewerWindowManager;
+	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 				
@@ -51,7 +51,7 @@ package org.bigbluebutton.modules.polling.service
 		private var module:PollingModule;
 		private var dispatcher:Dispatcher;
 		private var attributes:Object;
-		private var windowManager: ViewerWindowManager;
+		private var windowManager: PollingWindowManager;
 		
 		
 		private static const SHARED_OBJECT:String = "pollingSO";

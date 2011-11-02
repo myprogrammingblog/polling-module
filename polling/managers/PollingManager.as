@@ -27,7 +27,7 @@ package org.bigbluebutton.modules.polling.managers
 		private var module:PollingModule;
 		private var globalDispatcher:Dispatcher;
 		private var service:PollingService;
-		private var viewWindowManager:ViewerWindowManager;
+		private var viewWindowManager:PollingWindowManager;
 		private var isPolling:Boolean = false;
 
 		
@@ -38,7 +38,7 @@ package org.bigbluebutton.modules.polling.managers
 				service = new PollingService();
 			    toolbarButtonManager = new ToolbarButtonManager();
 			    globalDispatcher = new Dispatcher();
-			    viewWindowManager = new ViewerWindowManager(service);
+			    viewWindowManager = new PollingWindowManager(service);
 					
 		}
 		

@@ -23,68 +23,18 @@
 	<mx:Script>
 		<![CDATA[
 
-			import org.bigbluebutton.common.IBbbModuleWindow;
+			import mx.events.FlexEvent;		
+			import org.bigbluebutton.main.events.MadePresenterEvent;
+			import org.bigbluebutton.main.events.BBBEvent;
 			
-			//Managers
-			import org.bigbluebutton.modules.polling.managers.ViewerWindowManager;
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
-			import org.bigbluebutton.modules.polling.managers.ToolbarButtonManager;
-			//EVENTS
+			
 			import org.bigbluebutton.modules.polling.events.ModuleEvent;
 			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			
-			
-			import mx.events.FlexEvent;	
-			
-			import org.bigbluebutton.common.events.OpenWindowEvent;
-			import org.bigbluebutton.common.events.CloseWindowEvent;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.events.MadePresenterEvent;
-			import org.bigbluebutton.main.events.BBBEvent;	
-			import mx.events.FlexEvent;	
-		     // Views
-			import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
-			import org.bigbluebutton.modules.polling.views.PollingViewWindow;
-			import org.bigbluebutton.modules.polling.views.PollingAcceptWindow;
-			// Service
-			import org.bigbluebutton.modules.polling.service.PollingService;
-			
-			
-			public var module:PollingModule;
-	    	private var manager:PollingManager;
-	    	private var toolbarButtonManager:ToolbarButtonManager;
-	    	private var instructionsWindow:PollingInstructionsWindow;
-	    	private var pollingWindow:PollingViewWindow;
-	    	private var acceptPollingWindow:PollingAcceptWindow;
-			public static const LOGNAME:String = "[PollingEventMap] ";
-	
-	
-		//---------------------------------------------------------------------------------		
-		// Opening/Close Accept Instructions Window (dispatching to user: "Your poll is saved") 	
-		//---------------------------------------------------------------------------------
-		/*private function handleAcceptInstructionsWindowEvent():void{
-			
-			acceptPollingWindow = new PollingAcceptWindow();
-			LogUtil.debug(LOGNAME + " handleAcceptInstructionsWindowEvent()");
-			var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
-				windowEvent.window = acceptPollingWindow; 
-				globalDispatcher.dispatchEvent(windowEvent);
-			}	
-			*/
-		/*	
-		public function  handleCloseAcceptInstructionsWindowEvent(e:AcceptPollingInstructionsEvent):void {
-			LogUtil.debug(LOGNAME + " hhandleCloseAcceptInstructionsWindowEvent");
-			var event:PollingManager = new PollingManager();
-		//	event.handleCloseInstructionsWindowEvent(acceptPollingWindow);
-		}*/
-		//-----------------------------------------------------------------------------------		
-
-	
-
-		
 				]]>
 				
 	</mx:Script>
