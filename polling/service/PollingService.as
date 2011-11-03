@@ -107,9 +107,13 @@ package org.bigbluebutton.modules.polling.service
          }
          
          public function openPollingWindow():void{
-         	LogUtil.debug(LOGNAME+ "inside openPollingWindow");
-         	var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
-			dispatcher.dispatchEvent(e);
+         	var username:String = module.username;
+         	var role:String = module.role;
+         	LogUtil.debug(LOGNAME + " inside openPollingWindow sending to " + username + " who is " + role);
+         	if (role != "MODERATOR"){
+         		var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
+				dispatcher.dispatchEvent(e);
+         	}	
          }
 
 	   public function setPolling(polling:Boolean):void{

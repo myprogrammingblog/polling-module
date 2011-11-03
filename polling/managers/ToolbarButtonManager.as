@@ -22,8 +22,6 @@ package org.bigbluebutton.modules.polling.managers
 	import com.asfusion.mate.events.Dispatcher;
 	
 	import org.bigbluebutton.common.IBbbModuleWindow;
-	import org.bigbluebutton.common.events.CloseWindowEvent;
-	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.common.LogUtil;
