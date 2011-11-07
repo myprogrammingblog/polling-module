@@ -109,7 +109,8 @@ Notes.mxml is the main view of the SharedNotes application
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
        <mx:Button id="btnAcceptPoll" label="Vote" click="Vote()"  width="100" height="30"/>
-       </mx:ControlBar> 	 
+		 
+		</mx:ControlBar> 	 
        
        
 	

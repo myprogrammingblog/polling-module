@@ -30,10 +30,8 @@ package org.bigbluebutton.modules.polling.service
 	
 	import mx.controls.Alert;
 	import org.bigbluebutton.core.managers.UserManager;
-	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-	
 
 
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
@@ -56,7 +54,7 @@ package org.bigbluebutton.modules.polling.service
 		private var dispatcher:Dispatcher;
 		private var attributes:Object;
 		private var windowManager: PollingWindowManager;
-		
+
 		
 		
 		private static const SHARED_OBJECT:String = "pollingSO";
@@ -128,7 +126,7 @@ package org.bigbluebutton.modules.polling.service
 	   		return isPolling;
 	   }
 
-		import org.bigbluebutton.core.managers.UserManager;
+		
         //Event Handlers
         /*######################################################*/
         

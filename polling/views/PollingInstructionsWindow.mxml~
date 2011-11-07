@@ -171,7 +171,7 @@ Notes.mxml is the main view of the SharedNotes application
 			private function   answerError():String{
 			
 			   var errMsg:String = "VALID";
-			   var aPattern:RegExp =  /^[a-zA-Z0-9_., ?!\']*$/; // alpha comma, dot, space and some others are allowed in alpha
+			   var aPattern:RegExp =  /^[a-zA-Z0-9_., ?!\'/]*$/; // alpha comma, dot, space and some others are allowed in alpha
 		     
 			     if (pollAnswers.length == 0 )
 			     		errMsg = "Please Provide at least 2 Answers";
