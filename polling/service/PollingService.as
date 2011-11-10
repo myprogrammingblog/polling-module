@@ -113,7 +113,7 @@ package org.bigbluebutton.modules.polling.service
          
          public function openPollingWindow():void{
          	var username:String = module.username;
-         	var role:String = module.role;
+         	//var role:String = module.role;
          	if (!UserManager.getInstance().getConference().amIModerator()){
          		LogUtil.debug(LOGNAME + "dispatching Open polling view window for NON moderator users");	
          		var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);

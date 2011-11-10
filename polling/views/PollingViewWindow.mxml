@@ -74,8 +74,7 @@ Notes.mxml is the main view of the SharedNotes application
 			}
 			
 			// This function will receive information and generate radiobuttons on fly
-			private function generateRadioButton():void{
-			}
+			
 			
 		]]>
 	</mx:Script>
@@ -92,8 +91,8 @@ Notes.mxml is the main view of the SharedNotes application
           
         			<mx:RadioButton groupName="options" 
        						 id="americanExpress"
-        					label="American Express" 
-        					width="150"
+       						 label="Amex"
+        					
                    							 />
     				<mx:RadioButton groupName="options" 
         					id="masterCard"

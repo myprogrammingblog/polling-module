@@ -30,8 +30,10 @@ package org.bigbluebutton.modules.polling.service
 	
 	import mx.controls.Alert;
 	import org.bigbluebutton.core.managers.UserManager;
+
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+	
 
 
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
@@ -54,7 +56,7 @@ package org.bigbluebutton.modules.polling.service
 		private var dispatcher:Dispatcher;
 		private var attributes:Object;
 		private var windowManager: PollingWindowManager;
-
+		
 		
 		
 		private static const SHARED_OBJECT:String = "pollingSO";
@@ -76,6 +78,8 @@ package org.bigbluebutton.modules.polling.service
 			nc = module.connection
 			uri = module.uri;
 			connect();
+			
+			
 		}
 		
 		
@@ -110,23 +114,18 @@ package org.bigbluebutton.modules.polling.service
          }
          
          public function openPollingWindow():void{
+         
          	var username:String = module.username;
-         	var role:String = module.role;
+         	
          	if (!UserManager.getInstance().getConference().amIModerator()){
          		LogUtil.debug(LOGNAME + "dispatching Open polling view window for NON moderator users");	
          		var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
-				dispatcher.dispatchEvent(e);
+			dispatcher.dispatchEvent(e);
+			isPolling = true;
          	}	
          }
 
-	   public function setPolling(polling:Boolean):void{
-	   		isPolling = polling; 
-	   }
-	   public function getPollingStatus():Boolean{
-	   		return isPolling;
-	   }
-
-		
+	 
         //Event Handlers
         /*######################################################*/
         

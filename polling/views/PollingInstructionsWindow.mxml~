@@ -25,7 +25,7 @@ Notes.mxml is the main view of the SharedNotes application
 -->
 <MDIWindow xmlns="flexlib.mdi.containers.*"
         xmlns:mx="http://www.adobe.com/2006/mxml"
-	width="450" height="550" 
+	width="450" height="580" 
 	xmlns:mate="http://mate.asfusion.com/" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	creationComplete="onCreationComplete()"
@@ -56,6 +56,12 @@ Notes.mxml is the main view of the SharedNotes application
 
 			public var moduleAttributes:Object;
 			private var userName:String;
+			private var _answers:Array;
+			private var _title:String;
+			private var _question:String;
+			private var _isMultiple:uint;
+			private var allowedChars:RegExp = /^[^;\\]*$/; // for security reasons some  characters are not allowed
+		
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
@@ -67,21 +73,14 @@ Notes.mxml is the main view of the SharedNotes application
 				userName = moduleAttributes.username;
 			}
 			
-			public function sendNewMessage():void{
-				//proxy.sendMessage(userName + "::: " + txtInput.text);
-			}
 			
-			public function displayNewMessage(message:String):void{
-				//txtArea.text += "\n" + message;
-			}
-			
-			/*
-			 * Override the close handler. We want the Event Map to send a message to
-			 * the MDIManager to close this window;
-			 */
 			override public function close(event:MouseEvent = null):void {
 				closeInstructionsWindow();
 			}		
+			
+			private function isMultiple(multiple:uint=0):void{
+				_isMultiple=multiple;
+			}
 			
 			private function closeInstructionsWindow():void {	
 				LogUtil.debug(LOGNAME + "inside  closeinstructionsWindow");		
@@ -101,6 +100,15 @@ Notes.mxml is the main view of the SharedNotes application
 				LogUtil.debug(LOGNAME + "inside  StartPolling calling StartPollingEvent ");		
 				dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
 				closeInstructionsWindow();
+			}
+			
+			private function sendToReview(_asnwers:Array,_title:String,_question:String):void{
+				LogUtil.debug(LOGNAME + "WHAT WE HAVE:");
+				LogUtil.debug(LOGNAME + "Title: "+_title);
+				LogUtil.debug(LOGNAME + "Question: "+_question);
+				LogUtil.debug(LOGNAME + "Answers: "+_answers);
+				if(_isMultiple)LogUtil.debug(LOGNAME + "Multiple answers allowed");
+			
 			}
 			
 			// DATA VALIDATION
@@ -135,51 +143,91 @@ Notes.mxml is the main view of the SharedNotes application
 			    }else 
 			        aErrMsg.visible=false;
 			   
-			    if(valid)
+			    if(valid){
 			    	StartPolling();
-			    
+			    	sendToReview(_answers,_title,_question);
+			    }
 			
 			
 			}
 			
 			// GENERATING ERROR MESSAGES
 			//################################
+			//TITLE VALIDATION
 			private function   titleError():String{
 			
 			   var errMsg:String = "VALID";
-			   var titlePattern:RegExp =  /^[a-zA-Z0-9_., ?\']*$/; // alpha comma, dot, space and some others are allowed in title
-		     
+
 			     if (pollTitle.length == 0 )
 			     		errMsg = "Please Provide a Title";
-			       else if(!titlePattern.test(pollTitle.text))
-			   		errMsg = "Title has forbidden characters";			
+			       else if(!allowedChars.test(pollTitle.text))
+			   		errMsg = "Title has forbidden characters";
+			   		else
+			   			_title = pollTitle.text;			
 			  return errMsg;
 			}
 			
+			//QUESTION VALIDATION
 			private function   questionError():String{
 			
 			   var errMsg:String = "VALID";
-			   var qPattern:RegExp =  /^[a-zA-Z0-9_., ?!\']*$/; // alpha comma, dot, space and some others are allowed in question
-		     
 			     if (pollQuestion.length == 0 )
 			     		errMsg = "Please Provide a Question";
-			       else if(!qPattern.test(pollQuestion.text))
-			   		errMsg = "Question field has forbidden characters";			
+			       else if(!allowedChars.test(pollQuestion.text))
+			   		errMsg = "Question field has forbidden characters";	
+			   	   else
+			   	   	_question=pollQuestion.text;			
 			  return errMsg;
 			}
 			
+			
+			
+			// ANSWER VALIDATION
 			private function   answerError():String{
 			
 			   var errMsg:String = "VALID";
-			   var aPattern:RegExp =  /^[a-zA-Z0-9_., ?!\'/]*$/; // alpha comma, dot, space and some others are allowed in alpha
+			   var startWithStar:RegExp = /^[*]/; // should start with *
+			   var answersArray:Array; 
+		     
+		     		answersArray = pollAnswers.text.split("\r*"); // splitting by '*' and new line, thus user can type '*' anywhere except the newline
+		     		answersArray[0] = answersArray[0].split('*').join(''); // As after split '*' is not displayed we need to  take off from first element which is not splitted
+		     		//LogUtil.debug("so last element of array is " +answersArray[answersArray.length-1]);
+			   	//LogUtil.debug("array length is: " + answersArray.length);	
 		     
 			     if (pollAnswers.length == 0 )
-			     		errMsg = "Please Provide at least 2 Answers";
-			       else if(!aPattern.test(pollAnswers.text))
-			   		errMsg = "Answer field has forbidden characters";			
-			  return errMsg;
+			     		errMsg = "Please provide at least 2 Answers";
+			       else if(!allowedChars.test(pollAnswers.text))
+			   		errMsg = "Answer field has forbidden characters";
+			   	 else if (!startWithStar.test(pollAnswers.text)){
+			   	 	errMsg = "Every asnwer should start with  a new line and '*' (e.g *Seneca)";
+			   	 	}
+			   	 	else if(answersArray.length < 2){
+			   	 	  errMsg = "Please provide at least 2 Answers start each with new line and *";
+			   	 	}else {
+			   	 	
+			   	 		// If user just put '*' without any answer we need to remove this element from array
+			   	  
+			   			 for (var i:int=0; i< answersArray.length; i++){
+			   	 			//	LogUtil.debug("inside array element [" +i+"] is " +answersArray[i]);
+			   	 		    if(i != 0 && (answersArray[i] == null || answersArray[i] == "")){
+			   	 								    	answersArray.splice(i,1);
+			   	 				  //  	LogUtil.debug("deleting element " + i + "because it is empty");
+			   	 		    }
+			   	 		}	
+			   	 		_answers = answersArray;
+			   	 		//TESTING TO BE DELETED WHEN WORKS
+			   	 		//LogUtil.debug("New length after deleting is:" + _answers.length);
+			   	 
+			   	 		for (var b:int=0; b< _answers.length; b++){
+			   	 		LogUtil.debug("global element [" +b+"] is " +_answers[b]);
+			   	 		}  	 		
+			   	 	}	
+			   	 				
+			  	return errMsg;
 			}
 		//#####################################################################################################	
+		
+			
 		]]>
 	</mx:Script>
 	<!-- Prorotype of Polling Instructions Design -->
@@ -192,21 +240,25 @@ Notes.mxml is the main view of the SharedNotes application
             
 	      <mx:FormItem fontWeight="bold"   label="Title :" paddingLeft="35" required="true" >
 		<mx:TextInput id="pollTitle" /> 
-		<mx:Label id="titleErrMsg"  text="" visible="false" width="100%" color="red" fontSize="9"/> 
+		<mx:Label id="titleErrMsg"  text="" visible="false" width="100%" color="red" fontSize="9" fontWeight="normal"/> 
 	      </mx:FormItem>
 		
 	      <mx:FormItem  fontWeight="bold" label="Question :" paddingLeft="35"  paddingTop="20"  >
 		<mx:TextArea id="pollQuestion" width="200" height="100" /> 
-		<mx:Label id="qErrMsg"  text="" visible="false" width="100%" color="red" fontSize="9"/> 
+		<mx:Label id="qErrMsg"  text="" visible="false" width="100%" color="red" fontSize="9" fontWeight="normal" /> 
 	     </mx:FormItem>
 	     
 	      <mx:FormItem  fontWeight="bold" label="Answers :" paddingLeft="35"  paddingTop="30"  >
 		<mx:TextArea id="pollAnswers" width="200" height="100" /> 
-		<mx:Label id="aErrMsg"  text="" visible="false" width="100%" color="red" fontSize="9"/> 
 	     </mx:FormItem>
 	     
+	     <mx:FormItem  fontWeight="bold"  paddingLeft="20"  paddingTop="5"  >
+	     	<mx:Label id="aErrMsg"  text="" visible="false" width="100%" color="red" fontSize="9" fontWeight="normal" /> 
+	     </mx:FormItem>
+	     
+	     
 	      <mx:FormItem  paddingLeft="10"  paddingTop="20" >
-	         <mx:CheckBox id="multiple_response" label="Allow users to choose more than one response" click="" />
+	         <mx:CheckBox id="multiple_response" label="Allow users to choose more than one response" click="isMultiple(1)" />
 	      </mx:FormItem>
 	   
 	 
