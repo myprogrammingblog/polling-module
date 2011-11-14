@@ -67,7 +67,10 @@ Notes.mxml is the main view of the SharedNotes application
 			[Bindable]private var _title:String;
 			[Bindable]private var _question:String;
 			[Bindable]private var _asnwers:ArrayCollection;
-			[Bindable]private var _isMultiple:uint;
+			[Bindable]private var _isMultiple:Boolean =false;
+			
+			
+			
 			
 			
 			// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
@@ -102,8 +105,12 @@ Notes.mxml is the main view of the SharedNotes application
 				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.CLOSE));				
 			}			
 			// function invoked when checkbox is checked
-			private function isMultiple(multiple:uint=0):void{
-				_isMultiple=multiple;
+			private function isMultiple():void{
+			
+			     if(multiple_response.selected == true)
+				    _isMultiple= true;
+			        else 	
+					_isMultiple= false;
 			}
 			
 				
@@ -121,13 +128,13 @@ Notes.mxml is the main view of the SharedNotes application
 				closeInstructionsWindow();
 			}
 			
-			
+	
 			private function reviewChanges():void{
 				LogUtil.debug(LOGNAME + "WHAT WE HAVE:");
 				LogUtil.debug(LOGNAME + "Title: "+_title);
 				LogUtil.debug(LOGNAME + "Question: "+_question);
 				LogUtil.debug(LOGNAME + "Answers: "+_asnwers);
-				//if(_isMultiple)LogUtil.debug(LOGNAME + "Multiple answers allowed");
+				if(_isMultiple) LogUtil.debug(LOGNAME + "Multiple answers allowed");
 				//dispatchEvent(new AcceptPollingInstructionsWindowEvent(AcceptPollingInstructionsWindowEvent.OPEN));
 				
 			
@@ -168,11 +175,9 @@ Notes.mxml is the main view of the SharedNotes application
 			        aErrMsg.visible=false;
 			   
 			    if(valid){
-			    	mainArea.selectedChild=review;
-			    	buttons.selectedChild=reviewButtons;
-			    	back.visible=true;
-			    	reviewChanges();
-
+			    
+			    formatAndReview();
+			    	
 			    }
 			
 			
@@ -282,6 +287,37 @@ Notes.mxml is the main view of the SharedNotes application
 		  back.visible=false;
 		}
 		
+		private function formatAndReview():void{
+		
+		
+			// Change maind window and buttons to Review
+			mainArea.selectedChild=review;
+			buttons.selectedChild=reviewButtons;
+			// Make Back button visible
+			back.visible=true;
+			//reviewChanges();
+			// if Multiple enabled than add check all that apply to string, or if it already added and user desided he don't want multiple than delete it
+			    	if(_isMultiple)
+			    		_question += "\n (check all that may apply)";
+			    	   
+			    	   else if(( !_isMultiple && _question.substr(_question.length-28,_question.length) == "\n (check all that may apply)" ))
+					           _question.slice(0,_question.length-28);
+			    	     
+			 // Make Title and Question  string  first letter Upper case
+			 
+			  _question = upperFirstLetter(_question);
+			  _title =   upperFirstLetter(_title);	           
+			    	     	
+			    	
+
+		
+		}
+		
+		private function upperFirstLetter(str:String) : String {
+		
+ 			return str.substr(0, 1).toUpperCase() + str.substr(1, str.length).toLowerCase();
+		}	
+		
 		
 			
 		]]>
@@ -319,7 +355,7 @@ Notes.mxml is the main view of the SharedNotes application
 	     		</mx:FormItem>
 	     
 	     		 <mx:FormItem  paddingLeft="10"  paddingTop="20" >
-	     		    <mx:CheckBox id="multiple_response" label="Allow users to choose more than one response" click="isMultiple(1)" />
+	     		    <mx:CheckBox id="multiple_response" label="Allow users to choose more than one response" click="isMultiple()" />
 	     		 </mx:FormItem>
 	   
 	   	  </mx:Form>   
@@ -335,23 +371,17 @@ Notes.mxml is the main view of the SharedNotes application
           		 	
           		 	
           		 	 <mx:VBox paddingLeft="40" paddingBottom="40">
-          		 			<mx:Text   text="{_question}" fontSize="10" fontWeight="normal"  paddingBottom="20" paddingTop="20"  width="{_MAX_QUESTION_LENGTH}"/> 
+          		 			<mx:Text   text="{_question}" fontSize="10" fontWeight="bold"  paddingBottom="20" paddingTop="20"  width="{_MAX_QUESTION_LENGTH}"/> 
           		 			
           		 			
-          		 		
-          		 		<mx:RadioButton groupName="options" 
-       						 id="americanExpress"
-       						 label="{ _asnwers.getItemAt(0)}"
-       						 width="150"
-       						 	
-        					
-                   							 />
-    					<mx:RadioButton groupName="options" 
-        					id="masterCard"
-        					label="{_asnwers.getItemAt(1)}" 
-        					width="150"	
-        							/>
-        	
+          		 		<mx:HBox>
+          		 			 <mx:RadioButton groupName="options"  id="a1" label="*" />
+       						 <mx:Text text="{ _asnwers.getItemAt(0)}" />	 
+       					</mx:HBox>
+       					<mx:HBox>	 
+    							<mx:RadioButton groupName="options" id="a2" label="*" />
+        						<mx:Text text="{ _asnwers.getItemAt(1)}" />		
+        				</mx:HBox>
           		 	</mx:VBox>
           		 	</mx:Panel> 
           		 	
