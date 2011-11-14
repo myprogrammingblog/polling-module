@@ -37,6 +37,9 @@ package org.bigbluebutton.modules.polling.service
 
 
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
+	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
+	
+	
 	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.common.IBbbModuleWindow;
@@ -64,6 +67,7 @@ package org.bigbluebutton.modules.polling.service
 		private var isConnected:Boolean = false;
 		
 		private var viewWindow:PollingViewWindow;
+		private var instructions:PollingInstructionsWindow;
 					
 	public function PollingService()
 		{
@@ -85,6 +89,7 @@ package org.bigbluebutton.modules.polling.service
 		/*###################################################*/
 		public function connect():void {
 			LogUtil.debug(LOGNAME + "inside connect ()  ");
+			
 			pollingSO = SharedObject.getRemote(SHARED_OBJECT, uri, false);
 	 		pollingSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			pollingSO.addEventListener(NetStatusEvent.NET_STATUS, handleResult);

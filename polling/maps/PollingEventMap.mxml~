@@ -72,11 +72,11 @@
 	<!--PollingAcceptInstructionsWindow Events -->
 	 
 	 <EventHandlers type="{AcceptPollingInstructionsWindowEvent.OPEN}">
-		<MethodInvoker generator="{PollingManager}"  method="handleOpenAcceptPollingInstructionsWindow" arguments="{event.title}"/>
+		<MethodInvoker generator="{PollingManager}"  method="handleOpenAcceptPollingInstructionsWindow" arguments="{event}"/>
 	 </EventHandlers>
 	 
 	  <EventHandlers type="{AcceptPollingInstructionsWindowEvent.CLOSE}">
-		<MethodInvoker generator="{PollingManager}"  method="handleCloseAcceptPollingInstructionsWindow" arguments="{event}"/>
+		<MethodInvoker generator="{PollingManager}"  method="handleCloseAcceptPollingInstructionsWindow" arguments="{event.title}"/>
 	 </EventHandlers>
 	
 	 <!-- Start Polling Event - Sharing Polling View Window -->	  
