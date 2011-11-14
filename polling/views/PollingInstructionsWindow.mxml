@@ -66,7 +66,7 @@ Notes.mxml is the main view of the SharedNotes application
 			// Bindable is set to allow data to change when You hit Back and change something, this change will appear in review
 			[Bindable]private var _title:String;
 			[Bindable]private var _question:String;
-			[Bindable]private var _asnwers:ArrayCollection;
+			[Bindable]private var _answers:ArrayCollection;
 			[Bindable]private var _isMultiple:Boolean =false;
 			
 			
@@ -79,6 +79,7 @@ Notes.mxml is the main view of the SharedNotes application
 			[Bindable]private var _MAX_TITLE_LENGTH:uint=50;
 			[Bindable]private var _MAX_ANSWER_LENGTH:uint = 100;
 			[Bindable]private var _MAX_ANSWERS_AMOUNT:uint = 10;
+			[Bindable]private var _ANSWER_CHARS_PER_LINE:uint=28; // made to avoid scrollbars (can be changed )
 			//################################################
 			
 			
@@ -133,7 +134,7 @@ Notes.mxml is the main view of the SharedNotes application
 				LogUtil.debug(LOGNAME + "WHAT WE HAVE:");
 				LogUtil.debug(LOGNAME + "Title: "+_title);
 				LogUtil.debug(LOGNAME + "Question: "+_question);
-				LogUtil.debug(LOGNAME + "Answers: "+_asnwers);
+				LogUtil.debug(LOGNAME + "Answers: "+_answers);
 				if(_isMultiple) LogUtil.debug(LOGNAME + "Multiple answers allowed");
 				//dispatchEvent(new AcceptPollingInstructionsWindowEvent(AcceptPollingInstructionsWindowEvent.OPEN));
 				
@@ -267,11 +268,11 @@ Notes.mxml is the main view of the SharedNotes application
 			   	 		    
 			   	 		}
 			   	 		 if(valid)	
-			   	 		 	_asnwers  = new ArrayCollection(answersArray);	
+			   	 		 	_answers  = new ArrayCollection(answersArray);	
 			   	 	
 			   	 		//TESTING TO BE DELETED WHEN WORKS
-			   	 		for (var b:int=0; b<  _asnwers.length; b++){
-			   	 		LogUtil.debug("global element [" +b+"] is " + _asnwers.getItemAt(b));
+			   	 		for (var b:int=0; b<  _answers.length; b++){
+			   	 		LogUtil.debug("global element [" +b+"] is " + _answers.getItemAt(b));
 			   	 		}  	 		
 			   	 	}	
 			   	 				
@@ -284,7 +285,8 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		public function goBack():void{
 
-		  back.visible=false;
+		  	back.visible=false;
+		  	options.selected=false;
 		}
 		
 		private function formatAndReview():void{
@@ -306,16 +308,16 @@ Notes.mxml is the main view of the SharedNotes application
 			 // Make Title and Question  string  first letter Upper case
 			 
 			  _question = upperFirstLetter(_question);
-			  _title =   upperFirstLetter(_title);	           
-			    	     	
+			  _title =   upperFirstLetter(_title);	    
+			    
+		 }	     	
 			    	
 
 		
-		}
 		
 		private function upperFirstLetter(str:String) : String {
 		
- 			return str.substr(0, 1).toUpperCase() + str.substr(1, str.length).toLowerCase();
+ 			return str.substr(0, 1).toUpperCase() + str.substr(1, str.length);
 		}	
 		
 		
@@ -376,11 +378,11 @@ Notes.mxml is the main view of the SharedNotes application
           		 			
           		 		<mx:HBox>
           		 			 <mx:RadioButton groupName="options"  id="a1" label="*" />
-       						 <mx:Text text="{ _asnwers.getItemAt(0)}" />	 
+       						 <mx:Text text="{ _answers.getItemAt(0)}" width="200" />	 
        					</mx:HBox>
        					<mx:HBox>	 
     							<mx:RadioButton groupName="options" id="a2" label="*" />
-        						<mx:Text text="{ _asnwers.getItemAt(1)}" />		
+        						<mx:Text text="{ _answers.getItemAt(1)}" width="200"/>		
         				</mx:HBox>
           		 	</mx:VBox>
           		 	</mx:Panel> 
