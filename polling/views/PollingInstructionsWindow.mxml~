@@ -30,11 +30,12 @@ Notes.mxml is the main view of the SharedNotes application
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	creationComplete="onCreationComplete()"
 	label="Create Poll" layout="absolute" 
-	title="Create Poll">
+	title="{_poll}">
 	
 	<!-- Pre Defined Validation -->
 	
-	
+	 
+
 	
 	
 	<mx:Script>
@@ -47,6 +48,9 @@ Notes.mxml is the main view of the SharedNotes application
 			import mx.validators.Validator;	
 			
 			import mx.collections.ArrayCollection;
+			import mx.core.IUIComponent;
+			import mx.controls.CheckBox;
+			import mx.controls.RadioButton;
 
 
 		
@@ -56,13 +60,14 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 			
 			
+			
 
 		
 			public static const LOGNAME:String = "[PollingInstructionsWindow] ";	
 			public var moduleAttributes:Object;
 			private var userName:String;
 			private var allowedChars:RegExp = /^[^;\\]*$/; // for security reasons some  characters are not allowed
-			
+			[Bindable] private var _poll:String = "Create Poll";
 			// Bindable is set to allow data to change when You hit Back and change something, this change will appear in review
 			[Bindable]private var _title:String;
 			[Bindable]private var _question:String;
@@ -172,12 +177,15 @@ Notes.mxml is the main view of the SharedNotes application
 			    if (aErrMsg.text != "VALID") {
 			    	aErrMsg.visible=true;
 			    	valid = false;	
+
 			    }else 
 			        aErrMsg.visible=false;
 			   
 			    if(valid){
-			    
+			    LogUtil.debug(LOGNAME + "passing to drawcheckboxes : "  + _answers.length + " " +_answers);	
 			    formatAndReview();
+			    _poll = "Poll Preview";
+			    
 			    	
 			    }
 			
@@ -186,7 +194,7 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			// GENERATING ERROR MESSAGES
 			//################################
-			//TITLE VALIDATION
+			//TITLE VALIDATION_cb.numChildren
 			private function   titleError():String{
 			
 			   var errMsg:String = "VALID";
@@ -284,44 +292,46 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		
 		public function goBack():void{
-
+			_poll = "Create Poll";
 		  	back.visible=false;
-		  	options.selected=false;
+		  	options.removeAllChildren();
+		  	
+		  	
+		  	 
+		  	 
+		  	
 		}
 		
 		private function formatAndReview():void{
-		
-		
+			
 			// Change maind window and buttons to Review
+			
 			mainArea.selectedChild=review;
 			buttons.selectedChild=reviewButtons;
+			//REFRESHING CANVAS
+			invalidateDisplayList();
+			validateNow(); 
 			// Make Back button visible
 			back.visible=true;
-			//reviewChanges();
+			
 			// if Multiple enabled than add check all that apply to string, or if it already added and user desided he don't want multiple than delete it
-			    	if(_isMultiple)
+			    	if(_isMultiple){
 			    		_question += "\n (check all that may apply)";
-			    	   
+			    	   }
 			    	   else if(( !_isMultiple && _question.substr(_question.length-28,_question.length) == "\n (check all that may apply)" ))
 					           _question.slice(0,_question.length-28);
 			    	     
 			 // Make Title and Question  string  first letter Upper case
-			 
-			  _question = upperFirstLetter(_question);
 			  _title =   upperFirstLetter(_title);	    
+			  _question = upperFirstLetter(_question);
+			  createButtons(_answers.length,_answers);
+			   
 			  
 			  
-			  // Every answer if it s longer than 28 chars,  new line should be added to the nearest space before 28ts char so answers could look in PreView nice and smooth       
 			  
-			    
-			    }	     	
+		 }	     	
 			    	
 
-		
-		
-		
-		
-		
 		
 		
 		private function upperFirstLetter(str:String) : String {
@@ -330,9 +340,59 @@ Notes.mxml is the main view of the SharedNotes application
 		}	
 		
 		
+		// function receives Array.length and ArrayCollection
+		private function createButtons(amount:uint, content:ArrayCollection):void{
+		
+			
+			 var _cb:CheckBox;
+			 var _rb:RadioButton;
+			 var _tx: Text;
+			 var _hb: HBox; 
+			
+			 // creating buttons one by one
+			   for (var i:int = 0; i < amount; i++) {
+					
+				_tx = new Text();
+				_hb = new HBox();
+				_tx.name = "option" +i;
+				_tx.width = 200;
+				 // assigning array element to text field
+				 _tx.text =content.getItemAt(i).toString(); 
+				 options.addChild(_hb);
+				 
+				 // if global var _isMultiple is true it means user wants checkboxes, 
+				 //otherwise radiobutton (if multiple choices are allowed)
+					if(_isMultiple){
+				
+				 	   _cb= new CheckBox();
+				 	   // giving button a name of array elelment to process it easier later
+				    	   _cb.name=content.getItemAt(i).toString(); 
+				    	    // gap between the buttons
+ 				    	   _cb.y=i*20;
+ 				    	   // adding buttons to the Horizontal Box
+ 				    	   _hb.addChild(_cb); 
+ 				    
+				 		 }else{
+				  
+				 	     	    _rb = new RadioButton();
+				 	              _rb.name = content.getItemAt(i).toString(); // giving button a name of array elelment to process it easier later
+				 	              _rb.groupName = "answers";
+				 	              _rb.label ="*";	// Label "*" to make 
+				 	              _hb.addChild(_rb);
+				     
+				     
+				 		 }    
+				 		_hb.addChild(_tx); // adding text near button
+				 
+    			   		
+				 } // end of loop
+		
+			} // end of function
+
 			
 		]]>
 	</mx:Script>
+	
 
           
         
@@ -373,6 +433,7 @@ Notes.mxml is the main view of the SharedNotes application
 	  	</mx:VBox>
 	    </mx:Canvas>
 	    
+	    
 	     <!-- Review Window that is invoked when Next button is clicked -->
 	    <mx:Canvas id="review">
           		 <mx:VBox width="90%" height="90%"  paddingLeft="40">
@@ -382,17 +443,14 @@ Notes.mxml is the main view of the SharedNotes application
           		 	
           		 	
           		 	 <mx:VBox paddingLeft="40" paddingBottom="40">
-          		 			<mx:Text   text="{_question}" fontSize="10" fontWeight="bold"  paddingBottom="20" paddingTop="20"  width="{_MAX_QUESTION_LENGTH}"/> 
-          		 			
-          		 			
-          		 		<mx:HBox>
-          		 			 <mx:RadioButton groupName="options"  id="a1" label="*" />
-       						 <mx:Text text="{ _answers.getItemAt(0)}" width="200" />	 
-       					</mx:HBox>
-       					<mx:HBox>	 
-    							<mx:RadioButton groupName="options" id="a2" label="*" />
-        						<mx:Text text="{ _answers.getItemAt(1)}" width="200"/>		
-        				</mx:HBox>
+          		 			<mx:Text   text="{_question}" fontSize="10" fontWeight="bold"  paddingBottom="20" paddingTop="20"  width="{_MAX_QUESTION_LENGTH}"/>
+          		 		
+						
+          		 		 	<mx:Box id="options" >
+          					</mx:Box>
+          					
+          					
+   						
           		 	</mx:VBox>
           		 	</mx:Panel> 
           		 	
@@ -426,8 +484,7 @@ Notes.mxml is the main view of the SharedNotes application
 		    <!-- Cancel button appear everywhere -->
 		    <mx:Button id="Cancel" label="Cancel" click="closeInstructionsWindow()"  width="100" height="30"/>
 		    
-		   
-		   
+		
 		</mx:HBox>	 
 	   </mx:ControlBar> 
 
