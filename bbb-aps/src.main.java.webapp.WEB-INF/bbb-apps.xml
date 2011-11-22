@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+			http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			">
+	
+	<bean id="roomsManager" class="org.bigbluebutton.conference.RoomsManager">
+		<property name="messagingService" ref="messagingService"></property>
+		<property name="conversionUpdatesMessageListener" ref="conversionUpdatesMessageListener"></property>
+	</bean>
+			
+	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
+		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
+	</bean>
+	
+	<bean id="participantsApplication" 
+	    class="org.bigbluebutton.conference.service.participants.ParticipantsApplication">
+		<property name="roomsManager"> <ref local="roomsManager"/></property>
+	</bean>
+	
+	<bean id="participants.service" class="org.bigbluebutton.conference.service.participants.ParticipantsService">
+		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+	</bean>
+	
+	<!-- BEGIN PRESENTATION -->	
+	<bean id="presentationRoomsManager" class="org.bigbluebutton.conference.service.presentation.PresentationRoomsManager"/>
+			
+	<bean id="presentationHandler" class="org.bigbluebutton.conference.service.presentation.PresentationHandler">
+		<property name="presentationApplication"> 
+			<ref local="presentationApplication"/>
+		</property>
+		<property name="recorderApplication"> 
+			<ref local="recorderApplication"/>
+		</property>
+		<property name="conversionUpdatesMessageListener"> 
+			<ref local="conversionUpdatesMessageListener" />
+		</property>
+	</bean>
+	
+	<bean id="presentationApplication" class="org.bigbluebutton.conference.service.presentation.PresentationApplication">
+		<property name="roomsManager"> 
+			<ref local="presentationRoomsManager"/>
+		</property>
+	</bean>
+	
+	<bean id="presentation.service" class="org.bigbluebutton.conference.service.presentation.PresentationService">
+		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
+		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
+	</bean>
+
+	<bean id="conversionUpdatesProcessor" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesProcessor">
+		<property name="presentationApplication"> <ref local="presentationApplication"/></property>
+	</bean>
+
+	<bean id="conversionUpdatesMessageListener" class="org.bigbluebutton.conference.service.presentation.ConversionUpdatesMessageListener">
+		<property name="conversionUpdatesProcessor" ref="conversionUpdatesProcessor" />
+	</bean>
+
+  	<!-- END PRESENTATION -->
+  	
+  	<!-- BEGIN CHAT -->
+  	<bean id="chatHandler" class="org.bigbluebutton.conference.service.chat.ChatHandler">
+		<property name="chatApplication"> <ref local="chatApplication"/></property>
+		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
+	</bean>
+	
+	<bean id="chatApplication" 
+	    class="org.bigbluebutton.conference.service.chat.ChatApplication">
+		<property name="roomsManager"> <ref local="chatRoomsManager"/></property>
+	</bean>
+	
+	<bean id="chat.service" class="org.bigbluebutton.conference.service.chat.ChatService">
+		<property name="chatApplication"> <ref local="chatApplication"/></property>
+	</bean>
+	
+	<bean id="chatRoomsManager" class="org.bigbluebutton.conference.service.chat.ChatRoomsManager"/>
+	<!-- END CHAT -->
+	
+	<!-- WHITEBOARD -->
+	<bean id="whiteboardApplication" 
+	    class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
+	    <property name="roomManager"> <ref local="whiteboardRoomManager"/></property>
+	    <property name="recorderApplication"> <ref local="recorderApplication"/></property>
+	</bean>
+	
+	<bean id="whiteboard.service" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardService">
+		<property name="whiteboardApplication"> <ref local="whiteboardApplication"/></property>
+	</bean>
+	
+	<bean id="whiteboardRoomManager" class="org.bigbluebutton.conference.service.whiteboard.WhiteboardRoomManager"/>
+	<!-- END WHITEBOARD -->
+	
+	<!-- RECORDER AND MESSAGING -->
+	
+	<bean id="recorderApplication" class="org.bigbluebutton.conference.service.recorder.RecorderApplication">
+		<property name="recorder"><ref local="redisRecorder" /> </property>
+	</bean>
+	
+	<bean id="redisRecorder" class="org.bigbluebutton.conference.service.recorder.RedisDispatcher">
+        <property name="redisPool"><ref local="redisPool" /> </property>
+    </bean>
+	
+    <bean id="messagingService" class="org.bigbluebutton.conference.service.messaging.RedisMessagingService">
+    	<constructor-arg index="0" value="${redis.host}"/>
+    	<constructor-arg index="1" value="${redis.port}"/>
+    	<property name="redisPool" ref="redisPool"/>
+  	</bean>
+    
+    <bean id="redisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg index="0" value="${redis.host}"/>
+        <constructor-arg index="1" value="${redis.port}"/>
+    </bean>
+	
+   <!-- Polling  -->	
+        <bean id="poll.service" class="org.bigbluebutton.conference.service.polling.PollService">
+		<property name="pollApplication"> <ref local="pollApplication"/></property>
+	</bean>
+	
+	<bean id="pollApplication" 
+	    class="org.bigbluebutton.conference.service.chat.PollApplication">
+	</bean>
+		
+    
+    <!-- END RECORDER AND MESSAGING -->
+    
+</beans>
