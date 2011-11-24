@@ -16,44 +16,24 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-
-package org.bigbluebutton.modules.polling.business
+package org.bigbluebutton.modules.polling.events
 {
-	import com.asfusion.mate.events.Dispatcher;
-	
-	import flash.events.AsyncErrorEvent;
-	import flash.events.IOErrorEvent;
-	import flash.events.NetStatusEvent;
-	import flash.events.SecurityErrorEvent;
-	import flash.net.NetConnection;
-	import flash.net.NetStream;
-	import flash.system.Capabilities;
-	
+	import flash.events.Event;
 	import mx.collections.ArrayCollection;
 	
-	
-
-	
-	public class PollingProxy
-	{	
-		private var nc:NetConnection;
-		private var dispatcher:Dispatcher;
+	public class SavePollEvent extends Event
+	{
+		public static const SAVE:String = "SAVE POLL";
+		public var question  : String;
+		//public var answers : ArrayCollection;
+		public var answers : Array;
+		public  var isMultiple : Boolean;
+		public var title :String;
 		
-		public function PollingProxy(url:String){
-
-		nc = new NetConnection();
-			nc.client = this;
-			nc.connect(url);
+		public function SavePollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+		{
+			super(type, bubbles, cancelable);
 		}
-		
-		
-	   	public function get connection():NetConnection{
-			return this.nc;
-		}
-	   public function disconnect():void {
-			if (nc != null) nc.close();
-		}
-	
 		
 	}
 }

@@ -16,10 +16,12 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-package org.bigbluebutton.conference.service.polling;
+package org.bigbluebutton.conference.service.poll;
 
-import org.bigbluebutton.conference.service.polling.PollApplication;
+import org.bigbluebutton.conference.service.poll.PollApplication;
 import java.util.ArrayList;
+import java.util.Arrays;
+
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,22 +30,29 @@ import org.red5.server.api.so.ISharedObject;
 
 import org.red5.server.api.Red5;
 
+import org.red5.compatibility.flex.messaging.io.ArrayCollection;
+
+
+
 public class PollService {
 	
-	private static Logger log = Red5LoggerFactory.getLogger( PollingService.class, "bigbluebutton" );
+	private static Logger log = Red5LoggerFactory.getLogger( PollService.class, "bigbluebutton" );
 	
 	private PollApplication application;
-
+	private String LOGNAME = "[PollService]";
 	
 	
-	public void savePoll(String[] answers, String question , String title , Boolean isMultiple ) {
+	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple ) {
 	
-	        log.debug("pollService received answers: "+answers+ " Question: "+question+ " Title: " + title+"" + " isMultiple ? " +isMultiple);
+		
+		log.debug(LOGNAME + " answers is empty ?" + answers.isEmpty());
+	        log.debug(LOGNAME + "pollService received answer 1   "+ answers+   "   Question: "+question+ " Title: " + title+"" + " isMultiple ? " +isMultiple);
 		String roomName = Red5.getConnectionLocal().getScope().getName();
 		application.savePoll(answers,question,title,isMultiple, roomName);
 	}
+	
 	public void setPollApplication(PollApplication a) {
-		log.debug("Setting Poll Applications");
+		log.debug(LOGNAME + "Setting Poll Applications");
 		application = a;
 	}
 	

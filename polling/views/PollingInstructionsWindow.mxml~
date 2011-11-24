@@ -51,18 +51,18 @@ Notes.mxml is the main view of the SharedNotes application
 			import mx.core.IUIComponent;
 			import mx.controls.CheckBox;
 			import mx.controls.RadioButton;
-
+			import org.bigbluebutton.modules.polling.events.SavePollEvent;
 
 		
-			//EVENTS
 			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent; 
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 			
-			
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			
 
-		
+			
+			
 			public static const LOGNAME:String = "[PollingInstructionsWindow] ";	
 			public var moduleAttributes:Object;
 			private var userName:String;
@@ -73,9 +73,10 @@ Notes.mxml is the main view of the SharedNotes application
 			[Bindable]private var _question:String;
 			[Bindable]private var _answers:ArrayCollection;
 			[Bindable]private var _isMultiple:Boolean =false;
+			private var _answersArray:Array;
 			
 			
-			
+			private var manager:PollingManager = new PollingManager();
 			
 			
 			// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
@@ -85,7 +86,7 @@ Notes.mxml is the main view of the SharedNotes application
 			[Bindable]private var _MAX_ANSWER_LENGTH:uint = 100;
 			[Bindable]private var _MAX_ANSWERS_AMOUNT:uint = 10;
 			[Bindable]private var _ANSWER_CHARS_PER_LINE:uint=28; // made to avoid scrollbars (can be changed )
-			//################################################
+			//###############################################
 			
 			
 			public function getPrefferedPosition():String{
@@ -128,13 +129,16 @@ Notes.mxml is the main view of the SharedNotes application
 			}
 			
 
-			private function StartPolling():void {
+			/*private function StartPolling():void {
 				LogUtil.debug(LOGNAME + "inside  StartPolling calling StartPollingEvent ");		
 				dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
 				closeInstructionsWindow();
 			}
+			*/
 			
-	
+			
+			
+	//TESTING 
 			private function reviewChanges():void{
 				LogUtil.debug(LOGNAME + "WHAT WE HAVE:");
 				LogUtil.debug(LOGNAME + "Title: "+_title);
@@ -145,6 +149,7 @@ Notes.mxml is the main view of the SharedNotes application
 				
 			
 			}
+	 // END TESTING		
 			
 			// DATA VALIDATION
 			//##################################################################################
@@ -277,6 +282,7 @@ Notes.mxml is the main view of the SharedNotes application
 			   	 		}
 			   	 		 if(valid)	
 			   	 		 	_answers  = new ArrayCollection(answersArray);	
+			   	 		 	_answersArray= answersArray;
 			   	 	
 			   	 		//TESTING TO BE DELETED WHEN WORKS
 			   	 		for (var b:int=0; b<  _answers.length; b++){
@@ -377,7 +383,7 @@ Notes.mxml is the main view of the SharedNotes application
 				 	     	    _rb = new RadioButton();
 				 	              _rb.name = content.getItemAt(i).toString(); // giving button a name of array elelment to process it easier later
 				 	              _rb.groupName = "answers";
-				 	              _rb.label ="*";	// Label "*" to make 
+				 	              _rb.label ="*";	
 				 	              _hb.addChild(_rb);
 				     
 				     
@@ -389,6 +395,21 @@ Notes.mxml is the main view of the SharedNotes application
 		
 			} // end of function
 
+			private function savePoll():void {
+				LogUtil.debug(LOGNAME + "inside  savePoll calling service method savePoll() ");		
+				//manager.savePoll(_answers, _question, _title, _isMultiple);
+				
+				var savePollEvent: SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
+				
+				//savePollEvent.answers = _answers;
+				savePollEvent.answers = _answersArray;
+				savePollEvent.question = _question;
+				savePollEvent.title = _title;
+				savePollEvent.isMultiple = _isMultiple;
+				dispatchEvent(savePollEvent);
+				
+				closeInstructionsWindow();
+			}
 			
 		]]>
 	</mx:Script>
@@ -419,6 +440,7 @@ Notes.mxml is the main view of the SharedNotes application
 	     
 	      		<mx:FormItem  fontWeight="bold" label="Answers :" paddingLeft="35"  paddingTop="30"  >
 				<mx:TextArea id="pollAnswers" width="200" height="100" /> 
+				<mx:Label id="answerHint"  text="Hint: Start every answer with a new line" visible="true" width="100%"  fontSize="9" fontWeight="normal" /> 
 	    		</mx:FormItem>
 	     
 	     		<mx:FormItem  fontWeight="bold"  paddingLeft="20"  paddingTop="5"  >
@@ -478,7 +500,7 @@ Notes.mxml is the main view of the SharedNotes application
 		   </mx:Canvas>
 		   <!-- buttons that appear on Review  -->
 		   <mx:Canvas id="reviewButtons">
-			<mx:Button id="SavePoll" label="SavePoll" click="StartPolling()"  width="100" height="30"/>
+			<mx:Button id="SavePoll" label="SavePoll" click="savePoll()"  width="100" height="30"/>
 		   </mx:Canvas>	
 		   </mx:ViewStack>
 		    <!-- Cancel button appear everywhere -->

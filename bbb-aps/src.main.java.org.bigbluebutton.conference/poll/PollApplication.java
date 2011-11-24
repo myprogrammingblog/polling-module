@@ -17,12 +17,14 @@
 * 
 */
 
-package org.bigbluebutton.conference.service.polling;
+package org.bigbluebutton.conference.service.poll;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.compatibility.flex.messaging.io.ArrayCollection;   
 
 import java.util.Map;
+import java.util.Arrays;
 import org.bigbluebutton.conference.RoomsManager;
 import org.bigbluebutton.conference.Room;
 import org.bigbluebutton.conference.Participant;
@@ -34,6 +36,7 @@ public class PollApplication {
 	private static Logger log = Red5LoggerFactory.getLogger( PollApplication.class, "bigbluebutton" );
 
 	private RoomsManager roomsManager;
+	private String LOGNAME = "[PollApplication]";
 	
 	public boolean createRoom(String name) {
 		if(!roomsManager.hasRoom(name)){
@@ -71,8 +74,8 @@ public class PollApplication {
 		return false;
 	}
 	
-	public void savePoll(String[] answers, String question , String title , Boolean isMultiple, String room ) {	
-	  log.info("[POLL] Received answers " + answers);
+	public void savePoll(ArrayCollection answers, String question , String title , Boolean isMultiple, String room ) {	
+	  log.info(LOGNAME + " Received answers " + answers + " compile testing On/OFF red 5 server, for tomorrows development ");
 	}
 }	
 	

@@ -16,10 +16,18 @@
 * with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
 * 
 */
-
-package org.bigbluebutton.conference.service.chat;
-
-public interface IChatRoomListener {
-	public String getName();
-	public void newChatMessage(String message);
+package org.bigbluebutton.modules.polling.events
+{
+	import flash.events.Event;
+	
+	public class SavePoll extends Event
+	{
+		public static const SAVE:String = "SAVE POLL";
+		
+		public function SavePollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+		{
+			super(type, bubbles, cancelable);
+		}
+		
+	}
 }

@@ -34,6 +34,7 @@
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.modules.polling.events.SavePollEvent;
 			
 				]]>
 				
@@ -72,11 +73,11 @@
 	<!--PollingAcceptInstructionsWindow Events -->
 	 
 	 <EventHandlers type="{AcceptPollingInstructionsWindowEvent.OPEN}">
-		<MethodInvoker generator="{PollingManager}"  method="handleOpenAcceptPollingInstructionsWindow" arguments="{event}"/>
+		<MethodInvoker generator="{PollingManager}"  method="handleOpenAcceptPollingInstructionsWindow" arguments="{event.title}"/>
 	 </EventHandlers>
 	 
 	  <EventHandlers type="{AcceptPollingInstructionsWindowEvent.CLOSE}">
-		<MethodInvoker generator="{PollingManager}"  method="handleCloseAcceptPollingInstructionsWindow" arguments="{event.title}"/>
+		<MethodInvoker generator="{PollingManager}"  method="handleCloseAcceptPollingInstructionsWindow" arguments="{event}"/>
 	 </EventHandlers>
 	
 	 <!-- Start Polling Event - Sharing Polling View Window -->	  
@@ -91,6 +92,10 @@
 	
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
 		<MethodInvoker generator="{PollingManager}" method="handleMadeViewerEvent" arguments="{event}"/>
+	</EventHandlers>	
+	<!-- Event to save Poll to db -->
+	 <EventHandlers type="{SavePollEvent.SAVE}">
+		<MethodInvoker generator="{PollingManager}" method="handleSavePollEvent" arguments="{event.answers,event.title,event.question,event.isMultiple}"/>
 	</EventHandlers>	
 	
 	

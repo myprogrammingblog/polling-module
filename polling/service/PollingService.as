@@ -26,6 +26,8 @@ package org.bigbluebutton.modules.polling.service
 
 	import flash.net.NetConnection;
 	import flash.net.SharedObject;
+	import flash.net.Responder;
+	import mx.collections.ArrayCollection;
     
 	
 	import mx.controls.Alert;
@@ -44,8 +46,6 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 
-
-				
 	public class PollingService
 	{	
 		public static const LOGNAME:String = "[PollingService] ";
@@ -80,6 +80,7 @@ package org.bigbluebutton.modules.polling.service
 			
 			this.module = module;
 			nc = module.connection
+			LogUtil.debug(LOGNAME + "Connection in constructor: " + nc);
 			uri = module.uri;
 			connect();
 		}
@@ -89,13 +90,14 @@ package org.bigbluebutton.modules.polling.service
 		/*###################################################*/
 		public function connect():void {
 			LogUtil.debug(LOGNAME + "inside connect ()  ");
-			
 			pollingSO = SharedObject.getRemote(SHARED_OBJECT, uri, false);
 	 		pollingSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			pollingSO.addEventListener(NetStatusEvent.NET_STATUS, handleResult);
 				pollingSO.client = this;
 				pollingSO.connect(nc); 	
-			LogUtil.debug(LOGNAME + "shared object pollingSO connected via uri: "+uri);    
+			LogUtil.debug(LOGNAME + "shared object pollingSO connected via uri: "+uri);   
+			LogUtil.debug(LOGNAME + "Connection in connect(): " + nc); 
+			LogUtil.debug(LOGNAME + " getConnection " +getConnection());
 		}
 		
 			public function getConnection():NetConnection{
@@ -174,10 +176,37 @@ package org.bigbluebutton.modules.polling.service
 		
 		private function sharedObjectSyncHandler(e:SyncEvent) : void
 		{	
-		
-			LogUtil.debug(LOGNAME+"Shared object is connected");
-			
+			LogUtil.debug(LOGNAME+"Shared object is connected");	
 		}
+		
+		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean ):void
+		{
+		  
+		   
+		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call answers: " + answers + " question: " +question + " title: " +title+ " Connection: " + nc);
+			nc.call(
+				"poll.savePoll",// Remote function name
+				new Responder(
+					function(result:Object):void { 
+						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
+					},	
+					function(status:Object):void { 
+						LogUtil.error(LOGNAME + "Error occurred sending info to server"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),//new Responder
+				answers,
+				question,
+				title,
+				isMultiple
+			); //_netConnection.call
+			
+			LogUtil.debug(LOGNAME + " After Connection");
+		}
+		  
+			
 	   
 	}
 }
