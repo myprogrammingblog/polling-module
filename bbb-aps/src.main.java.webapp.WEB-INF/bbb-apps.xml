@@ -113,9 +113,15 @@
         <constructor-arg index="1" value="${redis.port}"/>
     </bean>
 	
-   <!-- Polling  -->	
+   <!-- START Polling  -->
+   	<bean id="pollHandler" class="org.bigbluebutton.conference.service.poll.PollHandler">
+		<property name="pollApplication"> <ref local="pollApplication"/></property>
+		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
+	</bean>
+   	
    	<bean id="pollApplication" 
 	    class="org.bigbluebutton.conference.service.poll.PollApplication">
+		<property name="roomsManager"> <ref local="pollRoomsManager"/></property>
 	</bean>
    
         <bean id="poll.service" class="org.bigbluebutton.conference.service.poll.PollService">
@@ -123,8 +129,8 @@
 	</bean>
 	
 	
-		
-    
+	<bean id="pollRoomsManager" class="org.bigbluebutton.conference.service.poll.PollRoomsManager" />
+
     <!-- END RECORDER AND MESSAGING -->
     
 </beans>

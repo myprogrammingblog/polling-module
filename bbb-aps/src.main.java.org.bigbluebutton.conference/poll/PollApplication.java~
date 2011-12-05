@@ -19,54 +19,48 @@
 
 package org.bigbluebutton.conference.service.poll;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.compatibility.flex.messaging.io.ArrayCollection;   
 
-import java.util.Map;
-import java.util.Arrays;
-import org.bigbluebutton.conference.RoomsManager;
-import org.bigbluebutton.conference.Room;
-import org.bigbluebutton.conference.Participant;
-import org.bigbluebutton.conference.IRoomListener;
+import org.bigbluebutton.conference.service.poll.PollRoomsManager;
+import org.bigbluebutton.conference.service.poll.PollRoom;
+import org.bigbluebutton.conference.service.poll.IPollRoomListener;
 
 
 public class PollApplication {
 
-	private static Logger log = Red5LoggerFactory.getLogger( PollApplication.class, "bigbluebutton" );
-
-	private RoomsManager roomsManager;
-	private String LOGNAME = "[PollApplication]";
+	private static Logger log = Red5LoggerFactory.getLogger( PollApplication.class, "bigbluebutton" );	
+		
+	private static final String APP = "Poll";
+	private PollRoomsManager roomsManager;
+	public PollHandler handler;
 	
 	public boolean createRoom(String name) {
-		if(!roomsManager.hasRoom(name)){
-			log.info("Creating room " + name);
-			roomsManager.addRoom(new Room(name));
-			return true;
-		}
-		return false;
+		log.debug("[TEST]Inside createRoom ");
+		roomsManager.addRoom(new PollRoom(name));
+		return true;
 	}
 	
 	public boolean destroyRoom(String name) {
+	
 		if (roomsManager.hasRoom(name)) {
-			log.info("Destroying room " + name);
 			roomsManager.removeRoom(name);
-		} else {
-			log.warn("Destroying non-existing room " + name);
 		}
 		return true;
 	}
 	
-	public void destroyAllRooms() {
-		roomsManager.destroyAllRooms();
-	}
-	
 	public boolean hasRoom(String name) {
+	
+	
 		return roomsManager.hasRoom(name);
 	}
 	
-	public boolean addRoomListener(String room, IRoomListener listener) {
+	public boolean addRoomListener(String room, IPollRoomListener listener) {
 		if (roomsManager.hasRoom(room)){
+		
+			
 			roomsManager.addRoomListener(room, listener);
 			return true;
 		}
@@ -74,8 +68,16 @@ public class PollApplication {
 		return false;
 	}
 	
-	public void savePoll(Arrays answers, String question , String title , Boolean isMultiple, String room ) {	
-	  log.info("[poll] Received answers " + answers + " compile testing On/OFF red 5 server, for tomorrows development ");
+	public void setRoomsManager(PollRoomsManager r) {
+		log.debug("Setting room manager");
+		roomsManager = r;
 	}
-}	
+	
+	public void savePoll(Poll poll ) {
+		log.debug("[TEST] Step 4 inside  savePoll of PollApplication.java sending poll to roomsManager");	
+		roomsManager.savePoll(poll);
+	}
+	
+}
+
 	

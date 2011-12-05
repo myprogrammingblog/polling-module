@@ -19,6 +19,7 @@
 package org.bigbluebutton.conference.service.poll;
 
 import org.bigbluebutton.conference.service.poll.PollApplication;
+import org.bigbluebutton.conference.service.poll.Poll;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -30,7 +31,6 @@ import org.red5.server.api.so.ISharedObject;
 
 import org.red5.server.api.Red5;
 
-import org.red5.compatibility.flex.messaging.io.ArrayCollection;
 
 
 
@@ -40,15 +40,17 @@ public class PollService {
 	
 	private PollApplication application;
 	private String LOGNAME = "[PollService]";
+	private Poll poll;
 	
 	
 	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple ) {
 	
 		
-		log.debug(LOGNAME + " answers is empty ?" + answers.isEmpty());
-	        log.debug(LOGNAME + "pollService received answer 1   "+ answers+   "   Question: "+question+ " Title: " + title+"" + " isMultiple ? " +isMultiple);
+	        log.debug(LOGNAME + "[TEST ]Step 1 : pollService received info: title:"+title+ " answers:"+ answers.toString()+   " Question: "+question+ " isMultiple ? " +isMultiple.toString());
 		String roomName = Red5.getConnectionLocal().getScope().getName();
-		application.savePoll(answers,question,title,isMultiple, roomName);
+	         poll = new Poll(title,question,answers,isMultiple,roomName);
+	         log.debug(LOGNAME + "[TEST ] Step 3 :  Sending Poll object to PollApplication");
+		 application.savePoll(poll);
 	}
 	
 	public void setPollApplication(PollApplication a) {
