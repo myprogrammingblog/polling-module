@@ -26,20 +26,24 @@ import net.jcip.annotations.ThreadSafe;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 @ThreadSafe
 public class Poll{
 
 	private static Logger log = Red5LoggerFactory.getLogger( Poll.class, "bigbluebutton" );
-	private String LOGNAME = "[PollApplication]";
+	private String LOGNAME = "[Poll]";
 	public final String title;
 	public final String room;
 	public final Boolean isMultiple;
 	public final String question;
 	public ArrayList <String> answers;
-
+	public Map <String, Integer> answersCount;
+	
+	@SuppressWarnings("unchecked")
 	public Poll( String title , String question , ArrayList answers, Boolean isMultiple, String room){
 		log.debug(LOGNAME + "[TEST ] Step 2 :  Poll.java encapsulated received info into object");
 		this.question = question;
@@ -47,11 +51,25 @@ public class Poll{
 		this.isMultiple = isMultiple;
 		this.answers = answers;
 		this.room = room;
+		structureAnswersCount ();
 	}
 
 	public String getRoom() {
 		return room;
 	}
 
+	/**
+	 *  Function that creates a HashMap of answer-integer. Integers that will be incremented as soon as vote starts, thus statistics will be counted
+	 **/
+	public void structureAnswersCount (){
+		answersCount = new HashMap<String, Integer>();
+		String _answers;
+		for(int i=0; i<answers.size(); i++){
+			log.debug(LOGNAME + "[TEST 2] _answers :" + answers.get(i));
+			answersCount.put(answers.get(i).toString(), 0);
+			log.debug(LOGNAME + "[TEST 2] add to answer count  :"+ answersCount.entrySet());
+		}
+			
+	}
 
 }

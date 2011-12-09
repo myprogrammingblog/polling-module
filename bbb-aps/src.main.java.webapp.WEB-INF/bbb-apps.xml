@@ -118,19 +118,17 @@
 		<property name="pollApplication"> <ref local="pollApplication"/></property>
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
 	</bean>
-   	
-   	<bean id="pollApplication" 
+	
+	<bean id="pollApplication" 
 	    class="org.bigbluebutton.conference.service.poll.PollApplication">
 		<property name="roomsManager"> <ref local="pollRoomsManager"/></property>
 	</bean>
-   
-        <bean id="poll.service" class="org.bigbluebutton.conference.service.poll.PollService">
+	
+	<bean id="poll.service" class="org.bigbluebutton.conference.service.poll.PollService">
 		<property name="pollApplication"> <ref local="pollApplication"/></property>
 	</bean>
 	
-	
-	<bean id="pollRoomsManager" class="org.bigbluebutton.conference.service.poll.PollRoomsManager" />
-
+	<bean id="pollRoomsManager" class="org.bigbluebutton.conference.service.poll.PollRoomsManager"/>
     <!-- END RECORDER AND MESSAGING -->
     
 </beans>

@@ -111,15 +111,16 @@ public class PollHandler extends ApplicationAdapter implements IApplication{
 
 	@Override
 	public boolean roomStart(IScope scope) {
-		log.debug(APP + "roomStart " + scope.getName());
+		log.debug(APP + " roomStart " + scope.getName());
 		pollApplication.createRoom(scope.getName());
     	//if (!hasSharedObject(scope, CHAT_SO)) {
     	//	if (createSharedObject(scope, CHAT_SO, false)) {    			
     	//		return true; 			
     	//	}    		
     	//}  	
-		log.error("Failed to start room " + scope.getName());
-    	return false;
+		//log.error("Failed to start room " + scope.getName());
+		log.debug(APP + " inside roomStart startin room");
+    	return true;
 	}
 
 	@Override
@@ -132,7 +133,7 @@ public class PollHandler extends ApplicationAdapter implements IApplication{
 	
 	
 	public void setPollApplication(PollApplication a) {
-		log.debug(APP + " Setting poll application");
+		log.debug("Setting chat application");
 		pollApplication = a;
 		pollApplication.handler = this;
 	}

@@ -74,7 +74,7 @@ public class PollApplication {
 		roomsManager = r;
 	}
 	
-	public void savePoll(Poll poll ) {
+	public void savePoll(Poll poll) {
 		log.debug("[TEST] Step 4 inside  savePoll of PollApplication.java sending poll to roomsManager");	
 		roomsManager.savePoll(poll);
 	}

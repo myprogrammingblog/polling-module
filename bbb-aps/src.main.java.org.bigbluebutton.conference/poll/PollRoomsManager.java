@@ -41,10 +41,11 @@ public class PollRoomsManager {
 	}
 	
 	public void addRoom(PollRoom room) {
-	 log.debug("[TEST] :: poll  :: inside addRoom called by ChatApplication.java passed: " + room + "calling Map.put (Map<String, Chatroom>)");
+	 log.debug("[TEST] :: poll  :: inside addRoom called by PollApplication.java passed: " + room + "calling Map.put (Map<String, Pollroom>)");
 	
-		log.debug("In PollRoomsManager adding room " + room.getName());
+		
 		rooms.put(room.getName(), room);
+		log.debug("[TEST ] In PollRoomsManager adding room " + room.getName());
 	}
 	
 	public void removeRoom(String name) {
@@ -55,7 +56,7 @@ public class PollRoomsManager {
 	}
 		
 	public boolean hasRoom(String name) {
-		log.debug("In PollRoomsManager has Room " + name);
+		log.debug("[TEST] In PollRoomsManager has Room " + name);
 		return rooms.containsKey(name);
 	}
 	
