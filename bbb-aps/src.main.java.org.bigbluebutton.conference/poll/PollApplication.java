@@ -27,6 +27,7 @@ import org.red5.logging.Red5LoggerFactory;
 import org.bigbluebutton.conference.service.poll.PollRoomsManager;
 import org.bigbluebutton.conference.service.poll.PollRoom;
 import org.bigbluebutton.conference.service.poll.IPollRoomListener;
+import org.bigbluebutton.conference.service.recorder.poll.PollRecorder;
 
 
 public class PollApplication {
@@ -36,10 +37,12 @@ public class PollApplication {
 	private static final String APP = "Poll";
 	private PollRoomsManager roomsManager;
 	public PollHandler handler;
+
+
+
 	
 	
 	public boolean createRoom(String name) {
-		log.debug("[TEST]Inside createRoom ");
 		roomsManager.addRoom(new PollRoom(name));
 		return true;
 	}
@@ -75,8 +78,13 @@ public class PollApplication {
 	}
 	
 	public void savePoll(Poll poll) {
-		log.debug("[TEST] Step 4 inside  savePoll of PollApplication.java sending poll to roomsManager");	
-		roomsManager.savePoll(poll);
+		log.debug("[TEST] Step 4 inside  savePoll of PollApplication.java sending poll to roomsManager and saving data to PollRecorder");	
+        PollRecorder pollRecorder = new PollRecorder();
+		pollRecorder.record(poll);
+		 
+		
+		//roomsManager.savePoll(poll);
+		
 	}
 	
 }

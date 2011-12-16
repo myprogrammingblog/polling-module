@@ -43,6 +43,7 @@ public class PollHandler extends ApplicationAdapter implements IApplication{
 	private RecorderApplication recorderApplication;
 	private PollApplication pollApplication;
 	private IScope scope;
+
 	
 	@Override
 	public boolean appConnect(IConnection conn, Object[] params) {
@@ -143,6 +144,7 @@ public class PollHandler extends ApplicationAdapter implements IApplication{
 		recorderApplication = a;
 	}
 	
+
 	private BigBlueButtonSession getBbbSession() {
 		return (BigBlueButtonSession) Red5.getConnectionLocal().getAttribute(Constants.SESSION);
 	}

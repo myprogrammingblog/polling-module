@@ -46,6 +46,8 @@ Notes.mxml is the main view of the SharedNotes application
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.LogUtil;
 			import mx.validators.Validator;	
+			import mx.utils.ObjectUtil;
+
 			
 			import mx.collections.ArrayCollection;
 			import mx.core.IUIComponent;
@@ -59,6 +61,7 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 			
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			
 			
 
 			
@@ -236,23 +239,24 @@ Notes.mxml is the main view of the SharedNotes application
 			private function   answerError():String{
 			
 			   var errMsg:String = "VALID";
-			   var startWithStar:RegExp = /^[*]/; // should start with *
+			 //  var startWithStar:RegExp = /^[*]/; // should start with *
 			   var answersArray:Array; 
 			   var valid:Boolean=true;
 		     
-		     		answersArray = pollAnswers.text.split("\r*"); // splitting by '*' and new line, thus user can type '*' anywhere except the newline
-		     		answersArray[0] = answersArray[0].split('*').join(''); // As after split '*' is not displayed we need to  take off from first element which is not splitted
-		     		//LogUtil.debug("so last element of array is " +answersArray[answersArray.length-1]);
-			   	//LogUtil.debug("array length is: " + answersArray.length);	
-		     
+		     		answersArray = pollAnswers.text.split("\r"); // splitting by '*' and new line, thus user can type '*' anywhere except the newline
+		     		//answersArray[0] = answersArray[0].split('*').join(''); // As after split '*' is not displayed we need to  take off from first element which is not splitted
+		     		answersArray = makeAnswersPretty(answersArray);		
+		     	// ALL THE MESSAGES NEED TO BE LOCALISED!!!!!
 			     if (pollAnswers.length == 0 )
 			     		errMsg = "Please provide at least 2 Answers";
 			       else if(!allowedChars.test(pollAnswers.text))
 			   		errMsg = "Answer field has forbidden characters";
-			   	 else if (!startWithStar.test(pollAnswers.text))
-			   	 	errMsg = "Every asnwer should start with  a new line and '*' (e.g *Seneca)";
+			   //	 else if (!startWithStar.test(pollAnswers.text))
+			   //	 	errMsg = "Every answer should start with  a new line and '*' (e.g *Seneca)";
+			   	     else if (isDuplicateAnswers(answersArray))
+			   	        		 errMsg = "Every answer should be unique";	
 			   	 	else if(answersArray.length < 2)
-			   	 	 	 errMsg = "Please provide at least 2 Answers start each with new line and *";
+			   	 	 	 errMsg = "Please provide at least 2 Answers start each with new line";
 			   	 	   else if(answersArray.length > _MAX_ANSWERS_AMOUNT)
 			   	 	  		errMsg = "You have too many answers. Max, answers allowed: "+_MAX_ANSWERS_AMOUNT;
 			   	 		else {
@@ -269,29 +273,29 @@ Notes.mxml is the main view of the SharedNotes application
 			   	 		    	errMsg = "Your answers are too long. Max length is "+_MAX_ANSWER_LENGTH+" per answer";
 			   	 		    	valid=false;
 			   	 		    }
-			   	 		    // if last character of the array element is  return (new line), we trim it to have accurate string
+			   	 		    // if last character of the array element is  return (new line) or space, we it to have accurate string and than checking for duplicates again
 			   	 		    
 			   	 		
 			   	 		    LogUtil.debug("answers array elementr:" + answersArray[i].substring(0,answersArray[i].length-1))
 
-			   	 		    if(answersArray[i].charAt(answersArray[i].length-1) == '\r')
-			   	 		    	answersArray[i] = answersArray[i].substring(0,answersArray[i].length-1);
-	
 			   	 		    
 			   	 		    
-			   	 		}
-			   	 		 if(valid)	
+			   	 		 if(valid &&  !isDuplicateAnswers(answersArray)){	
 			   	 		 	_answers  = new ArrayCollection(answersArray);	// This will be displayed in Preview
 			   	 		 	_answersArray= answersArray; // this will be sent to server
-			   	 	
+			   	 		 }
+			   	 		
+			   	        		 
+			   	        		 
 			   	 		//TESTING TO BE DELETED WHEN WORKS
 			   	 		for (var b:int=0; b<  _answers.length; b++){
 			   	 		LogUtil.debug("global element [" +b+"] is " + _answers.getItemAt(b));
+			   	 		
 			   	 		}  	 		
 			   	 	}	
-			   	 				
-			  	return errMsg;
 			}
+			return errMsg;
+		}	
 			
 			
 		//#####################################################################################################	
@@ -301,12 +305,46 @@ Notes.mxml is the main view of the SharedNotes application
 			_poll = "Create Poll";
 		  	back.visible=false;
 		  	options.removeAllChildren();
-		  	
-		  	
-		  	 
-		  	 
-		  	
+
 		}
+		
+		 private function isDuplicateAnswers(arr:Array):Boolean{
+  	 
+        	  var x:uint;
+   		  var y:uint;
+   		   
+    			for (x = 0; x < arr.length ; x++){
+        			for (y = x + 1; y < arr.length; y++){
+            				if (arr[x] === arr[y]){
+                				return true;
+            				}
+        			}
+    			}
+    			return false;
+		}
+		
+		//trimming return and whitespaces at the end of each array element
+		
+		private function makeAnswersPretty(arr:Array):Array{
+		 var i:uint;
+		 
+		
+		 var trim:RegExp = /^\s+|\s+$/g;
+		
+	  	  for (i = 0; i < arr.length; i++){
+	  	  
+	  	  	LogUtil.debug("BEFORE REPLACE: " + arr[i]);
+		  	  arr[i] = arr[i].replace(trim, "");
+		  	
+		  	 
+		  	 if(!arr[i]) //if user puts just return or space and return -  this array elements will be deleted
+		  	 	arr.splice(i,1);
+		    }
+		   
+		   return arr;	
+		
+		}
+		
 		
 		private function formatAndReview():void{
 			
@@ -322,18 +360,16 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			// if Multiple enabled than add check all that apply to string, or if it already added and user desided he don't want multiple than delete it
 			    	if(_isMultiple){
-			    		_question += "\n (check all that may apply)";
+			    		_question += "\n (check all that may apply)"; // NEED TO BE LOCALIZED
 			    	   }
-			    	   else if(( !_isMultiple && _question.substr(_question.length-28,_question.length) == "\n (check all that may apply)" ))
+			    	   else if(( !_isMultiple && _question.substr(_question.length-28,_question.length) == "\n (check all that may apply)" )) // NEED TO BE LOZALIZED
 					           _question.slice(0,_question.length-28);
 			    	     
 			 // Make Title and Question  string  first letter Upper case
 			  _title =   upperFirstLetter(_title);	    
 			  _question = upperFirstLetter(_question);
 			  createButtons(_answers.length,_answers);
-			   
-			  
-			  
+
 			  
 		 }	     	
 			    	
@@ -394,6 +430,11 @@ Notes.mxml is the main view of the SharedNotes application
 				 } // end of loop
 		
 			} // end of function
+			
+			   
+    	 
+
+
 
 			private function savePoll():void {
 				LogUtil.debug(LOGNAME + "inside  savePoll calling service method savePoll() ");		

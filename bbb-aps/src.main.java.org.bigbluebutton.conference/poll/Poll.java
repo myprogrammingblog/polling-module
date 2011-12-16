@@ -41,17 +41,18 @@ public class Poll{
 	public final Boolean isMultiple;
 	public final String question;
 	public ArrayList <String> answers;
-	public Map <String, Integer> answersCount;
+	public Map <String, Integer> answersCounter;
 	
 	@SuppressWarnings("unchecked")
 	public Poll( String title , String question , ArrayList answers, Boolean isMultiple, String room){
-		log.debug(LOGNAME + "[TEST ] Step 2 :  Poll.java encapsulated received info into object");
+		log.debug(LOGNAME + "[TEST] Step 2 :  Poll.java encapsulated received info into object");
 		this.question = question;
 		this.title= title;
 		this.isMultiple = isMultiple;
 		this.answers = answers;
 		this.room = room;
-		structureAnswersCount ();
+		answersCounter(); // creating string-integer value pair for counting vote results
+		
 	}
 
 	public String getRoom() {
@@ -61,13 +62,13 @@ public class Poll{
 	/**
 	 *  Function that creates a HashMap of answer-integer. Integers that will be incremented as soon as vote starts, thus statistics will be counted
 	 **/
-	public void structureAnswersCount (){
-		answersCount = new HashMap<String, Integer>();
+	public void answersCounter (){
+		answersCounter = new HashMap<String, Integer>();
 		String _answers;
 		for(int i=0; i<answers.size(); i++){
-			log.debug(LOGNAME + "[TEST 2] _answers :" + answers.get(i));
-			answersCount.put(answers.get(i).toString(), 0);
-			log.debug(LOGNAME + "[TEST 2] add to answer count  :"+ answersCount.entrySet());
+			log.debug(LOGNAME + "[TEST2] _answers :" + answers.get(i));
+			answersCounter.put(answers.get(i).toString(), 0);
+			log.debug(LOGNAME + "[TEST2] add to answer count  :"+ answersCounter.entrySet());
 		}
 			
 	}

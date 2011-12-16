@@ -36,7 +36,6 @@ public class PollRoomsManager {
 	private final Map <String, PollRoom> rooms;
 	
 	public PollRoomsManager() {
-		log.debug("[TEST]In PollRoomsManager constructor");	
 		rooms = new ConcurrentHashMap<String, PollRoom>();
 	}
 	
@@ -49,14 +48,11 @@ public class PollRoomsManager {
 	}
 	
 	public void removeRoom(String name) {
-		log.debug("In PollRoomsManager remove room " + name);
-		
-		log.debug("[TEST] :: poll  ::  inside removeRoom of PollRoomManager.java passing " + name + "to rooms.remove(name)");
 		rooms.remove(name);
 	}
 		
 	public boolean hasRoom(String name) {
-		log.debug("[TEST] In PollRoomsManager has Room " + name);
+
 		return rooms.containsKey(name);
 	}
 	

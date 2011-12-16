@@ -12,7 +12,7 @@
 			
 	<bean id="participantsHandler" class="org.bigbluebutton.conference.service.participants.ParticipantsHandler">
 		<property name="participantsApplication"> <ref local="participantsApplication"/></property>
-		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
+		  <property name="recorderApplication"> <ref local="recorderApplication"/></property> 
 	</bean>
 	
 	<bean id="participantsApplication" 
@@ -117,6 +117,7 @@
    	<bean id="pollHandler" class="org.bigbluebutton.conference.service.poll.PollHandler">
 		<property name="pollApplication"> <ref local="pollApplication"/></property>
 		<property name="recorderApplication"> <ref local="recorderApplication"/></property>
+
 	</bean>
 	
 	<bean id="pollApplication" 
@@ -129,6 +130,11 @@
 	</bean>
 	
 	<bean id="pollRoomsManager" class="org.bigbluebutton.conference.service.poll.PollRoomsManager"/>
+	
+	<bean id="pollRecorder" class="org.bigbluebutton.conference.service.recorder.poll.PollRecorder">
+	   <property name="redisPool"><ref local="redisPool" /> </property>
+	</bean>
+
     <!-- END RECORDER AND MESSAGING -->
     
 </beans>

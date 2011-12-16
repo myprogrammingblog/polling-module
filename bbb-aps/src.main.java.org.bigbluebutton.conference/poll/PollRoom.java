@@ -21,15 +21,13 @@ package org.bigbluebutton.conference.service.poll;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-
 import net.jcip.annotations.ThreadSafe;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-/**
- * Contains information about a PollRoom. 
+ /* Contains information about a PollRoom. 
  */
 @ThreadSafe
 public class PollRoom {
@@ -67,7 +65,7 @@ public class PollRoom {
 	
 	@SuppressWarnings("unchecked")
 	public void savePoll(Poll poll){
-		//messages.add(msg);
+
 		log.debug(" [TEST] Step 7 Inside savePoll  of Pollroom.java");
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
 			log.debug("[TEST] Step 8 calling on listener");
@@ -75,6 +73,6 @@ public class PollRoom {
 			log.debug("[TEST] Step 9 calling savePoll on listener " + listener.getName());
 			listener.savePoll(poll);
 		}
-	}
+	} 
 		
 }
