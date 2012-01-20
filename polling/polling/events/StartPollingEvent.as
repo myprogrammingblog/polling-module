@@ -20,11 +20,11 @@ package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
 	
-	public class SavePoll extends Event
+	public class StartPollingEvent extends Event
 	{
-		public static const SAVE:String = "SAVE POLL";
+		public static const START:String = "START Polling";
 		
-		public function SavePollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function StartPollingEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

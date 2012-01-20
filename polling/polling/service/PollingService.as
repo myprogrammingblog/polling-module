@@ -181,10 +181,11 @@ package org.bigbluebutton.modules.polling.service
 		
 		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean ):void
 		{
+		  
+		   
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call answers: " + answers + " question: " +question + " title: " +title+ " Connection: " + nc);
-			// Could be missing: nc.connect("http://142.133.24");
 			nc.call(
-				"poll.savePoll",
+				"poll.savePoll",// Remote function name
 				new Responder(
 					function(result:Object):void { 
 						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
@@ -195,15 +196,17 @@ package org.bigbluebutton.modules.polling.service
 							LogUtil.error(x + " : " + status[x]); 
 						} 
 					}
-				),
+				),//new Responder
 				answers,
 				question,
 				title,
 				isMultiple
-			); 
-			//_netConnection.call
+			); //_netConnection.call
 			
 			LogUtil.debug(LOGNAME + " After Connection");
-		}	   
+		}
+		  
+			
+	   
 	}
 }

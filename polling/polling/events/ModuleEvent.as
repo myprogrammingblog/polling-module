@@ -20,12 +20,18 @@ package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
 	
-	public class SavePoll extends Event
+	import org.bigbluebutton.common.IBigBlueButtonModule;
+
+	public class ModuleEvent extends Event
 	{
-		public static const SAVE:String = "SAVE POLL";
+		public static const START:String = "Polling Module Start Event";
+		public static const STOP:String = "Polling Module Stop Event";
 		
-		public function SavePollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public var module:IBigBlueButtonModule;
+		
+		public function ModuleEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
+			this.module = module;
 			super(type, bubbles, cancelable);
 		}
 		
