@@ -19,6 +19,7 @@
 
 package org.bigbluebutton.conference.service.poll;
 
+import java.net.InetAddress;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -28,6 +29,9 @@ import org.bigbluebutton.conference.service.poll.PollRoomsManager;
 import org.bigbluebutton.conference.service.poll.PollRoom;
 import org.bigbluebutton.conference.service.poll.IPollRoomListener;
 import org.bigbluebutton.conference.service.recorder.polling.PollRecorder;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 
 public class PollApplication {
@@ -48,9 +52,38 @@ public class PollApplication {
 	}
 	
 	public boolean destroyRoom(String name) {
-	
 		if (roomsManager.hasRoom(name)) {
 			roomsManager.removeRoom(name);
+			// Destroy polls that were created in the room
+			
+			// REDIS CONNECTION
+			JedisPool redisPool;
+			// Reads IP from Java, for portability
+		    String serverIP = "INVALID IP";
+		    try
+		    {
+		    	InetAddress addr = InetAddress.getLocalHost();
+		        // Get hostname
+		        String hostname = addr.getHostName();
+		        serverIP = hostname;
+		    } catch (Exception e){}
+		    redisPool = new JedisPool(serverIP, 6379);
+		    Jedis jedis = redisPool.getResource();
+		    // _REDIS CONNECTION
+		    for (String s : jedis.keys(name+"*"))
+		    {
+		       try
+		       {
+		    	   jedis.del(s);
+		    	   log.debug("[TEST] Deletion of key " + s + " successful!");
+		       } 
+		       catch (Exception e) 
+		       {
+		    	   log.debug("[TEST] Error in deleting key.");
+		       }
+		    }
+		    redisPool.returnResource(jedis);
+		    // _Poll destruction
 		}
 		return true;
 	}

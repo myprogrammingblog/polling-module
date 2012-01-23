@@ -44,11 +44,11 @@ public class PollService {
 	
 	
 	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple ) {
-	        log.debug(LOGNAME + "[TEST ]Step 1 : pollService received info: title:"+title+ " answers:"+ answers.toString()+   " Question: "+question+ " isMultiple ? " +isMultiple.toString());
-		String roomName = Red5.getConnectionLocal().getScope().getName();
-	         poll = new Poll(title,question,answers,isMultiple,roomName);
-	         log.debug(LOGNAME + "[TEST ] Step 3 :  Sending Poll object to PollApplication");
-		 application.savePoll(poll);
+		log.debug(LOGNAME + "[TEST ]Step 1 : pollService received info: title:"+title+ " answers:"+ answers.toString()+   " Question: "+question+ " isMultiple ? " +isMultiple.toString());
+	    String roomName = Red5.getConnectionLocal().getScope().getName();
+	    poll = new Poll(title,question,answers,isMultiple,roomName);
+	    log.debug(LOGNAME + "[TEST ] Step 3 :  Sending Poll object to PollApplication");
+		application.savePoll(poll);
 	}
 	
 	public void setPollApplication(PollApplication a) {

@@ -41,7 +41,9 @@ public class Poll{
 	public final Boolean isMultiple;
 	public final String question;
 	public ArrayList <String> answers;
-	public Map <String, Integer> answersCounter;
+	public ArrayList <Integer> votes;
+	public String time;
+	//public Map <String, Integer> answersCounter;
 	
 	@SuppressWarnings("unchecked")
 	public Poll( String title , String question , ArrayList answers, Boolean isMultiple, String room){
@@ -51,17 +53,17 @@ public class Poll{
 		this.isMultiple = isMultiple;
 		this.answers = answers;
 		this.room = room;
-		answersCounter(); // creating string-integer value pair for counting vote results
-		
+		//answersCounter(); // creating string-integer value pair for counting vote results
 	}
 
 	public String getRoom() {
 		return room;
 	}
 
-	/**
+	/*
+	 * *
 	 *  Function that creates a HashMap of answer-integer. Integers that will be incremented as soon as vote starts, thus statistics will be counted
-	 **/
+	 **
 	public void answersCounter (){
 		answersCounter = new HashMap<String, Integer>();
 		String _answers;
@@ -71,6 +73,6 @@ public class Poll{
 			log.debug(LOGNAME + "[TEST2] add to answer count  :"+ answersCounter.entrySet());
 		}
 			
-	}
+	}*/
 
 }
