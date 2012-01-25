@@ -72,30 +72,32 @@ public class PollRecorder {
 			
             // Merges the poll title, room into a single string seperated by a hyphen
 			String pollKey = poll.room + "-" + poll.title;
-
+			log.debug("[TEST] Saving poll " + pollKey);
+			
 			// Saves all relevant information about the poll as fields in a hash; dynamically generates
 			// enough fields for each answer and the number of votes for each answer
 			jedis.hset(pollKey, "title", poll.title);
 			jedis.hset(pollKey, "question", poll.question);
 			jedis.hset(pollKey, "multiple", poll.isMultiple.toString());
-			String time = DateFormatUtils.formatUTC(System.currentTimeMillis(), "MM/dd/yy HH:mm");
 			jedis.hset(pollKey, "room", poll.room);
-			jedis.hset(pollKey, "time", time); 			
+			jedis.hset(pollKey, "time", poll.time); 			
 			for (int i = 1; i <= poll.answers.size(); i++)
 			{
 				jedis.hset(pollKey, "answer"+i+"text", poll.answers.toArray()[i-1].toString());
 				jedis.hset(pollKey, "answer"+i, "0");
 			}
 
+			log.debug("[TEST] Poll " + pollKey + " saved!");
 			redisPool.returnResource(jedis);
 			
 			
-			PollInvoker invoker = new PollInvoker();
+			//PollInvoker invoker = new PollInvoker();
 			/*/ Testing invoke() to make sure it logs properly (it does)
 			invoker.invoke(pollKey);
 			*/
 			
-			// Testing pollList to see if it works how I think
+			/*/ Testing pollList to see if it works how I think (it does)
 			invoker.pollList();
+			*/
         }
 }

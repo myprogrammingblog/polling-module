@@ -9,6 +9,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
+
 	import org.bigbluebutton.common.IBbbModuleWindow;
 
 	
@@ -17,6 +18,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.SavePollEvent;
+	import org.bigbluebutton.modules.polling.events.PublishPollEvent;
 	
 	import org.bigbluebutton.modules.polling.service.PollingService;
 
@@ -125,9 +127,17 @@ package org.bigbluebutton.modules.polling.managers
 	   public function handleSavePollEvent(e:SavePollEvent):void
 		{
 			LogUtil.debug(LOGNAME + " inside savePoll(), calling service...");
-			service.savePoll(e.answers, e.question, e.title, e.isMultiple);
+			service.savePoll(e.answers, e.question, e.title, e.isMultiple, module.getRoom(), e.votes, e.time);
+		}	
+		
+		public function handlePublishPollEvent(e:PublishPollEvent):void
+		{
+			var pollKey:String;
+			LogUtil.debug(LOGNAME + " inside handlePublishPollEvent(), calling getPoll");
+			pollKey = module.getRoom() +"-"+ e.title ;
+			service.getPoll(pollKey);
 		}	
 		
 		
-}
+   }
 }

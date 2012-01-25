@@ -29,6 +29,7 @@ import org.bigbluebutton.conference.service.poll.PollRoomsManager;
 import org.bigbluebutton.conference.service.poll.PollRoom;
 import org.bigbluebutton.conference.service.poll.IPollRoomListener;
 import org.bigbluebutton.conference.service.recorder.polling.PollRecorder;
+import org.bigbluebutton.conference.service.recorder.polling.PollInvoker;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -117,6 +118,12 @@ public class PollApplication {
 		//roomsManager.savePoll(poll);
 	}
 	
+	public Poll getPoll(String pollKey)
+	{
+		log.debug("[TEST] Inside retrievePoll of PollApplication.java passing a Poll object back up to Pollservice");
+		PollInvoker pollInvoker = new PollInvoker();
+		return pollInvoker.invoke(pollKey);
+	}
 }
 
 	

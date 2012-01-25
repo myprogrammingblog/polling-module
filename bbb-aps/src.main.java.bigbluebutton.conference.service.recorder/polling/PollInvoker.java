@@ -56,7 +56,7 @@ public class PollInvoker {
    // The invoke method is called after already determining which poll is going to be used
    // (ie, the presenter has chosen this poll from a list and decided to use it, or it is being used immediately after creation)
    public Poll invoke(String pollKey){
-	   log.debug("[TEST] inside PollInvoker invoke");
+	   log.debug("[TEST] inside PollInvoker invoke for key: " + pollKey);
 	   
 	   // REDIS CONNECTION
 	   // Reads IP from Java, for portability
@@ -76,49 +76,52 @@ public class PollInvoker {
        Jedis jedis = redisPool.getResource();
        // _REDIS CONNECTION   
        
-       
-       // POPULATING POLL OBJECT WITH INFORMATION
-       String pTitle = jedis.hget(pollKey, "title");
-       String pQuestion = jedis.hget(pollKey, "question");
-       boolean pMultiple = false;
-       if (jedis.hget(pollKey, "multiple").compareTo("true") == 0) {pMultiple = true;}
-       String pRoom = jedis.hget(pollKey, "room");
-       String pTime = jedis.hget(pollKey, "time");
-		
-       // ANSWER EXTRACTION
-       long pollSize = jedis.hlen(pollKey);
-       // IMPORTANT! 
-       // Increase the value of otherFields for each field you add to the hash which is not a new answer
-       // (locales, langauge, etc)
-       int otherFields = 5;
-       long numAnswers = (pollSize-otherFields)/2;
-       
-       // Create an ArrayList of Strings for answers, and one of ints for answer votes
-       ArrayList <String> pAnswers = new ArrayList <String>();
-       ArrayList <Integer> pVotes = new ArrayList <Integer>();
-       for (int j = 1; j <= numAnswers; j++)
+       if (jedis.exists(pollKey))
        {
-    	   pAnswers.add(jedis.hget(pollKey, "answer"+j+"text"));
-    	   pVotes.add(Integer.parseInt(jedis.hget(pollKey, "answer"+j)));
+    	   // POPULATING POLL OBJECT WITH INFORMATION
+    	   String pTitle = jedis.hget(pollKey, "title");
+    	   String pQuestion = jedis.hget(pollKey, "question");
+    	   boolean pMultiple = false;
+    	   if (jedis.hget(pollKey, "multiple").compareTo("true") == 0) {pMultiple = true;}
+    	   String pRoom = jedis.hget(pollKey, "room");
+    	   String pTime = jedis.hget(pollKey, "time");
+		
+    	   // ANSWER EXTRACTION
+    	   long pollSize = jedis.hlen(pollKey);
+    	   // IMPORTANT! 
+    	   // Increase the value of otherFields for each field you add to the hash which is not a new answer
+    	   // (locales, langauge, etc)
+    	   int otherFields = 5;
+    	   long numAnswers = (pollSize-otherFields)/2;
+       
+    	   // Create an ArrayList of Strings for answers, and one of ints for answer votes
+    	   ArrayList <String> pAnswers = new ArrayList <String>();
+    	   ArrayList <Integer> pVotes = new ArrayList <Integer>();
+    	   for (int j = 1; j <= numAnswers; j++)
+    	   {
+    		   pAnswers.add(jedis.hget(pollKey, "answer"+j+"text"));
+    		   pVotes.add(Integer.parseInt(jedis.hget(pollKey, "answer"+j)));
+    	   }
+       
+    	   Poll poll = new Poll(pTitle, pQuestion, pAnswers, pMultiple, pRoom, pVotes, pTime);
+       
+    	   log.debug("[TEST] PollInvoker has created poll object, information stored inside it is: ");
+    	   log.debug("[TEST] Title: " + poll.title);
+    	   log.debug("[TEST] Question: " + poll.question);
+    	   log.debug("[TEST] isMultiple: " + poll.isMultiple.toString());
+    	   log.debug("[TEST] Room: " + poll.room);
+    	   log.debug("[TEST] Timestamp: " + poll.time);
+    	   for (int j = 1; j <= numAnswers; j++)
+    	   {
+    		   log.debug("[TEST] Answer"+j+"Text: " + poll.answers.toArray()[j-1].toString());
+    		   log.debug("[TEST] Answer"+j+": " + poll.votes.toArray()[j-1].toString());
+    	   }
+    	   redisPool.returnResource(jedis);
+    	   return poll;
        }
-       
-       Poll poll = new Poll(pTitle, pQuestion, pAnswers, pMultiple, pRoom);
-       poll.votes = pVotes;
-       poll.time = pTime;
-       
-       log.debug("[TEST] PollInvoker has created poll object, information stored inside it is: ");
-       log.debug("[TEST] Title: " + poll.title);
-       log.debug("[TEST] Question: " + poll.question);
-       log.debug("[TEST] isMultiple: " + poll.isMultiple.toString());
-       log.debug("[TEST] Room: " + poll.room);
-       log.debug("[TEST] Timestamp: " + poll.time);
-       for (int j = 1; j <= numAnswers; j++)
-		{
-			log.debug("[TEST] Answer"+j+"Text: " + poll.answers.toArray()[j-1].toString());
-			log.debug("[TEST] Answer"+j+": " + poll.votes.toArray()[j-1].toString());
-		}
-       redisPool.returnResource(jedis);
-       return poll;
+       log.error("[ERROR] A poll is being invoked that does not exist. Null exception will be thrown.");
+       redisPool.returnResource(jedis); 
+       return null;
    }
    
    // Gets the ID of the current room, and returns a list of all available polls.

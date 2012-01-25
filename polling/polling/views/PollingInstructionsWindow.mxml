@@ -48,19 +48,21 @@ Notes.mxml is the main view of the SharedNotes application
 			import mx.validators.Validator;	
 			import mx.utils.ObjectUtil;
 
+
 			
 			import mx.collections.ArrayCollection;
 			import mx.core.IUIComponent;
 			import mx.controls.CheckBox;
 			import mx.controls.RadioButton;
 			import org.bigbluebutton.modules.polling.events.SavePollEvent;
-
+			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
 		
 			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent; 
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 			
-			import org.bigbluebutton.modules.polling.managers.PollingManager;
+
 			
 			
 
@@ -69,6 +71,7 @@ Notes.mxml is the main view of the SharedNotes application
 			public static const LOGNAME:String = "[PollingInstructionsWindow] ";	
 			public var moduleAttributes:Object;
 			private var userName:String;
+			private  var module:PollingModule;
 			private var allowedChars:RegExp = /^[^;\\]*$/; // for security reasons some  characters are not allowed
 			[Bindable] private var _poll:String = "Create Poll";
 			// Bindable is set to allow data to change when You hit Back and change something, this change will appear in review
@@ -102,6 +105,7 @@ Notes.mxml is the main view of the SharedNotes application
 				LogUtil.debug(LOGNAME + "Inside Creation Complete");
 				LogUtil.debug(LOGNAME + "Instructions Window is Created");
 				userName = moduleAttributes.username;
+				this.module = module;
 			}
 			
 			// Overwritting close to use custom function
@@ -190,7 +194,7 @@ Notes.mxml is the main view of the SharedNotes application
 			        aErrMsg.visible=false;
 			   
 			    if(valid){
-			    LogUtil.debug(LOGNAME + "passing to drawcheckboxes : "  + _answers.length + " " +_answers);	
+			    LogUtil.debug(LOGNAME + "passisibg  drawcheckboxes : "  + _answers.length + " " +_answers);	
 			    formatAndReview();
 			    _poll = "Poll Preview";
 			    
@@ -204,6 +208,7 @@ Notes.mxml is the main view of the SharedNotes application
 			//################################
 			//TITLE VALIDATION_cb.numChildren
 			private function   titleError():String{
+			
 			
 			   var errMsg:String = "VALID";
 
@@ -234,7 +239,7 @@ Notes.mxml is the main view of the SharedNotes application
 			}
 			
 			
-			
+		
 			// ANSWER VALIDATION
 			private function   answerError():String{
 			
@@ -434,20 +439,40 @@ Notes.mxml is the main view of the SharedNotes application
 			   
     	 
 
+ 
 
-
-			private function savePoll():void {
+			private function savePoll(callingFromPublish:Boolean = false):void {
 				LogUtil.debug(LOGNAME + "inside  savePoll calling service method savePoll() ");		
 				//manager.savePoll(_answers, _question, _title, _isMultiple);
 				
 				var savePollEvent: SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
-				
 				//savePollEvent.answers = _answers;
 				savePollEvent.answers = _answersArray;
 				savePollEvent.question = _question;
 				savePollEvent.title = _title;
 				savePollEvent.isMultiple = _isMultiple;
 				dispatchEvent(savePollEvent);
+				 if(!callingFromPublish)
+				      closeInstructionsWindow();
+			}
+			
+			private function publish():void {
+				
+				savePoll(true);
+				LogUtil.debug(LOGNAME + "inside publish calling servie method getPoll()");
+				
+				var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
+				LogUtil.debug(LOGNAME + "after PUBLISH constructor");
+				
+				
+				
+				// sending title 
+				
+				publishPollEvent.title = _title;
+				LogUtil.debug(LOGNAME + "inside publish survived key generation");
+				
+				dispatchEvent(publishPollEvent);
+				LogUtil.debug(LOGNAME + "inside publish survived dispatch event");
 				
 				closeInstructionsWindow();
 			}
@@ -532,16 +557,17 @@ Notes.mxml is the main view of the SharedNotes application
 	   <mx:ControlBar x="60" y="460"  >
 		<mx:HBox paddingLeft="40" paddingRight="10" paddingTop="10" paddingBottom="10"> 
 		<!-- Back Button is not visible while instructions and visible while preView -->
-		 <mx:Button id="back" label="Back" click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()"  width="100" height="30" visible="false"/>
+		 <mx:Button id="back" label="Modify" click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()"  width="100" height="30" visible="false"/>
 		 <mx:ViewStack id="buttons">
 		 
 		   <!--buttons that appear when Instructions is displayed -->
 		    <mx:Canvas id="instrButtons">
-			<mx:Button id="next" label="Next" click="validateAndSubmit()"  width="100" height="30"/>	
+			<mx:Button id="next" label="Preview" click="validateAndSubmit()"  width="100" height="30"/>	
 		   </mx:Canvas>
 		   <!-- buttons that appear on Review  -->
 		   <mx:Canvas id="reviewButtons">
-			<mx:Button id="SavePoll" label="SavePoll" click="savePoll()"  width="100" height="30"/>
+			<!--mx:Button id="SavePoll" label="SavePoll" click="savePoll()"  width="100" height="30"/-->
+			<mx:Button id="Publish" label="Publish" click="publish()"  width="100" height="30"/>
 		   </mx:Canvas>	
 		   </mx:ViewStack>
 		    <!-- Cancel button appear everywhere -->

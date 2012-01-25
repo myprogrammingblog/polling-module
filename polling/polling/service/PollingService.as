@@ -45,6 +45,8 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
 	import org.bigbluebutton.common.IBbbModuleWindow;
+	
+	import org.bigbluebutton.modules.polling.model.PollObject;
 
 	public class PollingService
 	{	
@@ -131,9 +133,9 @@ package org.bigbluebutton.modules.polling.service
 	   public function setPolling(polling:Boolean):void{
 	   		isPolling = polling; 
 	   }
-	   public function getPollingStatus():Boolean{
+	  /* public function getPollingStatus():Boolean{
 	   		return isPolling;
-	   }
+	   }*/
 
 		import org.bigbluebutton.core.managers.UserManager;
         //Event Handlers
@@ -179,13 +181,18 @@ package org.bigbluebutton.modules.polling.service
 			LogUtil.debug(LOGNAME+"Shared object is connected");	
 		}
 		
-		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean ):void
+		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean, room:String, votes:Array, time:String ):void
 		{
-		  
-		   
-		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call answers: " + answers + " question: " +question + " title: " +title+ " Connection: " + nc);
+		     LogUtil.debug(LOGNAME + "inside savePoll() making NetConnection: " + nc);
+		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call answers: " + answers);
+		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call question: " +  question);
+		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call title: " + title);
+		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call isMultiple: " + isMultiple);
+		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call room: " + room);
+		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call votes: " + votes);
+		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call time: " + time);
 			nc.call(
-				"poll.savePoll",// Remote function name
+				"poll.savePoll",
 				new Responder(
 					function(result:Object):void { 
 						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
@@ -196,17 +203,62 @@ package org.bigbluebutton.modules.polling.service
 							LogUtil.error(x + " : " + status[x]); 
 						} 
 					}
-				),//new Responder
+				),
 				answers,
 				question,
 				title,
-				isMultiple
-			); //_netConnection.call
+				isMultiple,
+				room,
+				votes,
+				time
+			); 
+			//_netConnection.call
 			
 			LogUtil.debug(LOGNAME + " After Connection");
-		}
-		  
-			
-	   
-	}
+		}	   
+	
+	// TESTING THIS SHOULD GET POLL FROM THE DB
+	   public function  getPoll(pollKey:String):void{
+			LogUtil.debug(LOGNAME + "inside getPoll making netconnnection getting our poll back! key:" + pollKey);
+			var poll:PollObject;
+			try
+			{
+			nc.call(
+				"poll.getPoll",
+				new Responder(
+					function(result:Object):void { 
+						LogUtil.debug(LOGNAME+" succesfully connected  received poll back");
+						 if(result != null)
+						 {
+						 	poll = result as PollObject;
+						    extractPoll(poll);
+						 }
+						 else LogUtil.debug(LOGNAME + "Result is empty, so poll is empty");
+					},	
+					function(status:Object):void { 
+						LogUtil.error(LOGNAME + "Error occurred sending info to server"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),
+				pollKey
+			);
+			LogUtil.debug(LOGNAME + "nc.call survived");
+			} catch (e:Error) { 
+			LogUtil.debug(LOGNAME + "nc.call blew up. KABOOM");
+	   		}
+	   		/*LogUtil.debug(LOGNAME + "Outside of try-catch, poll.title is " + poll.title);
+	   		extractPoll(poll);
+	   		LogUtil.debug(LOGNAME + "extraction survived" + poll);*/
+	   }
+	  
+	     public function extractPoll(poll:Object):void {
+	     //	var title:String  = poll.title as String;
+			//LogUtil.debug(LOGNAME + "Extracting: Result title is " + title);
+			var pollobj:PollObject = poll as PollObject;
+			LogUtil.debug(LOGNAME + "Extracting poll: " + pollobj + " Here is poll : " +pollobj.title);
+		        
+		 }
+   }
 }

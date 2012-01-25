@@ -18,6 +18,7 @@
 */
 package org.bigbluebutton.conference.service.poll;
 
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.bigbluebutton.conference.service.poll.PollApplication;
 import org.bigbluebutton.conference.service.poll.Poll;
 import java.util.ArrayList;
@@ -42,11 +43,12 @@ public class PollService {
 	private String LOGNAME = "[PollService]";
 	private Poll poll;
 	
-	
-	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple ) {
+	// This method is called by the savePoll method in bbb-client PollingService.as
+	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple, String room, ArrayList votes, String time ) {
 		log.debug(LOGNAME + "[TEST ]Step 1 : pollService received info: title:"+title+ " answers:"+ answers.toString()+   " Question: "+question+ " isMultiple ? " +isMultiple.toString());
 	    String roomName = Red5.getConnectionLocal().getScope().getName();
-	    poll = new Poll(title,question,answers,isMultiple,roomName);
+	    String pollTime = DateFormatUtils.formatUTC(System.currentTimeMillis(), "MM/dd/yy HH:mm");
+	    poll = new Poll(title, question, answers, isMultiple, roomName, votes, pollTime);
 	    log.debug(LOGNAME + "[TEST ] Step 3 :  Sending Poll object to PollApplication");
 		application.savePoll(poll);
 	}
@@ -56,4 +58,11 @@ public class PollService {
 		application = a;
 	}
 	
+	public Poll getPoll(String pollKey)
+	{
+		log.debug(LOGNAME + "Retrieving poll with key: " + pollKey);
+		Poll poll = application.getPoll(pollKey);
+		log.debug(LOGNAME + "Retrieved poll " + poll.title);
+		return poll;
+	}
 }

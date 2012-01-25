@@ -19,21 +19,15 @@
 package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
-	import mx.collections.ArrayCollection;
+
 	
-	public class SavePollEvent extends Event
+	public class PublishPollEvent extends Event
 	{
-		public static const SAVE:String = "SAVE POLL";
-		public var question  : String;
-		//public var answers : ArrayCollection;
-		public var answers : Array;
-		public  var isMultiple : Boolean;
+		public static const PUBLISH:String = "PUBLISH POLL";
+	
 		public var title :String;
-		public var room :String;
-		public var votes :Array;
-		public var time :String;
 		
-		public function SavePollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function PublishPollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

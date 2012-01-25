@@ -46,13 +46,15 @@ public class Poll{
 	//public Map <String, Integer> answersCounter;
 	
 	@SuppressWarnings("unchecked")
-	public Poll( String title , String question , ArrayList answers, Boolean isMultiple, String room){
+	public Poll( String title , String question , ArrayList answers, Boolean isMultiple, String room, ArrayList votes, String time){
 		log.debug(LOGNAME + "[TEST] Step 2 :  Poll.java encapsulated received info into object");
 		this.question = question;
 		this.title= title;
 		this.isMultiple = isMultiple;
 		this.answers = answers;
 		this.room = room;
+		this.votes = votes;
+		this.time = time;
 		//answersCounter(); // creating string-integer value pair for counting vote results
 	}
 
