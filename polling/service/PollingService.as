@@ -61,8 +61,9 @@ package org.bigbluebutton.modules.polling.service
 		private var dispatcher:Dispatcher;
 		private var attributes:Object;
 		private var windowManager: PollingWindowManager;
+		public var pollGlobal:PollObject;
 		
-		
+		public var test:String;
 		
 		private static const SHARED_OBJECT:String = "pollingSO";
 		private var isPolling:Boolean = false;
@@ -217,26 +218,21 @@ package org.bigbluebutton.modules.polling.service
 			LogUtil.debug(LOGNAME + " After Connection");
 		}	   
 	
-	// TESTING THIS SHOULD GET POLL FROM THE DB
+	// TESTING THIS SHOULD GET POLL FROM THE DB	
+	
 	
 	   	public function  getPoll(pollKey:String):void{
 			LogUtil.debug(LOGNAME + "inside getPoll making netconnection getting our poll back! key: " + pollKey);
+			// So, the data stays in poll until nc.call ends, and then disappears.
 			var poll:PollObject = new PollObject();
-			// New way
+			pollGlobal = new PollObject();
+			test = new String();
+			test = "BEFORE";
 			
-			// Responder automatically returns a PollObject, regardless of whether poll.getPoll returns a Poll or an ArrayList of Poll properties
-			nc.call("poll.getPoll", new Responder(success, failure), pollKey); 
+			nc.call("poll.getPoll", new Responder(success, failure), pollKey);
 			
-			function success(obj:Object):void{
-				var itemArray:Array = obj as Array;
-				LogUtil.debug(LOGNAME+"Responder object success! " + itemArray);
-				poll = extractPoll(itemArray);
-			}
-	
-			function failure(obj:Object):void{
-				LogUtil.error(LOGNAME+"Responder object failure.");
-			}
-			
+			LogUtil.debug(LOGNAME + "After extractPoll and outside of nc.call, pollGlobal.title is: " + pollGlobal.title);
+			LogUtil.debug(LOGNAME + "(THREE) Test is: " + test);
 			LogUtil.debug(LOGNAME + "After extractPoll and outside of nc.call, poll object consists of: ");
 		    LogUtil.debug(LOGNAME + poll.title);
 		    LogUtil.debug(LOGNAME + poll.room);
@@ -244,64 +240,55 @@ package org.bigbluebutton.modules.polling.service
 		    LogUtil.debug(LOGNAME + poll.question);
 		    LogUtil.debug(LOGNAME + poll.answers);
 		    LogUtil.debug(LOGNAME + poll.votes);
-		    LogUtil.debug(LOGNAME + poll.time);
-				
-			// "_New way
+		    LogUtil.debug(LOGNAME + poll.time); 
 			
-			/* Original attempt, do not alter or delete yet
-			try
-			{
-			nc.call(
-				"poll.getPoll",
-				new Responder(
-					function(result:Object):void { 
-						LogUtil.debug(LOGNAME+" succesfully connected  received poll back");
-						 if(result != null)
-						 {
-						 	poll = result as PollObject;
-						    extractPoll(poll);
-						 }
-						 else LogUtil.debug(LOGNAME + "Result is empty, so poll is empty");
-					},	
-					function(status:Object):void { 
-						LogUtil.error(LOGNAME + "Error occurred sending info to server"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),
-				pollKey
-			);
-			LogUtil.debug(LOGNAME + "nc.call survived");
-			} catch (e:Error) { 
-			LogUtil.debug(LOGNAME + "nc.call blew up. KABOOM");
-	   		}
-	   		/*LogUtil.debug(LOGNAME + "Outside of try-catch, poll.title is " + poll.title);
-	   		extractPoll(poll);
-	   		LogUtil.debug(LOGNAME + "extraction survived" + poll);*/
-	   }
+			// Responder functions
+			function success(obj:Object):void{
+				var itemArray:Array = obj as Array;
+				LogUtil.debug(LOGNAME+"Responder object success! " + itemArray);
+				poll = extractPoll(itemArray);
+				test = "AFTER";
+				
+				//pollGlobal.title = poll.title;
+				//LogUtil.debug(LOGNAME + "(2) Test is: " + test);
+				LogUtil.debug(LOGNAME + "Inside of nc.call, pollGlobal.title is: " + pollGlobal.title);
+				/*
+				LogUtil.debug(LOGNAME + "Inside of nc.call, poll object consists of: ");
+			    LogUtil.debug(LOGNAME + poll.title);
+			    LogUtil.debug(LOGNAME + poll.room);
+			    LogUtil.debug(LOGNAME + poll.isMultiple);
+		    	LogUtil.debug(LOGNAME + poll.question);
+			    LogUtil.debug(LOGNAME + poll.answers);
+			    LogUtil.debug(LOGNAME + poll.votes);
+			    LogUtil.debug(LOGNAME + poll.time);
+			    */
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure.");
+			}
+	   } // _getPoll
 	  
 	     public function extractPoll(values:Array):PollObject {
 		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
 		    var poll:PollObject = new PollObject();
 		    
+		    //test = new String();
+		    
+		    //test = values[0] as String;
+		    pollGlobal.title = values[0] as String;
+		    
+		    //LogUtil.debug(LOGNAME + "(1) Test is: " + test);
+		    
 		    poll.title = values[0] as String;
 		    poll.room = values[1] as String;
 		    poll.isMultiple = values[2] as Boolean;
 		    poll.question = values[3] as String;
-		    
 		    poll.answers = values[4] as Array;
-		    poll.votes = values[5] as Array;
-		    
-		    /* ArrayCollections need something extra, apparently
-		    for each (var a:Object in values[4])
-		    	poll.answers.addItem(a);
-		    for each (var v:Object in values[5])
-		    	poll.votes.addItem(v);
-		    //###################################*/
-		    
+		    poll.votes = values[5] as Array;	    
 		    poll.time = values[6] as String;
 		    
+		    /*
 		    LogUtil.debug(LOGNAME + "Inside extractPoll, poll object consists of: ");
 		    LogUtil.debug(LOGNAME + poll.title);
 		    LogUtil.debug(LOGNAME + poll.room);
@@ -311,8 +298,11 @@ package org.bigbluebutton.modules.polling.service
 		    LogUtil.debug(LOGNAME + poll.votes);
 		    LogUtil.debug(LOGNAME + poll.time);
 		    LogUtil.debug(LOGNAME + "Leaving extractPoll");
+		    */
+		    
 		    return poll;
-		    // The data doesn't survive outside of extractPoll, it seems
+		    // The data doesn't survive outside of extractPoll, it seems. That's okay, just continue the event chain right through extractPoll until you hit the point where
+		    // stuff goes back to Java; then the Vegas effect stops being a problem. Ta-da!
 		 }
    }
 }

@@ -59,7 +59,6 @@ public class PollService {
 	}
 	
 	public ArrayList getPoll(String pollKey)
-	//public Poll getPoll(String pollKey)
 	{
 		log.debug(LOGNAME + "Retrieving poll with key: " + pollKey);
 		Poll poll = application.getPoll(pollKey);
@@ -74,7 +73,5 @@ public class PollService {
 		values.add(poll.votes);
 		values.add(poll.time);
 		return values;
-		
-		//return poll;
 	}
 }
