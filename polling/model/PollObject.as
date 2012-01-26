@@ -14,8 +14,8 @@ package org.bigbluebutton.modules.polling.model
 		public var room:String;
 		public var isMultiple:Boolean;
 		public var question:String;
-		public var answers:ArrayCollection;
-		public var votes:ArrayCollection;
+		public var answers:Array;
+		public var votes:Array;
 		public var time:String;
 		
 		

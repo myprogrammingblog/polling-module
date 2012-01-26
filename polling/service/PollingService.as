@@ -230,12 +230,21 @@ package org.bigbluebutton.modules.polling.service
 			function success(obj:Object):void{
 				var itemArray:Array = obj as Array;
 				LogUtil.debug(LOGNAME+"Responder object success! " + itemArray);
-				extractPoll(poll);
+				poll = extractPoll(itemArray);
 			}
 	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure.");
 			}
+			
+			LogUtil.debug(LOGNAME + "After extractPoll and outside of nc.call, poll object consists of: ");
+		    LogUtil.debug(LOGNAME + poll.title);
+		    LogUtil.debug(LOGNAME + poll.room);
+		    LogUtil.debug(LOGNAME + poll.isMultiple);
+		    LogUtil.debug(LOGNAME + poll.question);
+		    LogUtil.debug(LOGNAME + poll.answers);
+		    LogUtil.debug(LOGNAME + poll.votes);
+		    LogUtil.debug(LOGNAME + poll.time);
 				
 			// "_New way
 			
@@ -272,39 +281,38 @@ package org.bigbluebutton.modules.polling.service
 	   		LogUtil.debug(LOGNAME + "extraction survived" + poll);*/
 	   }
 	  
-	     public function extractPoll(poll:PollObject):void {
+	     public function extractPoll(values:Array):PollObject {
 		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
+		    var poll:PollObject = new PollObject();
 		    
-		    /*
+		    poll.title = values[0] as String;
+		    poll.room = values[1] as String;
+		    poll.isMultiple = values[2] as Boolean;
+		    poll.question = values[3] as String;
 		    
-		   // POPULATING POLL OBJECT WITH INFORMATION
-    	   String pTitle = jedis.hget(pollKey, "title");
-    	   String pQuestion = jedis.hget(pollKey, "question");
-    	   boolean pMultiple = false;
-    	   if (jedis.hget(pollKey, "multiple").compareTo("true") == 0) {pMultiple = true;}
-    	   String pRoom = jedis.hget(pollKey, "room");
-    	   String pTime = jedis.hget(pollKey, "time");
-		
-    	   // ANSWER EXTRACTION
-    	   long pollSize = jedis.hlen(pollKey);
-    	   // IMPORTANT! 
-    	   // Increase the value of otherFields for each field you add to the hash which is not a new answer
-    	   // (locales, langauge, etc)
-    	   int otherFields = 5;
-    	   long numAnswers = (pollSize-otherFields)/2;
-       
-    	   // Create an ArrayList of Strings for answers, and one of ints for answer votes
-    	   ArrayList <String> pAnswers = new ArrayList <String>();
-    	   ArrayList <Integer> pVotes = new ArrayList <Integer>();
-    	   for (int j = 1; j <= numAnswers; j++)
-    	   {
-    		   pAnswers.add(jedis.hget(pollKey, "answer"+j+"text"));
-    		   pVotes.add(Integer.parseInt(jedis.hget(pollKey, "answer"+j)));
-    	   }
-       
-    	   Poll poll = new Poll(pTitle, pQuestion, pAnswers, pMultiple, pRoom, pVotes, pTime);
+		    poll.answers = values[4] as Array;
+		    poll.votes = values[5] as Array;
 		    
-		    */
+		    /* ArrayCollections need something extra, apparently
+		    for each (var a:Object in values[4])
+		    	poll.answers.addItem(a);
+		    for each (var v:Object in values[5])
+		    	poll.votes.addItem(v);
+		    //###################################*/
+		    
+		    poll.time = values[6] as String;
+		    
+		    LogUtil.debug(LOGNAME + "Inside extractPoll, poll object consists of: ");
+		    LogUtil.debug(LOGNAME + poll.title);
+		    LogUtil.debug(LOGNAME + poll.room);
+		    LogUtil.debug(LOGNAME + poll.isMultiple);
+		    LogUtil.debug(LOGNAME + poll.question);
+		    LogUtil.debug(LOGNAME + poll.answers);
+		    LogUtil.debug(LOGNAME + poll.votes);
+		    LogUtil.debug(LOGNAME + poll.time);
+		    LogUtil.debug(LOGNAME + "Leaving extractPoll");
+		    return poll;
+		    // The data doesn't survive outside of extractPoll, it seems
 		 }
    }
 }
