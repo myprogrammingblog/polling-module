@@ -125,7 +125,9 @@ package org.bigbluebutton.modules.polling.managers
 	   public function handleSavePollEvent(e:SavePollEvent):void
 		{
 			LogUtil.debug(LOGNAME + " inside savePoll(), calling service...");
-			service.savePoll(e.answersArray, e.question, e.title, e.isMultiple);
+			//		( Needs expanding to include room, timestamp, reflect changes to how answers are stored)
+			//								|
+			service.savePoll(e.answers, e.question, e.title, e.isMultiple, e.room, e.votes, e.time);
 		}	
 		
 		

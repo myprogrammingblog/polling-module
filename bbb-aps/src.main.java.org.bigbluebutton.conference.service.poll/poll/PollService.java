@@ -58,11 +58,23 @@ public class PollService {
 		application = a;
 	}
 	
-	public Poll getPoll(String pollKey)
+	public ArrayList getPoll(String pollKey)
+	//public Poll getPoll(String pollKey)
 	{
 		log.debug(LOGNAME + "Retrieving poll with key: " + pollKey);
 		Poll poll = application.getPoll(pollKey);
 		log.debug(LOGNAME + "Retrieved poll " + poll.title);
-		return poll;
+		
+		ArrayList values = new ArrayList();
+		values.add(poll.title);
+		values.add(poll.room);
+		values.add(poll.isMultiple);
+		values.add(poll.question);
+		values.add(poll.answers);
+		values.add(poll.votes);
+		values.add(poll.time);
+		return values;
+		
+		//return poll;
 	}
 }

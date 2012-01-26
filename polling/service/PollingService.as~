@@ -1,21 +1,4 @@
-/**
-* BigBlueButton open source conferencing system - http://www.bigbluebutton.org/
-*
-* Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
-*
-* This program is free software; you can redistribute it and/or modify it under the
-* terms of the GNU Lesser General Public License as published by the Free Software
-* Foundation; either version 2.1 of the License, or (at your option) any later
-* version.
-*
-* BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY
-* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
-* PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License along
-* with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
-* 
-*/
+/* The system automatically looks at the "deeper" PollingService.as, mysteriously */
 package org.bigbluebutton.modules.polling.service
 {
 	import com.asfusion.mate.events.Dispatcher;  
@@ -87,7 +70,7 @@ package org.bigbluebutton.modules.polling.service
 		
 		
 		 // CONNECTION
-		/*###################################################*/
+		//###################################################/
 		public function connect():void {
 			LogUtil.debug(LOGNAME + "inside connect ()  ");
 			pollingSO = SharedObject.getRemote(SHARED_OBJECT, uri, false);
@@ -108,7 +91,7 @@ package org.bigbluebutton.modules.polling.service
           
           
            // Dealing with PollingViewWindow
-          /*#######################################################*/
+          //#######################################################/
           
          public function sharePollingWindow():void{
          		LogUtil.debug(LOGNAME + "inside sharePollingWindow calling pollingSO.send()");
@@ -137,7 +120,7 @@ package org.bigbluebutton.modules.polling.service
 
 		import org.bigbluebutton.core.managers.UserManager;
         //Event Handlers
-        /*######################################################*/
+        //######################################################/
         
 
 		
@@ -179,16 +162,20 @@ package org.bigbluebutton.modules.polling.service
 			LogUtil.debug(LOGNAME+"Shared object is connected");	
 		}
 		
-		public function savePoll(answers:ArrayCollection, question:String, title:String, isMultiple:Boolean ):void
+		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean, room:String, votes:Array, time:String ):void
 		{
-		  
-		   
-		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call answers: " + answers + " question: " +question + " title: " +title+ " Connection: " + nc);
-			nc.call(
-				"poll.savePoll",// Remote function name
+		    LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call answers: " + answers);
+		    LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call question: " + question);
+		    LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call title: " +title);
+		    LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call Connection: " + nc);
+		    LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call isMultiple: " + isMultiple);
+		    LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call votes: " + votes);
+		    LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call time: " + time);
+		    nc.call(
+				"poll.savePoll",
 				new Responder(
 					function(result:Object):void { 
-						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
+						LogUtil.debug(LOGNAME+" successfully connected  sent info to server "); 
 					},	
 					function(status:Object):void { 
 						LogUtil.error(LOGNAME + "Error occurred sending info to server"); 
@@ -196,17 +183,18 @@ package org.bigbluebutton.modules.polling.service
 							LogUtil.error(x + " : " + status[x]); 
 						} 
 					}
-				),//new Responder
+				),
 				answers,
 				question,
 				title,
-				isMultiple
-			); //_netConnection.call
+				isMultiple,
+				room,
+				votes,
+				time
+			); 
+			//_netConnection.call
 			
 			LogUtil.debug(LOGNAME + " After Connection");
-		}
-		  
-			
-	   
+		}	   
 	}
 }

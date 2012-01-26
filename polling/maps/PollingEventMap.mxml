@@ -35,11 +35,12 @@
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.SavePollEvent;
+			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
 			
 				]]>
 				
 	</mx:Script>
-	
+
 	<EventHandlers type="{FlexEvent.PREINITIALIZE}">
 		<ObjectBuilder generator="{PollingManager}"/>		
 	</EventHandlers>	
@@ -93,9 +94,14 @@
 	<EventHandlers type="{MadePresenterEvent.SWITCH_TO_VIEWER_MODE}">
 		<MethodInvoker generator="{PollingManager}" method="handleMadeViewerEvent" arguments="{event}"/>
 	</EventHandlers>	
+	
 	<!-- Event to save Poll to db -->
 	 <EventHandlers type="{SavePollEvent.SAVE}">
 		<MethodInvoker generator="{PollingManager}" method="handleSavePollEvent" arguments="{event}"/>
+	</EventHandlers>
+	
+	 <EventHandlers type="{PublishPollEvent.PUBLISH}">
+		<MethodInvoker generator="{PollingManager}" method="handlePublishPollEvent" arguments="{event}"/>
 	</EventHandlers>	
 	
 	

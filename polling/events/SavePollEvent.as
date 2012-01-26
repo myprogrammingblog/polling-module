@@ -29,6 +29,9 @@ package org.bigbluebutton.modules.polling.events
 		public var answers : Array;
 		public  var isMultiple : Boolean;
 		public var title :String;
+		public var room :String;
+		public var votes :Array;
+		public var time :String;
 		
 		public function SavePollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

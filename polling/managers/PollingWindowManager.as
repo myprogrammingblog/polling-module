@@ -130,7 +130,7 @@ package org.bigbluebutton.modules.polling.managers
 			LogUtil.debug(LOGNAME + " " + window +" is closed ");
 		}
 		//#################################################################################
-			
+
 		
 	}
 }

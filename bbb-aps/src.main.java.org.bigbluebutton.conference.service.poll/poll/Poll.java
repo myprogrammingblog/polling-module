@@ -57,6 +57,11 @@ public class Poll{
 		this.time = time;
 		//answersCounter(); // creating string-integer value pair for counting vote results
 	}
+	
+	/*public Poll(Poll aPoll){
+		this(aPoll.title, aPoll.question, aPoll.answers, aPoll.isMultiple, aPoll.room, aPoll.votes, aPoll.time);
+		log.debug(LOGNAME + "[TEST] Inside copy constructor for Poll.java");
+	}*/
 
 	public String getRoom() {
 		return room;
