@@ -218,50 +218,21 @@ package org.bigbluebutton.modules.polling.service
 			LogUtil.debug(LOGNAME + " After Connection");
 		}	   
 	
-	// TESTING THIS SHOULD GET POLL FROM THE DB	
-	
-	
+		//#################################################//
+		// Get poll from database, send to users for them to vote on.
+		
 	   	public function  getPoll(pollKey:String):void{
 			LogUtil.debug(LOGNAME + "inside getPoll making netconnection getting our poll back! key: " + pollKey);
-			// So, the data stays in poll until nc.call ends, and then disappears.
-			var poll:PollObject = new PollObject();
-			pollGlobal = new PollObject();
-			test = new String();
-			test = "BEFORE";
-			
+			// So, the data stays in poll until nc.call ends, and then disappears.			
 			nc.call("poll.getPoll", new Responder(success, failure), pollKey);
+			// What happens in nc.call, stays in nc.call; data will have to reach the server to persist
 			
-			LogUtil.debug(LOGNAME + "After extractPoll and outside of nc.call, pollGlobal.title is: " + pollGlobal.title);
-			LogUtil.debug(LOGNAME + "(THREE) Test is: " + test);
-			LogUtil.debug(LOGNAME + "After extractPoll and outside of nc.call, poll object consists of: ");
-		    LogUtil.debug(LOGNAME + poll.title);
-		    LogUtil.debug(LOGNAME + poll.room);
-		    LogUtil.debug(LOGNAME + poll.isMultiple);
-		    LogUtil.debug(LOGNAME + poll.question);
-		    LogUtil.debug(LOGNAME + poll.answers);
-		    LogUtil.debug(LOGNAME + poll.votes);
-		    LogUtil.debug(LOGNAME + poll.time); 
 			
 			// Responder functions
 			function success(obj:Object):void{
 				var itemArray:Array = obj as Array;
 				LogUtil.debug(LOGNAME+"Responder object success! " + itemArray);
-				poll = extractPoll(itemArray);
-				test = "AFTER";
-				
-				//pollGlobal.title = poll.title;
-				//LogUtil.debug(LOGNAME + "(2) Test is: " + test);
-				LogUtil.debug(LOGNAME + "Inside of nc.call, pollGlobal.title is: " + pollGlobal.title);
-				/*
-				LogUtil.debug(LOGNAME + "Inside of nc.call, poll object consists of: ");
-			    LogUtil.debug(LOGNAME + poll.title);
-			    LogUtil.debug(LOGNAME + poll.room);
-			    LogUtil.debug(LOGNAME + poll.isMultiple);
-		    	LogUtil.debug(LOGNAME + poll.question);
-			    LogUtil.debug(LOGNAME + poll.answers);
-			    LogUtil.debug(LOGNAME + poll.votes);
-			    LogUtil.debug(LOGNAME + poll.time);
-			    */
+				extractPoll(itemArray);
 			}
 	
 			function failure(obj:Object):void{
@@ -269,40 +240,17 @@ package org.bigbluebutton.modules.polling.service
 			}
 	   } // _getPoll
 	  
-	     public function extractPoll(values:Array):PollObject {
+	     public function extractPoll(values:Array):void {
 		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
 		    var poll:PollObject = new PollObject();
-		    
-		    //test = new String();
-		    
-		    //test = values[0] as String;
-		    pollGlobal.title = values[0] as String;
-		    
-		    //LogUtil.debug(LOGNAME + "(1) Test is: " + test);
-		    
+		    		    
 		    poll.title = values[0] as String;
 		    poll.room = values[1] as String;
 		    poll.isMultiple = values[2] as Boolean;
 		    poll.question = values[3] as String;
 		    poll.answers = values[4] as Array;
 		    poll.votes = values[5] as Array;	    
-		    poll.time = values[6] as String;
-		    
-		    /*
-		    LogUtil.debug(LOGNAME + "Inside extractPoll, poll object consists of: ");
-		    LogUtil.debug(LOGNAME + poll.title);
-		    LogUtil.debug(LOGNAME + poll.room);
-		    LogUtil.debug(LOGNAME + poll.isMultiple);
-		    LogUtil.debug(LOGNAME + poll.question);
-		    LogUtil.debug(LOGNAME + poll.answers);
-		    LogUtil.debug(LOGNAME + poll.votes);
-		    LogUtil.debug(LOGNAME + poll.time);
-		    LogUtil.debug(LOGNAME + "Leaving extractPoll");
-		    */
-		    
-		    return poll;
-		    // The data doesn't survive outside of extractPoll, it seems. That's okay, just continue the event chain right through extractPoll until you hit the point where
-		    // stuff goes back to Java; then the Vegas effect stops being a problem. Ta-da!
+		    poll.time = values[6] as String;		    
 		 }
    }
 }
