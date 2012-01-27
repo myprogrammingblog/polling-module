@@ -20,9 +20,6 @@
   $Id: $
 -->
 
-<!--
-Notes.mxml is the main view of the SharedNotes application
--->
 <MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="200" height="300" 
 	xmlns:mate="http://mate.asfusion.com/" 
@@ -40,7 +37,23 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.common.LogUtil;	 
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
 
+			import mx.validators.Validator;	
+			import mx.utils.ObjectUtil;
+
+
+
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.IUIComponent;
+			import mx.controls.CheckBox;
+			import mx.controls.RadioButton;
+			import mx.controls.Text;
+		    import mx.containers.*;
+		    import mx.controls.*;
+
+			
 			
 
 
@@ -48,12 +61,16 @@ Notes.mxml is the main view of the SharedNotes application
 		   public static const LOGNAME:String = "[PollingViewWindow] ";
 	
 			
+			public var isMultiple:Boolean;
+			[Bindable] public var question:String;
+			[Bindable] public var answers:Array;
+			public var votes:Array;
+			public var time:String;
 			
 			public var moduleAttributes:Object;
 			private var _userid:Number; 
 			private var window:PollingViewWindow;
 
-			
 			
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
@@ -69,41 +86,95 @@ Notes.mxml is the main view of the SharedNotes application
 				dispatchEvent(new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE));
 			}
  
+ 
 			private function onCreationComplete():void{
 				LogUtil.debug(LOGNAME + " Inside Creation Complete");
+				LogUtil.debug(LOGNAME + " Inside Creation Complete Answers : " +answers);
+				 createButtons(answers.length,answers);
+				 			invalidateDisplayList();
+							validateNow(); 
 			}
 			
+			
 			// This function will receive information and generate radiobuttons on fly
+			
+			
+			// function receives Array.length and ArrayCollection
+		private function createButtons(amount:uint, content:Array):void{
+		
+			LogUtil.debug(LOGNAME+" here are answers:" + content+ " Amount of answers is : " +amount);
+			 var _cb:CheckBox;
+			 var _rb:RadioButton;
+			 var _tx: Text;
+			 var _hb: HBox; 
+			
+			 // creating buttons one by one
+			 LogUtil.debug(LOGNAME+" buttons creation Step1");
+			   for (var i:int = 0; i < amount; i++) {
+					
+				_tx = new Text();
+				_hb = new HBox();
+				LogUtil.debug(LOGNAME+" Box is "+ _hb);
+				_tx.name = "option" +i;
+				_tx.width = 200;
+				 // assigning array element to text field
+				 LogUtil.debug(LOGNAME+" Once again content is " + content+ " 'i' is  : " + i + "and contet[i] is "+ content[i]);
+				 
+				 _tx.text =content[i].toString(); 
+				 
+				 LogUtil.debug(LOGNAME+" Tx Text is " + _tx.text);
+				 
+				 //LogUtil.debug(LOGNAME+" answerBox is "+ answerBox);
+				 answerBox.addChild(_hb);
+				 //this.addChild(_hb);
+				 LogUtil.debug(LOGNAME+" buttons creation Step1 and a half");
+				 // if global var isMultiple is true it means user wants checkboxes, 
+				 //otherwise radiobutton (if multiple choices are allowed)
+					if(isMultiple){
+				
+				 	   _cb= new CheckBox();
+				 	   // giving button a name of array elelment to process it easier later
+				    	   _cb.name=content[i].toString(); 
+				    	    // gap between the buttons
+ 				    	   _cb.y=i*20;
+ 				    	   // adding buttons to the Horizontal Box
+ 				    	   _hb.addChild(_cb); 
+ 				    
+				 		 }else{
+				  				 LogUtil.debug(LOGNAME+" buttons creation Step2");
+				 	     	    _rb = new RadioButton();
+				 	              _rb.name = content[i].toString(); // giving button a name of array elelment to process it easier later
+				 	              _rb.groupName = "answers";
+				 	              _rb.label ="*";	
+				 	              _hb.addChild(_rb);
+				     
+				     				 LogUtil.debug(LOGNAME+" buttons creation Step3");
+				 		 }    
+				 		_hb.addChild(_tx); // adding text near button
+				 			 LogUtil.debug(LOGNAME+" buttons creation Step4 text is:"+ _tx);
+				 
+    			   		
+				 } // end of loop
+		
+			} // end of function
 			
 			
 		]]>
 	</mx:Script>
 	
-	<!-- Prorotype of Polling Module Design -->
-        <mx:VBox width="100%" height="90%" horizontalAlign="center" >
+	<!-- Prototype of Polling Module Design -->
+        <mx:VBox width="100%" height="90%" horizontalAlign="center" paddingLeft="10" >
           
                <mx:Label width="100%" 
                		paddingTop="30" paddingBottom="10" 
                		fontWeight="bold" textAlign="center"
-                    text="Which card do you use ?" />
+                    text="{question}"/>
 
              	
           
-        			<mx:RadioButton groupName="options" 
-       						 id="americanExpress"
-       						 label="Amex"
-        					
-                   							 />
-    				<mx:RadioButton groupName="options" 
-        					id="masterCard"
-        					label="MasterCard" 
-        					width="150"		/>
-        					
-    				<mx:RadioButton groupName="options" 
-        				   id="visa"
-        				   label="Visa" 
-        			       width="150"
-        			       left="40" />
+        		<mx:Box id="answerBox" width="90%" height="90%" >
+          		</mx:Box>
+          	
         	
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">

@@ -61,7 +61,7 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent; 
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
-			
+			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 
 			
 			
@@ -137,11 +137,12 @@ Notes.mxml is the main view of the SharedNotes application
 			
 
 			/*private function StartPolling():void {
+			
 				LogUtil.debug(LOGNAME + "inside  StartPolling calling StartPollingEvent ");		
 				dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
 				closeInstructionsWindow();
-			}
-			*/
+			}*/
+			
 			
 			
 			
@@ -467,6 +468,8 @@ Notes.mxml is the main view of the SharedNotes application
 				var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
 				LogUtil.debug(LOGNAME + "after PUBLISH constructor");
 				
+				//var viewEvent: PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
+				LogUtil.debug(LOGNAME + "after VIEW constructor");
 				
 				
 				// sending title 
@@ -477,6 +480,10 @@ Notes.mxml is the main view of the SharedNotes application
 				dispatchEvent(publishPollEvent);
 				LogUtil.debug(LOGNAME + "inside publish survived dispatch event");
 				
+				//dispatchEvent(viewEvent);
+				//LogUtil.debug(LOGNAME + "inside view survived dispatch event");
+			
+				dispatchEvent(new StartPollingEvent(StartPollingEvent.START));	
 				closeInstructionsWindow();
 			}
 			
@@ -561,6 +568,7 @@ Notes.mxml is the main view of the SharedNotes application
 		<mx:HBox paddingLeft="20" paddingRight="10" paddingTop="10" paddingBottom="10"> 
 		<!-- Back Button is not visible while instructions and visible while preView -->
 		 <mx:Button id="back" label="Modify" click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()"  width="100" height="30" visible="false"/>
+		   
 		   <mx:Button id="publishButton" label="Publish" click="publish()"  width="100" height="30" visible="false"/>
 		 <mx:ViewStack id="buttons">
 		 

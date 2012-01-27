@@ -25,6 +25,13 @@ package org.bigbluebutton.modules.polling.events
 		public static const OPEN:String = "OPEN_POLLING_VIEW_WINDOW";
 		public static const CLOSE:String = "CLOSE_POLLING_VIEW_WINDOW";
 		
+		public var title:String;
+		public var isMultiple:Boolean;
+		public var question:String;
+		public var answers:Array;
+		public var votes:Array;
+		public var time:String;
+		
 		public function PollingViewWindowEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);

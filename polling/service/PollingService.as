@@ -113,20 +113,31 @@ package org.bigbluebutton.modules.polling.service
            // Dealing with PollingViewWindow
           /*#######################################################*/
           
-         public function sharePollingWindow():void{
+         public function sharePollingWindow(poll:PollObject):void{
          		LogUtil.debug(LOGNAME + "inside sharePollingWindow calling pollingSO.send()");
+         		LogUtil.debug(LOGNAME + "Sharing window: Poll title is: " + poll.title);
          	
          	if (isConnected = true ) {
-         			pollingSO.send("openPollingWindow"); 
+         			pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time); 
          	}
          }
          
-         public function openPollingWindow():void{
+         public function openPollingWindow(title:String, question:String, isMultiple:Boolean, answers:Array, votes:Array, time:String):void{
          	var username:String = module.username;
+         	
+         	LogUtil.debug(LOGNAME + "Opening window: Answers are : " + answers);
+         	LogUtil.debug(LOGNAME + "Opening window: Poll title is: " + title);
+         	         	
          	//var role:String = module.role;
          	if (!UserManager.getInstance().getConference().amIModerator()){
          		LogUtil.debug(LOGNAME + "dispatching Open polling view window for NON moderator users");	
          		var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
+         		e.title = title;
+         		e.question = question;
+         		e.answers = answers;
+         		e.votes = votes;
+         		e.isMultiple = isMultiple;
+         		e.time = time;
 				dispatcher.dispatchEvent(e);
          	}	
          }
@@ -184,6 +195,7 @@ package org.bigbluebutton.modules.polling.service
 		
 		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean, room:String, votes:Array, time:String ):void
 		{
+			/*
 		     LogUtil.debug(LOGNAME + "inside savePoll() making NetConnection: " + nc);
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call answers: " + answers);
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call question: " +  question);
@@ -192,6 +204,7 @@ package org.bigbluebutton.modules.polling.service
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call room: " + room);
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call votes: " + votes);
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call time: " + time);
+		    */
 			nc.call(
 				"poll.savePoll",
 				new Responder(
@@ -226,8 +239,8 @@ package org.bigbluebutton.modules.polling.service
 			// So, the data stays in poll until nc.call ends, and then disappears.			
 			nc.call("poll.getPoll", new Responder(success, failure), pollKey);
 			// What happens in nc.call, stays in nc.call; data will have to reach the server to persist
-			
-			
+			LogUtil.debug(LOGNAME + "Leaving getPoll");
+			//--------------------------------------//
 			// Responder functions
 			function success(obj:Object):void{
 				var itemArray:Array = obj as Array;
@@ -238,7 +251,7 @@ package org.bigbluebutton.modules.polling.service
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure.");
 			}
-	   } // _getPoll
+	   } // _getPoll 
 	  
 	     public function extractPoll(values:Array):void {
 		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
@@ -251,6 +264,9 @@ package org.bigbluebutton.modules.polling.service
 		    poll.answers = values[4] as Array;
 		    poll.votes = values[5] as Array;	    
 		    poll.time = values[6] as String;		    
+		    
+		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
+		    sharePollingWindow(poll);
 		 }
    }
 }

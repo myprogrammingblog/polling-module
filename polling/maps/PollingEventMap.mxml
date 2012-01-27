@@ -103,8 +103,5 @@
 	 <EventHandlers type="{PublishPollEvent.PUBLISH}">
 		<MethodInvoker generator="{PollingManager}" method="handlePublishPollEvent" arguments="{event}"/>
 	</EventHandlers>	
-	
-	
-	
 
 </EventMap>
