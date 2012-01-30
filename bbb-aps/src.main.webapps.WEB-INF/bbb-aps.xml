@@ -143,7 +143,7 @@ class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
    </constructor-arg>
         <constructor-arg index="1" value="${redis.host}"/>
         <constructor-arg index="2" value="${redis.port}"/>
-  </bean>
+ </bean>
 
     
     <!-- END RECORDER AND MESSAGING -->
@@ -169,8 +169,6 @@ class="org.bigbluebutton.conference.service.whiteboard.WhiteboardApplication">
 	   <property name="redisPool"><ref local="redisPool" /> </property>   
 	</bean>
 
-	<bean id="pollInvoker" class="org.bigbluebutton.conference.service.recorder.polling.PollInvoker">
-	   <property name="redisPool"><ref local="redisPool" /> </property>   
-	</bean>
+
     
 </beans>

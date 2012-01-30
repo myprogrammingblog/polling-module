@@ -138,6 +138,7 @@ package org.bigbluebutton.modules.polling.service
          		e.votes = votes;
          		e.isMultiple = isMultiple;
          		e.time = time;
+         		
 				dispatcher.dispatchEvent(e);
          	}	
          }
