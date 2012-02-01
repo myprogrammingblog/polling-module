@@ -20,15 +20,16 @@ package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
 	
-	public class AcceptPollingInstructionsWindowEvent extends Event
+	public class VoteEvent extends Event
 	{
-		public static const OPEN:String =  "OPEN_ACCEPT_POLLING_INSTRUCTIONS_WINDOW";
-		public static const CLOSE:String = "CLOSE_ACCEPT_POLLING_INSTRUCTIONS_WINDOW";
+		public static const START:String = "START";
+		public var answerID : Array;
+		public var pollKey : String;
 		
-		public function AcceptPollingInstructionsWindowEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function VoteEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}
-
+		
 	}
 }

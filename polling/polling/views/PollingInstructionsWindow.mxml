@@ -25,7 +25,7 @@ Notes.mxml is the main view of the SharedNotes application
 -->
 <MDIWindow xmlns="flexlib.mdi.containers.*"
         xmlns:mx="http://www.adobe.com/2006/mxml"
-	width="450" height="580" 
+	width="500" height="580" 
 	xmlns:mate="http://mate.asfusion.com/" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	creationComplete="onCreationComplete()"
@@ -61,7 +61,7 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent; 
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
-			
+			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 
 			
 			
@@ -137,11 +137,12 @@ Notes.mxml is the main view of the SharedNotes application
 			
 
 			/*private function StartPolling():void {
+			
 				LogUtil.debug(LOGNAME + "inside  StartPolling calling StartPollingEvent ");		
 				dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
 				closeInstructionsWindow();
-			}
-			*/
+			}*/
+			
 			
 			
 			
@@ -309,6 +310,7 @@ Notes.mxml is the main view of the SharedNotes application
 		public function goBack():void{
 			_poll = "Create Poll";
 		  	back.visible=false;
+			publishButton.visible=false;
 		  	options.removeAllChildren();
 
 		}
@@ -357,11 +359,13 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			mainArea.selectedChild=review;
 			buttons.selectedChild=reviewButtons;
+		
 			//REFRESHING CANVAS
 			invalidateDisplayList();
 			validateNow(); 
 			// Make Back button visible
 			back.visible=true;
+			publishButton.visible=true;
 			
 			// if Multiple enabled than add check all that apply to string, or if it already added and user desided he don't want multiple than delete it
 			    	if(_isMultiple){
@@ -464,6 +468,8 @@ Notes.mxml is the main view of the SharedNotes application
 				var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
 				LogUtil.debug(LOGNAME + "after PUBLISH constructor");
 				
+				//var viewEvent: PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
+				LogUtil.debug(LOGNAME + "after VIEW constructor");
 				
 				
 				// sending title 
@@ -474,6 +480,10 @@ Notes.mxml is the main view of the SharedNotes application
 				dispatchEvent(publishPollEvent);
 				LogUtil.debug(LOGNAME + "inside publish survived dispatch event");
 				
+				//dispatchEvent(viewEvent);
+				//LogUtil.debug(LOGNAME + "inside view survived dispatch event");
+			
+				dispatchEvent(new StartPollingEvent(StartPollingEvent.START));	
 				closeInstructionsWindow();
 			}
 			
@@ -491,7 +501,7 @@ Notes.mxml is the main view of the SharedNotes application
               <mx:Canvas id="instrMain" width="90%" height="90%">
            	<mx:VBox width="90%" height="90%" >
            	
-            		<mx:Form width="100%"  id="instructionsForm"  paddingTop="30" paddingBottom="10">
+            		<mx:Form width="100%"  id="instructionsForm"  paddingTop="30" paddingBottom="10" paddingLeft="30">
            
 	   		   <mx:FormItem fontWeight="bold"   label="Title :" paddingLeft="35" required="true" >
 				<mx:TextInput id="pollTitle" /> 
@@ -555,9 +565,11 @@ Notes.mxml is the main view of the SharedNotes application
 	   <!-- ###################BUTTONS##############-->  
 	   <!-- area where buttons are located -->
 	   <mx:ControlBar x="60" y="460"  >
-		<mx:HBox paddingLeft="40" paddingRight="10" paddingTop="10" paddingBottom="10"> 
+		<mx:HBox paddingLeft="20" paddingRight="10" paddingTop="10" paddingBottom="10"> 
 		<!-- Back Button is not visible while instructions and visible while preView -->
 		 <mx:Button id="back" label="Modify" click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()"  width="100" height="30" visible="false"/>
+		   
+		   <mx:Button id="publishButton" label="Publish" click="publish()"  width="100" height="30" visible="false"/>
 		 <mx:ViewStack id="buttons">
 		 
 		   <!--buttons that appear when Instructions is displayed -->
@@ -566,9 +578,9 @@ Notes.mxml is the main view of the SharedNotes application
 		   </mx:Canvas>
 		   <!-- buttons that appear on Review  -->
 		   <mx:Canvas id="reviewButtons">
-			<!--mx:Button id="SavePoll" label="SavePoll" click="savePoll()"  width="100" height="30"/-->
-			<mx:Button id="Publish" label="Publish" click="publish()"  width="100" height="30"/>
+			<mx:Button id="SavePoll" label="Save" click="savePoll()"  width="100" height="30"/>
 		   </mx:Canvas>	
+		   
 		   </mx:ViewStack>
 		    <!-- Cancel button appear everywhere -->
 		    <mx:Button id="Cancel" label="Cancel" click="closeInstructionsWindow()"  width="100" height="30"/>

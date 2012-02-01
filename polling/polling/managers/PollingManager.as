@@ -138,6 +138,12 @@ package org.bigbluebutton.modules.polling.managers
 			service.getPoll(pollKey);
 		}	
 		
+		// View Poll experiment
+		public function handlePollingViewWindowEvent(e:PollingViewWindowEvent):void
+		{
+			var pollKey:String;
+			LogUtil.debug(LOGNAME + " inside handlePollingViewWindowEvent()");
+		}
 		
    }
 }

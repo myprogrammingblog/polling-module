@@ -21,7 +21,7 @@ package org.bigbluebutton.modules.polling.managers
 {
 	import com.asfusion.mate.events.Dispatcher;
 	
-
+	import mx.collections.ArrayCollection;
 	import org.bigbluebutton.common.IBbbModuleWindow;
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.common.events.CloseWindowEvent;
@@ -61,7 +61,12 @@ package org.bigbluebutton.modules.polling.managers
 		//#########################################################################
 		public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
 			LogUtil.debug(LOGNAME + "inside handleOpenPollingViewWindow");
+			LogUtil.debug(LOGNAME + "Event.title = " + e.title);
 			pollingWindow = new PollingViewWindow();
+			pollingWindow.title = e.title;
+			pollingWindow.question = e.question;
+			pollingWindow.isMultiple = e.isMultiple;
+			pollingWindow.answers = e.answers;
 			//LogUtil.debug(LOGNAME + " sending Window To startPolling");
 			openWindow(pollingWindow);
 		}
@@ -108,7 +113,7 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public function handleStartPollingEvent():void{
 			LogUtil.debug(LOGNAME+ "calling service to share PollingWindow");
-			service.sharePollingWindow();
+//			service.sharePollingWindow();
 		}
 		
 		

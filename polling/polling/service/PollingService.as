@@ -61,8 +61,9 @@ package org.bigbluebutton.modules.polling.service
 		private var dispatcher:Dispatcher;
 		private var attributes:Object;
 		private var windowManager: PollingWindowManager;
+		public var pollGlobal:PollObject;
 		
-		
+		public var test:String;
 		
 		private static const SHARED_OBJECT:String = "pollingSO";
 		private var isPolling:Boolean = false;
@@ -112,20 +113,32 @@ package org.bigbluebutton.modules.polling.service
            // Dealing with PollingViewWindow
           /*#######################################################*/
           
-         public function sharePollingWindow():void{
+         public function sharePollingWindow(poll:PollObject):void{
          		LogUtil.debug(LOGNAME + "inside sharePollingWindow calling pollingSO.send()");
+         		LogUtil.debug(LOGNAME + "Sharing window: Poll title is: " + poll.title);
          	
          	if (isConnected = true ) {
-         			pollingSO.send("openPollingWindow"); 
+         			pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time); 
          	}
          }
          
-         public function openPollingWindow():void{
+         public function openPollingWindow(title:String, question:String, isMultiple:Boolean, answers:Array, votes:Array, time:String):void{
          	var username:String = module.username;
+         	
+         	LogUtil.debug(LOGNAME + "Opening window: Answers are : " + answers);
+         	LogUtil.debug(LOGNAME + "Opening window: Poll title is: " + title);
+         	         	
          	//var role:String = module.role;
          	if (!UserManager.getInstance().getConference().amIModerator()){
          		LogUtil.debug(LOGNAME + "dispatching Open polling view window for NON moderator users");	
          		var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
+         		e.title = title;
+         		e.question = question;
+         		e.answers = answers;
+         		e.votes = votes;
+         		e.isMultiple = isMultiple;
+         		e.time = time;
+         		
 				dispatcher.dispatchEvent(e);
          	}	
          }
@@ -183,6 +196,7 @@ package org.bigbluebutton.modules.polling.service
 		
 		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean, room:String, votes:Array, time:String ):void
 		{
+			/*
 		     LogUtil.debug(LOGNAME + "inside savePoll() making NetConnection: " + nc);
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call answers: " + answers);
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call question: " +  question);
@@ -191,6 +205,7 @@ package org.bigbluebutton.modules.polling.service
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call room: " + room);
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call votes: " + votes);
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call time: " + time);
+		    */
 			nc.call(
 				"poll.savePoll",
 				new Responder(
@@ -198,7 +213,7 @@ package org.bigbluebutton.modules.polling.service
 						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
 					},	
 					function(status:Object):void { 
-						LogUtil.error(LOGNAME + "Error occurred sending info to server"); 
+						LogUtil.error(LOGNAME + "Error occurred sending info to server in SAVEPOLL NC.CALL"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 						} 
@@ -217,48 +232,63 @@ package org.bigbluebutton.modules.polling.service
 			LogUtil.debug(LOGNAME + " After Connection");
 		}	   
 	
-	// TESTING THIS SHOULD GET POLL FROM THE DB
-	   public function  getPoll(pollKey:String):void{
-			LogUtil.debug(LOGNAME + "inside getPoll making netconnnection getting our poll back! key:" + pollKey);
-			var poll:PollObject;
-			try
-			{
-			nc.call(
-				"poll.getPoll",
+		//#################################################//
+		// Get poll from database, send to users for them to vote on.
+		
+	   	public function  getPoll(pollKey:String):void{
+			LogUtil.debug(LOGNAME + "inside getPoll making netconnection getting our poll back! key: " + pollKey);
+			// So, the data stays in poll until nc.call ends, and then disappears.			
+			nc.call("poll.getPoll", new Responder(success, failure), pollKey);
+			// What happens in nc.call, stays in nc.call; data will have to reach the server to persist
+			LogUtil.debug(LOGNAME + "Leaving getPoll");
+			//--------------------------------------//
+			// Responder functions
+			function success(obj:Object):void{
+				var itemArray:Array = obj as Array;
+				LogUtil.debug(LOGNAME+"Responder object success! " + itemArray);
+				extractPoll(itemArray);
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure in GETPOLL NC.CALL");
+			}
+	   } // _getPoll 
+	  
+	     public function extractPoll(values:Array):void {
+		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
+		    var poll:PollObject = new PollObject();
+		    		    
+		    poll.title = values[0] as String;
+		    poll.room = values[1] as String;
+		    poll.isMultiple = values[2] as Boolean;
+		    poll.question = values[3] as String;
+		    poll.answers = values[4] as Array;
+		    poll.votes = values[5] as Array;	    
+		    poll.time = values[6] as String;		    
+		    
+		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
+		    sharePollingWindow(poll);
+		 }
+		 
+		 public function vote(pollKey:String, answerIDs:Array):void{
+		 	// answerIDs will indicate by integer which option(s) the user voted for
+		 	// i.e., they voted for 3 and 5 on multiple choice, answerIDs will hold [0] = 3, [1] = 5
+		 	// (could be out of order, shouldn't matter) 
+		 	nc.call(
+				"poll.vote",
 				new Responder(
 					function(result:Object):void { 
-						LogUtil.debug(LOGNAME+" succesfully connected  received poll back");
-						 if(result != null)
-						 {
-						 	poll = result as PollObject;
-						    extractPoll(poll);
-						 }
-						 else LogUtil.debug(LOGNAME + "Result is empty, so poll is empty");
+						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
 					},	
 					function(status:Object):void { 
-						LogUtil.error(LOGNAME + "Error occurred sending info to server"); 
+						LogUtil.error(LOGNAME + "Error occurred sending info to server in VOTE NC.CALL"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 						} 
 					}
 				),
-				pollKey
+				pollKey, answerIDs
 			);
-			LogUtil.debug(LOGNAME + "nc.call survived");
-			} catch (e:Error) { 
-			LogUtil.debug(LOGNAME + "nc.call blew up. KABOOM");
-	   		}
-	   		/*LogUtil.debug(LOGNAME + "Outside of try-catch, poll.title is " + poll.title);
-	   		extractPoll(poll);
-	   		LogUtil.debug(LOGNAME + "extraction survived" + poll);*/
-	   }
-	  
-	     public function extractPoll(poll:Object):void {
-	     //	var title:String  = poll.title as String;
-			//LogUtil.debug(LOGNAME + "Extracting: Result title is " + title);
-			var pollobj:PollObject = poll as PollObject;
-			LogUtil.debug(LOGNAME + "Extracting poll: " + pollobj + " Here is poll : " +pollobj.title);
-		        
-		 }
+		 } // _vote
    }
 }
