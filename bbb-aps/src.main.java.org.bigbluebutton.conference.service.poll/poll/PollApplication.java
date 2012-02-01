@@ -135,12 +135,12 @@ public class PollApplication {
 	    	// Extract  the index value stored at element i of answerIDs
 	    	Integer index = Integer.parseInt(answerIDs.get(i).toString());
 	    		log.debug("[TEST] In foreach loop, Integer index is " + index.intValue());
-	    	// Get the current value of votes for that index; remember to subtract one, since answer 1 is element 0
-	    	Integer total = poll.votes.get(index.intValue()-1);
+	    	// Get the current value of votes for that index; remember that the answers are now zero-based like an array
+	    	Integer total = poll.votes.get(index.intValue());
 	    		log.debug("[TEST] In foreach loop, poll.votes at that index is " + total + " before change.");
-	    	// Increment the votes for answer index-1
-	    	poll.votes.set(index.intValue()-1, total++);
-	    		log.debug("[TEST] In foreach loop, poll.votes at that index is " + poll.votes.get(index.intValue()-1) + " after change.");
+	    	// Increment the votes for answer
+	    	poll.votes.set(index.intValue(), total++);
+	    		log.debug("[TEST] In foreach loop, poll.votes at that index is " + poll.votes.get(index.intValue()) + " after change.");
 	    }
 	    savePoll(poll);
 	}

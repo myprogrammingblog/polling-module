@@ -133,9 +133,9 @@
 					if(isMultiple){
 						cbSelected = new Array();
 				 	   _cb= new CheckBox();
-				 	   // giving button a name of array elelment to process it easier later
+				 	   // giving button a name of array element to process it easier later
 				    	   //_cb.label=content[i].toString(); 
-				    	   _cb.id = "answers"+(i+1);
+				    	   _cb.id = "answers"+i;
 				    	   _cb.addEventListener(MouseEvent.CLICK, checkBoxClick);
 				    	   // _cb.addEventListener(click, onClick(_cb.id.charAt(_cb.id.length-1)));
 				    	    // gap between the buttons
@@ -149,7 +149,7 @@
 				 	     	      _rb = new RadioButton();
 				 	     	      _rb.groupName = "answersGroup";
 				 	              _rb.name = content[i].toString(); // giving button a name of array elelment to process it easier later
-				 	              _rb.id = "answers"+(i+1);
+				 	              _rb.id = "answers"+i;
 				 	               _hb.addChild(_rb);
 				 	              LogUtil.debug("RadioButton id is " + _rb.id.toString());
 
@@ -169,55 +169,41 @@
 				if (isMultiple){
 					// Checkboxes
 					LogUtil.debug(LOGNAME + "[TEST] Testing CheckBoxes");
-					LogUtil.debug(LOGNAME + "[TEST] AnswerBox has children: " + answerBox.numChildren);
-					for (var i:int = 0; i < answerBox.numChildren; i++){
-						LogUtil.debug(LOGNAME + "[TEST] For loop i value is: " + i);
-						var child:DisplayObject = answerBox.getChildAt(i);
-						LogUtil.debug(LOGNAME + "[TEST] Get AnswerBox child at I value is: " + answerBox.getChildAt(i));
-						LogUtil.debug(LOGNAME + "[TEST] Copied child shows up as          : " + child);
-						
-						// voteEvent.answerID = cbSelected;
-					}
+					LogUtil.debug(LOGNAME + "[TEST] User has voted for these boxes: " + cbSelected);
+					// voteEvent.answerID = cbSelected;
 				}else{
 					// Radio Buttons
 					var selectedAnswer:String = answersGroup.selection.toString();
-					LogUtil.debug(LOGNAME + "Inside vote() Full string for selected answer: " + selectedAnswer);
-					LogUtil.debug(LOGNAME + "Inside vote() Index for selected answer: " + selectedAnswer.charAt(selectedAnswer.length-1));
-					// voteEvent.answerID.add(selectedAnswer.charAt(selectedAnswer.length-1));
+					LogUtil.debug(LOGNAME + "[TEST] Testing RadioButtons");
+					LogUtil.debug(LOGNAME + "[TEST] User has voted for: " + selectedAnswer.charAt(selectedAnswer.length-1));
+					// voteEvent.answerID.push(selectedAnswer.charAt(selectedAnswer.length-1));
 				}
 				closeWindow();
 			}
 			
+			// As the user clicks CheckBoxes, this function keeps a running tally of which boxes are and are not selected
 			private function checkBoxClick(e:Event):void{
-				LogUtil.debug(LOGNAME + " On entry, cbSelected is " + cbSelected);
-				//LogUtil.debug(LOGNAME + " Current target is " + e.currentTarget);
+				//LogUtil.debug(LOGNAME + " On entry, cbSelected is " + cbSelected);
 				var boxID:String = e.currentTarget.toString();
-				LogUtil.debug(LOGNAME + " BoxID is " + boxID.charAt(boxID.length-1));
+				//LogUtil.debug(LOGNAME + " BoxID is " + boxID.charAt(boxID.length-1));
 				
 				var match:Boolean = false;
 				var target:int;
 				
-				LogUtil.debug("Array size is " +cbSelected.length);
-				
 				// Goes through each element of the array, looks for a match to boxID
 				for (var i:int = 0; i < cbSelected.length; i++){
 					if (cbSelected[i] == boxID.charAt(boxID.length-1)){
-						LogUtil.debug(cbSelected[i] + " matches " + boxID.charAt(boxID.length-1));
 						match = true;
 						target = i;
 					}
-					else{LogUtil.debug(cbSelected[i] + " does not match " + boxID.charAt(boxID.length-1));}
 				}
 				// If a match is found, delete that element. If no match is found, add boxID to the array
 				if (match){
 					cbSelected.splice(target, 1);
-					LogUtil.debug(LOGNAME + " This box was checked, and is now unchecked");
 				}else{
 					cbSelected.push(boxID.charAt(boxID.length-1));
-					LogUtil.debug(LOGNAME + " This box was NOT checked, and now it is");
 				}
-				
-				LogUtil.debug(LOGNAME + " On exit, cbSelected is " + cbSelected);
+				//LogUtil.debug(LOGNAME + " On exit, cbSelected is " + cbSelected);
 			}
 	
 			
