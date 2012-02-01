@@ -43,6 +43,25 @@ public class PollRecorder {
 
          }
 
+       public Jedis dbConnect(){
+     	   	// Reads IP from Java, for portability
+     	       String serverIP = "INVALID IP";
+     	       try
+     	       {
+     	       	InetAddress addr = InetAddress.getLocalHost();
+     	           // Get hostname
+     	           String hostname = addr.getHostName();
+     	           serverIP = hostname;
+     	       	log.debug("[TEST] IP capture successful, IP is " + serverIP);
+     	       } catch (Exception e)
+     	       {
+     	       	log.debug("[TEST] IP capture failed...");
+     	       }
+     	       
+     	       JedisPool redisPool = new JedisPool(serverIP, 6379);
+     	       return redisPool.getResource();
+        }
+         
         public JedisPool getRedisPool() {
         	 return redisPool;
         }
@@ -50,26 +69,10 @@ public class PollRecorder {
         public void setRedisPool(JedisPool pool) {
         	 this.redisPool = pool;
         }
-
+        
         public void record(Poll poll) {
             log.debug("[TEST] inside pollRecorder record");
-            // Reads IP from Java, for portability
-            String serverIP = "INVALID IP";
-            try
-            {
-            	InetAddress addr = InetAddress.getLocalHost();
-                // Get hostname
-                String hostname = addr.getHostName();
-                serverIP = hostname;
-            	log.debug("[TEST] IP capture successful, IP is " + serverIP);
-            } catch (Exception e)
-            {
-            	log.debug("[TEST] IP capture failed...");
-            }
-            
-            redisPool = new JedisPool(serverIP, 6379);
-            Jedis jedis = redisPool.getResource();
-			
+            Jedis jedis = dbConnect();
             // Merges the poll title, room into a single string seperated by a hyphen
 			String pollKey = poll.room + "-" + poll.title;
 			log.debug("[TEST] Saving poll " + pollKey);
@@ -88,16 +91,7 @@ public class PollRecorder {
 			}
 
 			log.debug("[TEST] Poll " + pollKey + " saved!");
+
 			redisPool.returnResource(jedis);
-			
-			
-			//PollInvoker invoker = new PollInvoker();
-			/*/ Testing invoke() to make sure it logs properly (it does)
-			invoker.invoke(pollKey);
-			*/
-			
-			/*/ Testing pollList to see if it works how I think (it does)
-			invoker.pollList();
-			*/
         }
 }

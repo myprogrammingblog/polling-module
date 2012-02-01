@@ -35,6 +35,7 @@ import org.apache.commons.lang.time.DateFormatUtils;
 
 import org.bigbluebutton.conference.service.poll.Poll;
 
+
 public class PollInvoker {
     private static Logger log = Red5LoggerFactory.getLogger( PollInvoker.class, "bigbluebutton");
     
@@ -53,28 +54,32 @@ public class PollInvoker {
    	 this.redisPool = pool;
    }
    
+   public Jedis dbConnect(){
+	   	// Reads IP from Java, for portability
+	       String serverIP = "INVALID IP";
+	       try
+	       {
+	       	InetAddress addr = InetAddress.getLocalHost();
+	           // Get hostname
+	           String hostname = addr.getHostName();
+	           serverIP = hostname;
+	       	log.debug("[TEST] IP capture successful, IP is " + serverIP);
+	       } catch (Exception e)
+	       {
+	       	log.debug("[TEST] IP capture failed...");
+	       }
+	       
+	       JedisPool redisPool = new JedisPool(serverIP, 6379);
+	       return redisPool.getResource();
+   }
+	   
+   
    // The invoke method is called after already determining which poll is going to be used
    // (ie, the presenter has chosen this poll from a list and decided to use it, or it is being used immediately after creation)
    public Poll invoke(String pollKey){
 	   log.debug("[TEST] inside PollInvoker invoke for key: " + pollKey);
 	   
-	   // REDIS CONNECTION
-	   // Reads IP from Java, for portability
-       String serverIP = "INVALID IP";
-       try
-       {
-       	InetAddress addr = InetAddress.getLocalHost();
-           // Get hostname
-           String hostname = addr.getHostName();
-           serverIP = hostname;
-       	log.debug("[TEST] IP capture successful, IP is " + serverIP);
-       } catch (Exception e)
-       {
-       	log.debug("[TEST] IP capture failed...");
-       }
-       redisPool = new JedisPool(serverIP, 6379);
-       Jedis jedis = redisPool.getResource();
-       // _REDIS CONNECTION   
+	   Jedis jedis = dbConnect();   
        
        if (jedis.exists(pollKey))
        {
@@ -104,7 +109,7 @@ public class PollInvoker {
     	   }
        
     	   Poll poll = new Poll(pTitle, pQuestion, pAnswers, pMultiple, pRoom, pVotes, pTime);
-       
+    	   /*
     	   log.debug("[TEST] PollInvoker has created poll object, information stored inside it is: ");
     	   log.debug("[TEST] Title: " + poll.title);
     	   log.debug("[TEST] Question: " + poll.question);
@@ -116,34 +121,24 @@ public class PollInvoker {
     		   log.debug("[TEST] Answer"+j+"Text: " + poll.answers.toArray()[j-1].toString());
     		   log.debug("[TEST] Answer"+j+": " + poll.votes.toArray()[j-1].toString());
     	   }
-    	   redisPool.returnResource(jedis);
-    	   return poll;
+    	   */
+    	   try
+    	   {
+    		   redisPool.returnResource(jedis);
+    		   log.debug("[TEST] Returning resource successfully in invoke");
+    	   }
+    	   finally{return poll;}
        }
        log.error("[ERROR] A poll is being invoked that does not exist. Null exception will be thrown.");
-       redisPool.returnResource(jedis); 
+       redisPool.returnResource(jedis);
        return null;
    }
    
    // Gets the ID of the current room, and returns a list of all available polls.
    public ArrayList <String> pollList()
    {
-	   // REDIS CONNECTION
-	   // Reads IP from Java, for portability
-       String serverIP = "INVALID IP";
-       try
-       {
-       	InetAddress addr = InetAddress.getLocalHost();
-           // Get hostname
-           String hostname = addr.getHostName();
-           serverIP = hostname;
-       	//log.debug("[TEST] IP capture successful, IP is " + serverIP);
-       } catch (Exception e)
-       {
-    	   log.debug("[TEST] IP capture failed, redis connection will not work.");
-       }
-       redisPool = new JedisPool(serverIP, 6379);
-       Jedis jedis = redisPool.getResource();
-       // _REDIS CONNECTION 
+	   //Jedis jedis = PollApplication.dbConnect(); 
+	   Jedis jedis = dbConnect();
 	   
        String roomName = Red5.getConnectionLocal().getScope().getName();
 	   ArrayList <String> pollKeyList = new ArrayList <String>(); 

@@ -32,6 +32,8 @@ import org.red5.server.api.so.ISharedObject;
 
 import org.red5.server.api.Red5;
 
+import redis.clients.jedis.Jedis;
+
 
 
 
@@ -71,7 +73,22 @@ public class PollService {
 		values.add(poll.question);
 		values.add(poll.answers);
 		values.add(poll.votes);
-		values.add(poll.time);
+		values.add(poll.time);		
 		return values;
 	}
+	
+	public void vote(String pollKey, ArrayList answerIDs)
+	{
+		// Add a poll.Vote bean nc.call
+		application.vote(pollKey, answerIDs);
+		/*
+		// TESTING: Automatically send in a vote to observe the results.
+		ArrayList voteTest = new ArrayList();
+		voteTest.add(2);
+		if (poll.isMultiple){voteTest.add(1);}
+		vote(pollKey, voteTest);
+		*/
+	}
+	
+	
 }

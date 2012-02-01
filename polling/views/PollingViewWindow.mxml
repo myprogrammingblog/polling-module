@@ -27,7 +27,7 @@
 	creationComplete="onCreationComplete()"
 	label="Polling" layout="absolute" 
 	title="Polling">
-	
+
 	<mx:Script>
 		<![CDATA[
 		import flexlib.mdi.events.MDIWindowEvent;
@@ -50,6 +50,7 @@
 		    import mx.containers.*;
 		    import mx.controls.*;
 
+
 		   	public static const LOGNAME:String = "[PollingViewWindow] ";
 			
 			public var isMultiple:Boolean;
@@ -61,16 +62,17 @@
 			public var moduleAttributes:Object;
 			private var _userid:Number; 
 			private var window:PollingViewWindow;
+			
+			public var cbSelected:Array;
+
+
 
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
 			}
 				
 			
-			private function Vote():void{
-				closeWindow();
-				
-			}
+						
 			private function closeWindow():void{
 				LogUtil.debug(LOGNAME + "inside closeWindow()");
 				dispatchEvent(new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE));
@@ -79,17 +81,15 @@
  
 			private function onCreationComplete():void{
 				LogUtil.debug(LOGNAME + " Inside Creation Complete");
-				LogUtil.debug(LOGNAME + " Inside Creation Complete Answers : " +answers);
 				 createButtons(answers.length,answers);
 				 			invalidateDisplayList();
 							validateNow(); 
-				// Changing height this way works, simple as that.
-				// height = 500;
 				
 				var lines:int = (question.length / 28) + 1;
 				for(var s:String in answers){
 					lines = lines + ((s.length / 28) + 1);	
-				}
+				}				 	            
+				
 				
 				height = height + (lines * 50);
 			}
@@ -99,16 +99,20 @@
 			
 			
 			// function receives Array.length and ArrayCollection
-		private function createButtons(amount:uint, content:Array):void{
+			private function createButtons(amount:uint, content:Array):void{
 		
 			LogUtil.debug(LOGNAME+" here are answers:" + content+ " Amount of answers is : " +amount);
 			 var _cb:CheckBox;
 			 var _rb:RadioButton;
 			 var _tx: Text;
 			 var _hb: HBox; 
-			
+			 var  _rb_group:RadioButtonGroup = new RadioButtonGroup();
+
+			 if (isMultiple) {
+			 	cbSelected = new Array(0);
+			 }
 			 // creating buttons one by one
-			 LogUtil.debug(LOGNAME+" buttons creation Step1");
+			 
 			   for (var i:int = 0; i < amount; i++) {
 					
 				_tx = new Text();
@@ -117,50 +121,115 @@
 				_tx.name = "option" +i;
 				_tx.width = 200;
 				 // assigning array element to text field
-				 LogUtil.debug(LOGNAME+" Once again content is " + content+ " 'i' is  : " + i + "and contet[i] is "+ content[i]);
+				// LogUtil.debug(LOGNAME+" Once again content is " + content+ " 'i' is  : " + i + "and contet[i] is "+ content[i]);
 				 
 				 _tx.text =content[i].toString(); 
 				 
 				 LogUtil.debug(LOGNAME+" Tx Text is " + _tx.text);
 				 
-				 //LogUtil.debug(LOGNAME+" answerBox is "+ answerBox);
+				 
 				 answerBox.addChild(_hb);
-				 //this.addChild(_hb);
-				 LogUtil.debug(LOGNAME+" buttons creation Step1 and a half");
+			
+				 
 				 // if global var isMultiple is true it means user wants checkboxes, 
 				 //otherwise radiobutton (if multiple choices are allowed)
 					if(isMultiple){
 				
 				 	   _cb= new CheckBox();
 				 	   // giving button a name of array elelment to process it easier later
-				    	   _cb.name=content[i].toString(); 
+				    	   //_cb.label=content[i].toString(); 
+				    	   _cb.id = "answers"+(i+1);
+				    	   _cb.addEventListener(MouseEvent.CLICK, checkBoxClick);
+				    	   // _cb.addEventListener(click, onClick(_cb.id.charAt(_cb.id.length-1)));
 				    	    // gap between the buttons
  				    	   _cb.y=i*20;
+ 				    	   
  				    	   // adding buttons to the Horizontal Box
- 				    	   _hb.addChild(_cb); 
- 				    
-				 		 }else{
-				  				 LogUtil.debug(LOGNAME+" buttons creation Step2");
-				 	     	    _rb = new RadioButton();
+ 				      	   _hb.addChild(_cb);
+ 				      	   LogUtil.debug(LOGNAME+" Generated checkbox with id: " + _cb.id);
+ 				      	   LogUtil.debug(LOGNAME+" Generated checkbox with name: " + _cb.name);
+ 				    }else{
+				 	     	      _rb = new RadioButton();
+				 	     	      _rb.groupName = "answersGroup";
 				 	              _rb.name = content[i].toString(); // giving button a name of array elelment to process it easier later
-				 	              _rb.groupName = "answers";
-				 	              //_rb.label ="*";	
-				 	              _hb.addChild(_rb);
-				     
-				     				 LogUtil.debug(LOGNAME+" buttons creation Step3");
+				 	              _rb.id = "answers"+(i+1);
+				 	               _hb.addChild(_rb);
+				 	              LogUtil.debug("RadioButton id is " + _rb.id.toString());
+
 				 		 }    
-				 		_hb.addChild(_tx); // adding text near button
-				 			 LogUtil.debug(LOGNAME+" buttons creation Step4 text is:"+ _tx);
-				 
+				 		_hb.addChild(_tx); // adding text near button			 
     			   		
 				 } // end of loop
+				 
+				 answerBox.validateNow();	
 		
 			} // end of function createButtons
 			
 			
+			private function Vote():void{
+				// var voteEvent: VoteEvent = new VoteEvent(VoteEvent.START);
+								
+				if (isMultiple){
+					// Checkboxes
+					LogUtil.debug(LOGNAME + "[TEST] Testing CheckBoxes");
+					LogUtil.debug(LOGNAME + "[TEST] AnswerBox has children: " + answerBox.numChildren);
+					for (var i:int = 0; i < answerBox.numChildren; i++){
+						LogUtil.debug(LOGNAME + "[TEST] For loop i value is: " + i);
+						var child:DisplayObject = answerBox.getChildAt(i);
+						LogUtil.debug(LOGNAME + "[TEST] Get AnswerBox child at I value is: " + answerBox.getChildAt(i));
+						LogUtil.debug(LOGNAME + "[TEST] Copied child shows up as          : " + child);
+						
+						// voteEvent.answerID = cbSelected;
+					}
+				}else{
+					// Radio Buttons
+					var selectedAnswer:String = answersGroup.selection.toString();
+					LogUtil.debug(LOGNAME + "Inside vote() Full string for selected answer: " + selectedAnswer);
+					LogUtil.debug(LOGNAME + "Inside vote() Index for selected answer: " + selectedAnswer.charAt(selectedAnswer.length-1));
+					// voteEvent.answerID.add(selectedAnswer.charAt(selectedAnswer.length-1));
+				}
+				closeWindow();
+			}
+			
+			private function checkBoxClick(e:Event):void{
+				LogUtil.debug(LOGNAME + " On entry, cbSelected is " + cbSelected);
+				//LogUtil.debug(LOGNAME + " Current target is " + e.currentTarget);
+				var boxID:String = e.currentTarget.toString();
+				LogUtil.debug(LOGNAME + " BoxID is " + boxID.charAt(boxID.length-1));
+				
+				var match:Boolean = false;
+				var target:int;
+				
+				LogUtil.debug("Array size is " +cbSelected.size);
+				
+				// Goes through each element of the array, looks for a match to boxID
+				for (var i:int = 0; i < cbSelected.size; i++){
+					if (cbSelected[i] == boxID.charAt(boxID.length-1)){
+						LogUtil.debug(cbSelected[i] + " matches " + boxID.charAt(boxID.length-1));
+						match = true;
+						target = i;
+					}
+					else{LogUtil.debug(cbSelected[i] + " does not match " + boxID.charAt(boxID.length-1));}
+				}
+				// If a match is found, delete that element. If no match is found, add boxID to the array
+				if (match){
+					cbSelected.splice(target, 1);
+					LogUtil.debug(LOGNAME + " This box was checked, and is now unchecked");
+				}else{
+					cbSelected.push(boxID.charAt(boxID.length-1));
+					LogUtil.debug(LOGNAME + " This box was NOT checked, and now it is");
+				}
+				
+				LogUtil.debug(LOGNAME + " On exit, cbSelected is " + cbSelected);
+			}
+	
 			
 		]]>
 	</mx:Script>
+
+	
+       				 <mx:RadioButtonGroup id="answersGroup"/>
+ 
 	
 	<!-- Prototype of Polling Module Design -->
         <mx:VBox width="100%" height="75%" horizontalAlign="center" paddingLeft="10" paddingRight="10">
@@ -169,22 +238,17 @@
                		paddingTop="30" paddingBottom="10" 
                		fontWeight="bold" textAlign="center"
                     text="{question}"/>
-			
-        		<mx:Box id="answerBox" width="90%" height="90%" >
-          		</mx:Box>
+     
+        		<mx:Box id="answerBox"  width="90%" height="90%" >
+        			
+        		</mx:Box>
+  					
+          		
           		
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
        <mx:Button id="btnAcceptPoll" label="Vote" click="Vote()"  width="100" height="30"/>
        </mx:ControlBar> 	 
-       
-       
-	
-		
-	
-
-
-
 
 
 </MDIWindow>

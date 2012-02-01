@@ -213,7 +213,7 @@ package org.bigbluebutton.modules.polling.service
 						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
 					},	
 					function(status:Object):void { 
-						LogUtil.error(LOGNAME + "Error occurred sending info to server"); 
+						LogUtil.error(LOGNAME + "Error occurred sending info to server in SAVEPOLL NC.CALL"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 						} 
@@ -250,7 +250,7 @@ package org.bigbluebutton.modules.polling.service
 			}
 	
 			function failure(obj:Object):void{
-				LogUtil.error(LOGNAME+"Responder object failure.");
+				LogUtil.error(LOGNAME+"Responder object failure in GETPOLL NC.CALL");
 			}
 	   } // _getPoll 
 	  
@@ -269,5 +269,26 @@ package org.bigbluebutton.modules.polling.service
 		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
 		    sharePollingWindow(poll);
 		 }
+		 
+		 public function vote(pollKey:String, answerIDs:Array):void{
+		 	// answerIDs will indicate by integer which option(s) the user voted for
+		 	// i.e., they voted for 3 and 5 on multiple choice, answerIDs will hold [0] = 3, [1] = 5
+		 	// (could be out of order, shouldn't matter) 
+		 	nc.call(
+				"poll.vote",
+				new Responder(
+					function(result:Object):void { 
+						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
+					},	
+					function(status:Object):void { 
+						LogUtil.error(LOGNAME + "Error occurred sending info to server in VOTE NC.CALL"); 
+						for (var x:Object in status) { 
+							LogUtil.error(x + " : " + status[x]); 
+						} 
+					}
+				),
+				pollKey, answerIDs
+			);
+		 } // _vote
    }
 }
