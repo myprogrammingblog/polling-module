@@ -27,6 +27,7 @@ import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import java.util.ArrayList;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 
@@ -77,21 +78,37 @@ public class PollRecorder {
 			String pollKey = poll.room + "-" + poll.title;
 			log.debug("[TEST] Saving poll " + pollKey);
 			
-			// Saves all relevant information about the poll as fields in a hash; dynamically generates
-			// enough fields for each answer and the number of votes for each answer
+			// Saves all relevant information about the poll as fields in a hash
 			jedis.hset(pollKey, "title", poll.title);
 			jedis.hset(pollKey, "question", poll.question);
 			jedis.hset(pollKey, "multiple", poll.isMultiple.toString());
 			jedis.hset(pollKey, "room", poll.room);
-			jedis.hset(pollKey, "time", poll.time); 			
+			jedis.hset(pollKey, "time", poll.time);
+				
+			String existingVotes = new String();
+			if (poll.votes != null){
+				// Copy poll.votes into existingVotes
+			}else{
+				// set it to zero
+			}
+			
+			// Dynamically creates enough fields in the hash to store all of the answers and their corresponding votes.
+			// If the poll is freshly created and has no votes yet, the votes are initialized at zero;
+			// otherwise it fetches the previous number of votes.
 			for (int i = 1; i <= poll.answers.size(); i++)
 			{
 				jedis.hset(pollKey, "answer"+i+"text", poll.answers.toArray()[i-1].toString());
-				jedis.hset(pollKey, "answer"+i, "0");
+
+				if (poll.votes == null){
+					jedis.hset(pollKey, "answer"+i, "0");					
+				}else{
+					jedis.hset(pollKey, "answer"+i, poll.votes.toArray()[i-1].toString());
+					log.debug("[TEST] answer"+i+" votes: " + poll.votes.toArray()[i-1].toString());
+				}
 			}
 
 			log.debug("[TEST] Poll " + pollKey + " saved!");
 
-			redisPool.returnResource(jedis);
+			//redisPool.returnResource(jedis);
         }
 }

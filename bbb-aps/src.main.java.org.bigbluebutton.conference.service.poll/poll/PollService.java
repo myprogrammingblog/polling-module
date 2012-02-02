@@ -22,7 +22,7 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.bigbluebutton.conference.service.poll.PollApplication;
 import org.bigbluebutton.conference.service.poll.Poll;
 import java.util.ArrayList;
-import java.util.Arrays;
+
 
 import java.util.List;
 
@@ -79,15 +79,9 @@ public class PollService {
 	
 	public void vote(String pollKey, ArrayList answerIDs)
 	{
-		// Add a poll.Vote bean nc.call
-		application.vote(pollKey, answerIDs);
-		/*
-		// TESTING: Automatically send in a vote to observe the results.
-		ArrayList voteTest = new ArrayList();
-		voteTest.add(2);
-		if (poll.isMultiple){voteTest.add(1);}
-		vote(pollKey, voteTest);
-		*/
+		log.debug(LOGNAME + "JAVA-SIDE VOTING START; pollkey is : " + pollKey + " submitted answers are: " + answerIDs);
+		application.vote(pollKey, answerIDs.toArray());
+		log.debug(LOGNAME + "JAVA-SIDE VOTING FINISHED");
 	}
 	
 	

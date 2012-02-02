@@ -124,13 +124,13 @@ public class PollInvoker {
     	   */
     	   try
     	   {
-    		   redisPool.returnResource(jedis);
+    		   //redisPool.returnResource(jedis);
     		   log.debug("[TEST] Returning resource successfully in invoke");
     	   }
     	   finally{return poll;}
        }
        log.error("[ERROR] A poll is being invoked that does not exist. Null exception will be thrown.");
-       redisPool.returnResource(jedis);
+       //redisPool.returnResource(jedis);
        return null;
    }
    
@@ -142,7 +142,7 @@ public class PollInvoker {
 	   
        String roomName = Red5.getConnectionLocal().getScope().getName();
 	   ArrayList <String> pollKeyList = new ArrayList <String>(); 
-       for (String s : jedis.keys(roomName+"*"))
+       for (String s : jedis.keys(roomName+"\"*\""))
        {
     	   pollKeyList.add(s);
        }
@@ -153,7 +153,7 @@ public class PollInvoker {
 		   log.debug("[TEST] " + s);
 	   }
 	   
-	   redisPool.returnResource(jedis);
+	   //redisPool.returnResource(jedis);
 	   return pollKeyList;
    }
 }

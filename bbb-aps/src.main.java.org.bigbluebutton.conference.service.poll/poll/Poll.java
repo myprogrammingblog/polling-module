@@ -55,6 +55,7 @@ public class Poll{
 		this.room = room;
 		this.votes = votes;
 		this.time = time;
+		
 		//answersCounter(); // creating string-integer value pair for counting vote results
 	}
 

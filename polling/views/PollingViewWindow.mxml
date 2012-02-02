@@ -38,6 +38,7 @@
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			import org.bigbluebutton.modules.polling.events.VoteEvent;
 
 			import mx.validators.Validator;	
 			import mx.utils.ObjectUtil;
@@ -63,7 +64,7 @@
 			private var _userid:Number; 
 			private var window:PollingViewWindow;
 			
-			public var cbSelected:Array;
+			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or ReadioButton info and sends it to VoteEvent
 
 
 
@@ -88,8 +89,7 @@
 				var lines:int = (question.length / 28) + 1;
 				for(var s:String in answers){
 					lines = lines + ((s.length / 28) + 1);	
-				}				 	            
-				
+				}				 	            	
 				
 				height = height + (lines * 50);
 			}
@@ -101,28 +101,25 @@
 			// function receives Array.length and ArrayCollection
 			private function createButtons(amount:uint, content:Array):void{
 		
-			LogUtil.debug(LOGNAME+" here are answers:" + content+ " Amount of answers is : " +amount);
+		
 			 var _cb:CheckBox;
 			 var _rb:RadioButton;
 			 var _tx: Text;
 			 var _hb: HBox; 
 			 var  _rb_group:RadioButtonGroup = new RadioButtonGroup();
-
+			
 			 // creating buttons one by one
 			 
 			   for (var i:int = 0; i < amount; i++) {
 					
 				_tx = new Text();
 				_hb = new HBox();
-				LogUtil.debug(LOGNAME+" Box is "+ _hb);
 				_tx.name = "option" +i;
 				_tx.width = 200;
 				 // assigning array element to text field
 				// LogUtil.debug(LOGNAME+" Once again content is " + content+ " 'i' is  : " + i + "and contet[i] is "+ content[i]);
 				 
 				 _tx.text =content[i].toString(); 
-				 
-				 LogUtil.debug(LOGNAME+" Tx Text is " + _tx.text);
 				 
 				 
 				 answerBox.addChild(_hb);
@@ -131,13 +128,9 @@
 				 // if global var isMultiple is true it means user wants checkboxes, 
 				 //otherwise radiobutton (if multiple choices are allowed)
 					if(isMultiple){
-						cbSelected = new Array();
 				 	   _cb= new CheckBox();
-				 	   // giving button a name of array element to process it easier later
-				    	   //_cb.label=content[i].toString(); 
 				    	   _cb.id = "answers"+i;
 				    	   _cb.addEventListener(MouseEvent.CLICK, checkBoxClick);
-				    	   // _cb.addEventListener(click, onClick(_cb.id.charAt(_cb.id.length-1)));
 				    	    // gap between the buttons
  				    	   _cb.y=i*20;
  				    	   
@@ -150,8 +143,7 @@
 				 	     	      _rb.groupName = "answersGroup";
 				 	              _rb.name = content[i].toString(); // giving button a name of array elelment to process it easier later
 				 	              _rb.id = "answers"+i;
-				 	               _hb.addChild(_rb);
-				 	              LogUtil.debug("RadioButton id is " + _rb.id.toString());
+				 	              _hb.addChild(_rb);
 
 				 		 }    
 				 		_hb.addChild(_tx); // adding text near button			 
@@ -164,22 +156,37 @@
 			
 			
 			private function Vote():void{
-				// var voteEvent: VoteEvent = new VoteEvent(VoteEvent.START);
-								
+			
+			
+				var voteEvent: VoteEvent = new VoteEvent(VoteEvent.START);
+	
+			
 				if (isMultiple){
 					// Checkboxes
 					LogUtil.debug(LOGNAME + "[TEST] Testing CheckBoxes");
 					LogUtil.debug(LOGNAME + "[TEST] User has voted for these boxes: " + cbSelected);
-					// voteEvent.answerID = cbSelected;
+					voteEvent.answerID = cbSelected;
+					
+					LogUtil.debug(LOGNAME + "VoteEvent.answerId (Checkboxes): " + voteEvent.answerID);
 				}else{
-					// Radio Buttons
-					var selectedAnswer:String = answersGroup.selection.toString();
-					LogUtil.debug(LOGNAME + "[TEST] Testing RadioButtons");
-					LogUtil.debug(LOGNAME + "[TEST] User has voted for: " + selectedAnswer.charAt(selectedAnswer.length-1));
-					// voteEvent.answerID.push(selectedAnswer.charAt(selectedAnswer.length-1));
+				  // Radio Buttons
+				LogUtil.debug(LOGNAME + "Vote() testing RadioButtons");	
+					
+					
+					LogUtil.debug(LOGNAME + "Getting answerID: "+ answersGroup.selection.toString().substr(-1,1));				
+					cbSelected[0]= answersGroup.selection.toString().substr(-1,1); // answergroup... is answerID index
+					// [0] index coz RadioButtons could have only one element 
+					
+					LogUtil.debug(LOGNAME + "Vote() cbSelected is "+ cbSelected);	
+			
+					voteEvent.answerID = cbSelected;
 				}
+				LogUtil.debug(LOGNAME + " Title going into VoteEvent is " + title);
+				voteEvent.title = title;
+				dispatchEvent(voteEvent);
 				closeWindow();
-			}
+			} // _vote
+			
 			
 			// As the user clicks CheckBoxes, this function keeps a running tally of which boxes are and are not selected
 			private function checkBoxClick(e:Event):void{
@@ -205,7 +212,6 @@
 				}
 				//LogUtil.debug(LOGNAME + " On exit, cbSelected is " + cbSelected);
 			}
-	
 			
 		]]>
 	</mx:Script>

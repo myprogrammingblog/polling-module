@@ -19,6 +19,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.SavePollEvent;
 	import org.bigbluebutton.modules.polling.events.PublishPollEvent;
+	import org.bigbluebutton.modules.polling.events.VoteEvent;
 	
 	import org.bigbluebutton.modules.polling.service.PollingService;
 
@@ -34,6 +35,7 @@ package org.bigbluebutton.modules.polling.managers
 		private var service:PollingService;
 		private var viewWindowManager:PollingWindowManager;
 		private var isPolling:Boolean = false;
+		public var pollKey:String;
 
 		
 		
@@ -127,22 +129,32 @@ package org.bigbluebutton.modules.polling.managers
 	   public function handleSavePollEvent(e:SavePollEvent):void
 		{
 			LogUtil.debug(LOGNAME + " inside savePoll(), calling service...");
+			pollKey = module.getRoom() +"-"+ e.title ;
 			service.savePoll(e.answers, e.question, e.title, e.isMultiple, module.getRoom(), e.votes, e.time);
 		}	
 		
+	
 		public function handlePublishPollEvent(e:PublishPollEvent):void
 		{
-			var pollKey:String;
+			//var pollKey:String;
 			LogUtil.debug(LOGNAME + " inside handlePublishPollEvent(), calling getPoll");
 			pollKey = module.getRoom() +"-"+ e.title ;
 			service.getPoll(pollKey);
 		}	
 		
-		// View Poll experiment
-		public function handlePollingViewWindowEvent(e:PollingViewWindowEvent):void
+	
+		
+		public function handleVoteEvent(e:VoteEvent):void
 		{
-			var pollKey:String;
-			LogUtil.debug(LOGNAME + " inside handlePollingViewWindowEvent()");
+			
+			// What need to be done:
+			  // we need to have getPollKey() method  inside pollObject that returns pollkey so we don't have to include title in every event....
+			   // pollKey here is zero
+			   // or other object could be considered, but poll information should be somehow available through "get" methods....
+			   
+			LogUtil.debug(LOGNAME + " inside handleVoteEvent()");
+			e.pollKey = module.getRoom() +"-"+ e.title ;
+			service.vote(e.pollKey, e.answerID);
 		}
 		
    }

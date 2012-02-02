@@ -25,6 +25,7 @@ package org.bigbluebutton.modules.polling.events
 		public static const START:String = "START";
 		public var answerID : Array;
 		public var pollKey : String;
+		public var title : String;
 		
 		public function VoteEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

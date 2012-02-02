@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+
 
 import org.bigbluebutton.conference.service.poll.PollRoomsManager;
 import org.bigbluebutton.conference.service.poll.PollRoom;
@@ -127,21 +127,21 @@ public class PollApplication {
 	
 	// AnswerIDs comes in as an array of each answer the user voted for
 	// If they voted for answers 3 and 5, the array could be [0] = 3, [1] = 5 or the other way around, shouldn't matter
-	public void vote(String pollKey, ArrayList answerIDs){
-		log.debug("[TEST] Recording votes, pollKey is " + pollKey + " and answerIDs are " + answerIDs);
+	public void vote(String pollKey, Object[] answerIDs){
+		log.debug("[TEST] Recording votes");
 	    // Retrieve the poll that corresponds to pollKey
 	    Poll poll = getPoll(pollKey);
-	    for (int i = 0; i < answerIDs.size(); i++){
+	    for (int i = 0; i < answerIDs.length; i++){
 	    	// Extract  the index value stored at element i of answerIDs
-	    	Integer index = Integer.parseInt(answerIDs.get(i).toString());
-	    		log.debug("[TEST] In foreach loop, Integer index is " + index.intValue());
+	    	Integer index = Integer.parseInt(answerIDs[i].toString());
+	    		log.debug("[TEST] In VOTING foreach loop, Integer index is " + index.intValue());
 	    	// Get the current value of votes for that index; remember that the answers are now zero-based like an array
 	    	Integer total = poll.votes.get(index.intValue());
-	    		log.debug("[TEST] In foreach loop, poll.votes at that index is " + total + " before change.");
+	    		log.debug("[TEST] In VOTING foreach loop, poll.votes at that index is " + total + " before change.");
 	    	// Increment the votes for answer
-	    	poll.votes.set(index.intValue(), total++);
-	    		log.debug("[TEST] In foreach loop, poll.votes at that index is " + poll.votes.get(index.intValue()) + " after change.");
-	    }
+	    	poll.votes.set(index.intValue(), ++total);
+	    		log.debug("[TEST] In VOTING foreach loop, poll.votes at that index is " + poll.votes.get(index.intValue()) + " after change.");
+	    }	    
 	    savePoll(poll);
 	}
 }

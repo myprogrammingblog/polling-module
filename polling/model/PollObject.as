@@ -17,7 +17,5 @@ package org.bigbluebutton.modules.polling.model
 		public var answers:Array;
 		public var votes:Array;
 		public var time:String;
-		
-		
 	}
 }

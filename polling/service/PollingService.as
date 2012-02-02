@@ -274,14 +274,16 @@ package org.bigbluebutton.modules.polling.service
 		 	// answerIDs will indicate by integer which option(s) the user voted for
 		 	// i.e., they voted for 3 and 5 on multiple choice, answerIDs will hold [0] = 3, [1] = 5
 		 	// (could be out of order, shouldn't matter) 
+		 	
+		 	 LogUtil.debug("What are we sending to apps ? pollkey: " +pollKey+ " answers: " + answerIDs.toString());
 		 	nc.call(
 				"poll.vote",
 				new Responder(
 					function(result:Object):void { 
-						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
+						LogUtil.debug(LOGNAME+" succesfully sending votes to server"); 
 					},	
 					function(status:Object):void { 
-						LogUtil.error(LOGNAME + "Error occurred sending info to server in VOTE NC.CALL"); 
+						LogUtil.error(LOGNAME + "Error occurred sending info to server in VOTE NC.CALL with pollKey " + pollKey + " and answerIDs: " + answerIDs); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 						} 
