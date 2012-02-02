@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  BigBlueButton open source conferencing system - http://www.bigbluebutton.org
+  
+  Copyright (c) 2010 BigBlueButton Inc. and by respective authors (see below).
+  
+  BigBlueButton is free software; you can redistribute it and/or modify it under the 
+  terms of the GNU Lesser General Public License as published by the Free Software 
+  Foundation; either version 2.1 of the License, or (at your option) any later 
+  version. 
+  
+  BigBlueButton is distributed in the hope that it will be useful, but WITHOUT ANY 
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+  PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+  
+  You should have received a copy of the GNU Lesser General Public License along 
+  with BigBlueButton; if not, see <http://www.gnu.org/licenses/>.
+ 
+  $Id: $
+-->
+
+<MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
+	width="310" height="150" 
+	xmlns:mate="http://mate.asfusion.com/" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	creationComplete="onCreationComplete()"
+	label="Polling" layout="absolute" 
+	title="Polling">
+
+	<mx:Script>
+		<![CDATA[
+		import flexlib.mdi.events.MDIWindowEvent;
+			
+			import org.bigbluebutton.main.views.MainCanvas;
+			import mx.controls.Alert;
+			import org.bigbluebutton.common.LogUtil;	 
+			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+			import org.bigbluebutton.modules.polling.managers.PollingManager;
+			import org.bigbluebutton.modules.polling.events.VoteEvent;
+			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+
+			import mx.validators.Validator;	
+			import mx.utils.ObjectUtil;
+			
+			import mx.collections.ArrayCollection;
+			import mx.core.IUIComponent;
+			import mx.controls.Text;
+		    import mx.containers.*;
+		    import mx.controls.*;
+
+
+		   	public static const LOGNAME:String = "[PollingStatsWindow] ";
+			
+			public var isMultiple:Boolean;
+			[Bindable] public var question:String;
+			[Bindable] public var answers:Array;
+			public var votes:Array;
+			public var time:String;
+			
+			public var moduleAttributes:Object;
+			private var _userid:Number; 
+			private var window:PollingStatsWindow;
+			
+			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or ReadioButton info and sends it to VoteEvent
+
+
+
+			public function getPrefferedPosition():String{
+				return MainCanvas.POPUP;
+			}
+				
+			
+						
+			private function closeWindow():void{
+				LogUtil.debug(LOGNAME + "inside closeWindow()");
+				dispatchEvent(new PollingStatsWindowEvent(PollingStatsWindowEvent.CLOSE));
+			}
+ 
+ 
+			private function onCreationComplete():void{
+				createResultsTable(answers.length, answers);
+				var lines:int = (question.length / 28) + 1;;
+				for(var s:String in answers){
+					lines = lines + ((s.length / 28) + 1);	
+				}				 	            	
+				height = height + (lines * 45);
+			}
+			
+			
+			// function receives Array.length and ArrayCollection
+			private function createResultsTable(amount:uint, content:Array):void{
+				LogUtil.debug(LOGNAME + " Inside createResultsTable");
+				var _tx: Text;
+				var _votes: Text;
+				var _percent: Text;
+				var _hb: HBox; 
+				var _line: HRule;
+				// creating rows one by one
+				for (var i:int = 0; i < amount; i++) {
+					_tx = new Text();
+					_votes= new Text;
+					_percent= new Text();
+					_hb = new HBox();
+					_line = new HRule();
+					
+					_line.width = 270;
+					
+					_tx.name = "option" +i;
+					_tx.width = 200;
+					// assigning array element to text field
+					_tx.text =content[i].toString(); 
+					//LogUtil.debug(LOGNAME + " createResultsTable _tx created");
+										
+					_votes.name = "votes" +i;
+					_votes.width = 30;
+					_votes.text = votes[i];
+					//LogUtil.debug(LOGNAME + " createResultsTable _votes created");
+					
+					_percent.name = "percent" +i;
+					_percent.width = 30;
+					_percent.text = "ee";
+					//LogUtil.debug(LOGNAME + " createResultsTable _percent created");
+					
+					resultBox.addChild(_hb);					
+					_hb.addChild(_tx);
+					_hb.addChild(_votes);
+					_hb.addChild(_percent);
+					
+					resultBox.addChild(_line);
+				} // end of loop
+				resultBox.validateNow();	
+			} // end of function createResultsTable
+					
+		]]>
+	</mx:Script>
+
+	
+ 
+	
+	<!-- Prototype of Polling Statistics View Design -->
+        <mx:VBox width="100%" height="75%" horizontalAlign="center" paddingLeft="10" paddingRight="10">
+          
+               <mx:Text width="200" 
+               		paddingTop="30" paddingBottom="10" 
+               		fontWeight="bold" textAlign="center"
+                    text="{question}"/>
+     
+        		<mx:Box id="resultBox"  width="90%" height="90%" >
+        			
+        		</mx:Box>
+  					
+          		
+          		
+       </mx:VBox>
+       <mx:ControlBar width="100%" horizontalAlign="center">
+       <mx:Button id="btnRefreshResults" label="Refresh" click="closeWindow()"  width="100" height="30"/>
+       <mx:Button id="btnClosePoll" label="Close Poll" click="closeWindow()"  width="100" height="30"/>
+       </mx:ControlBar> 	 
+
+
+</MDIWindow>

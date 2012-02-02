@@ -30,17 +30,20 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.service.PollingService;
 	
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
+	import org.bigbluebutton.modules.polling.views.PollingStatsWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
 	import org.bigbluebutton.modules.polling.views.PollingAcceptWindow;
 	
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
+	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	
 			
 	public class PollingWindowManager {	
 			
 		private var pollingWindow:PollingViewWindow;
+		private var statsWindow:PollingStatsWindow;
 		private var instructionsWindow:PollingInstructionsWindow;
 		private var acceptInstructionsWindow: PollingAcceptWindow;
 		private var service:PollingService;
@@ -136,6 +139,24 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		//#################################################################################
 
+		// PollingStatsWindow.mxml Window Handlers 
+		//#########################################################################
+		public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
+			LogUtil.debug(LOGNAME + "inside handleOpenPollingStatsWindow");
+			LogUtil.debug(LOGNAME + "Event.title = " + e.title);
+			statsWindow = new PollingStatsWindow();
+			statsWindow.title = e.title;
+			statsWindow.question = e.question;
+			statsWindow.isMultiple = e.isMultiple;
+			statsWindow.answers = e.answers;
+			statsWindow.votes = e.votes;
+			openWindow(statsWindow);
+		}
 		
+		public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
+			LogUtil.debug(LOGNAME + " inside handleClosePollingStatsWindow");
+			closeWindow(statsWindow);
+		}
+		//##########################################################################
 	}
 }

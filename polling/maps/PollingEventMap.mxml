@@ -37,7 +37,7 @@
 			import org.bigbluebutton.modules.polling.events.SavePollEvent;
 			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
-			
+			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 				]]>
 				
 	</mx:Script>
@@ -109,4 +109,12 @@
 		<MethodInvoker generator="{PollingManager}" method="handleVoteEvent" arguments="{event}"/>
 	</EventHandlers>	
 
+	<!-- PollingStatsWindow Events -->
+	<EventHandlers type="{PollingStatsWindowEvent.OPEN}">
+		<MethodInvoker generator="{PollingManager}"  method="handleOpenPollingStatsWindow" arguments="{event}"/>
+	 </EventHandlers>
+	 
+	<EventHandlers type="{PollingStatsWindowEvent.CLOSE}">
+		<MethodInvoker generator="{PollingManager}"  method="handleClosePollingStatsWindow" arguments="{event}"/>
+	 </EventHandlers>
 </EventMap>

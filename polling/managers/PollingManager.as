@@ -20,6 +20,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.SavePollEvent;
 	import org.bigbluebutton.modules.polling.events.PublishPollEvent;
 	import org.bigbluebutton.modules.polling.events.VoteEvent;
+	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	
 	import org.bigbluebutton.modules.polling.service.PollingService;
 
@@ -157,5 +158,18 @@ package org.bigbluebutton.modules.polling.managers
 			service.vote(e.pollKey, e.answerID);
 		}
 		
+		//##################################################################################	
+		
+		  // Opening PollingStatsWindow
+		  public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
+			      LogUtil.debug(LOGNAME +" inside handleOpenPollingStatsWindow ");
+			      viewWindowManager.handleOpenPollingStatsWindow(e);
+			}  	
+		  // Closing PollingStatsWindow	
+		  public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
+			      LogUtil.debug(LOGNAME +" inside handleClosePollingStatsWindow ");
+			      viewWindowManager.handleClosePollingStatsWindow(e);
+			}  	
+		//##################################################################################
    }
 }

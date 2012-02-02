@@ -35,12 +35,10 @@ package org.bigbluebutton.modules.polling.service
 	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
+	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	
-
-
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
-	
 	
 	import org.bigbluebutton.modules.polling.managers.PollingWindowManager;
 	import org.bigbluebutton.common.events.OpenWindowEvent;
@@ -140,7 +138,17 @@ package org.bigbluebutton.modules.polling.service
          		e.time = time;
          		
 				dispatcher.dispatchEvent(e);
-         	}	
+         	}else{
+         		var stats:PollingStatsWindowEvent = new PollingStatsWindowEvent(PollingStatsWindowEvent.OPEN);
+         		stats.title = title;
+         		stats.question = question;
+         		stats.answers = answers;
+         		stats.votes = votes;
+         		stats.isMultiple = isMultiple;
+         		stats.time = time;
+         		
+				dispatcher.dispatchEvent(stats);
+         	}
          }
 
 	   public function setPolling(polling:Boolean):void{
