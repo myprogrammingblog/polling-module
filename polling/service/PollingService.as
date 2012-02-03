@@ -121,6 +121,8 @@ package org.bigbluebutton.modules.polling.service
          	}
          }
          
+         
+         
          public function openPollingWindow(title:String, question:String, isMultiple:Boolean, answers:Array, votes:Array, time:String):void{
          	var username:String = module.username;
          	
@@ -155,6 +157,7 @@ package org.bigbluebutton.modules.polling.service
 	   public function setPolling(polling:Boolean):void{
 	   		isPolling = polling; 
 	   }
+	   
 	  /* public function getPollingStatus():Boolean{
 	   		return isPolling;
 	   }*/
@@ -215,8 +218,7 @@ package org.bigbluebutton.modules.polling.service
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call votes: " + votes);
 		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call time: " + time);
 		    */
-			nc.call(
-				"poll.savePoll",
+			nc.call("poll.savePoll",
 				new Responder(
 					function(result:Object):void { 
 						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
@@ -286,6 +288,24 @@ package org.bigbluebutton.modules.polling.service
 		    	refreshResults(poll.votes);
 		    }
 		 }
+		 
+		
+	   	
+	   	public function closeAllPollingWindows():void{
+        	if (isConnected = true ) {
+         			pollingSO.send("closePollingWindow"); 
+         	}
+        }
+        
+        public function closePollingWindow():void{
+        		LogUtil.debug(LOGNAME + "Inside service.closePollingWindow()");
+         	var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE);
+         		LogUtil.debug(LOGNAME + "Created close window event");
+         	dispatcher.dispatchEvent(e);
+         		LogUtil.debug(LOGNAME + "Created close window event");
+        }
+	   	
+	   	
 		 
 		 public function vote(pollKey:String, answerIDs:Array):void{
 		 	// answerIDs will indicate by integer which option(s) the user voted for

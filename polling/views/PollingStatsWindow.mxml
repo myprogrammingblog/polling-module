@@ -41,6 +41,7 @@
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
 			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+			import org.bigbluebutton.modules.polling.events.StopPollEvent;
 
 			import mx.validators.Validator;	
 			import mx.utils.ObjectUtil;
@@ -74,7 +75,6 @@
 			private function refreshResults():void{
 				var e:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.GET);
 				e.title = title;
-				LogUtil.debug(LOGNAME + "Refreshing, poll title is " + e.title);
 				dispatchEvent(e);
 			} // end of function refreshResults
 						
@@ -84,7 +84,6 @@
 			}
  
  			public function refresh(newVotes:Array):void{
- 				LogUtil.debug(LOGNAME + "Around the world in 80 days with " + newVotes);
  				votes = newVotes;
  				createResultsTable(answers.length, answers);
  				invalidateDisplayList();
@@ -103,7 +102,6 @@
 			
 			// function receives Array.length and ArrayCollection
 			private function createResultsTable(amount:uint, content:Array):void{
-				LogUtil.debug(LOGNAME + " Inside createResultsTable");
 				var _tx: Text;
 				var _votes: Text;
 				var _percent: Text;
@@ -113,9 +111,7 @@
 				var totalVotes:int = 0;
 				for (var n:int = 0; n < votes.length; n++){
 					totalVotes+= int(votes[n]);
-					LogUtil.debug(LOGNAME + " Integer-cast vote is : " + int(votes[n]));
 				}
-				LogUtil.debug(LOGNAME + " Total votes are: " + totalVotes);
 				
 				// delete existing rows
 				resultBox.removeAllChildren();
@@ -134,19 +130,16 @@
 					_tx.width = 200;
 					// assigning array element to text field
 					_tx.text =content[i].toString(); 
-					//LogUtil.debug(LOGNAME + " createResultsTable _tx created");
 										
 					_votes.name = "votes" +i;
 					_votes.width = 30;
 					_votes.text = votes[i];
-					//LogUtil.debug(LOGNAME + " createResultsTable _votes created");
 					
 					_percent.name = "percent" +i;
 					_percent.width = 50;
 					
 					// Percentage is in terms of how many votes each option has in terms of total votes
 					if (totalVotes > 0){
-						LogUtil.debug(LOGNAME + "Making percentage... Votes["+i+"] is "+votes[i]+" and totalVotes is "+totalVotes);
 						_percent.text = Math.round(100*(votes[i]/totalVotes)) + "%";
 					}else{
 						// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
@@ -185,23 +178,28 @@
 					
 					
 			private function stopPoll():void{
-				LogUtil.debug(LOGNAME + "Entering stopPoll()");
 				refreshResults();
 				btnRefreshResults.visible = false;
-					LogUtil.debug(LOGNAME + "Refresh button visible: " + btnRefreshResults.visible);
 				btnClosePoll.label = "Close";
-					LogUtil.debug(LOGNAME + "Close button label: " + btnClosePoll.label);
 				
 				btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
-				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick);
+				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
 				
-				//btnClosePoll.setStyle(click, "closeWindow()");
-				
-				// Some method to stop the poll and close all Viewer windows 
+				// Some method to stop the poll and close all Viewer windows
+					// Get to PollingWindowManager and engage handleClosePollingViewWindow
+					// Probably the same path you followed to update the votes.
+				stopViewersPolls();					
 			}
 			
 			private function closeButtonClick(e:Event):void{
 				closeWindow();
+			}
+			
+			private function stopViewersPolls():void{
+				LogUtil.debug(LOGNAME + "inside stopViewersPolls()");
+				var stopPollEvent:StopPollEvent = new StopPollEvent(StopPollEvent.STOP_POLL);
+				stopPollEvent.title = title;
+				dispatchEvent(stopPollEvent);
 			}
 		]]>
 	</mx:Script>

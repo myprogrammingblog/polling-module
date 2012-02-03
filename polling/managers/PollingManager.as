@@ -22,6 +22,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.VoteEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	
 	import org.bigbluebutton.modules.polling.service.PollingService;
 
@@ -109,9 +110,19 @@ package org.bigbluebutton.modules.polling.managers
 	  // Closing PollingViewWindow	
 	  public function handleClosePollingViewWindow(e:PollingViewWindowEvent):void{
 		      LogUtil.debug(LOGNAME +" inside handleClosePollingViewWindow ");
+		      LogUtil.debug(LOGNAME +" Event is " + e);
 		      viewWindowManager.handleClosePollingViewWindow(e);
 		      toolbarButtonManager.enableToolbarButton();
 		}  	
+	  // Stop polling and close all viewer's poll windows	
+	  public function handleStopPolling(e:StopPollEvent):void{
+		      LogUtil.debug(LOGNAME +" inside handleStopPolling ");
+		      LogUtil.debug(LOGNAME +" Event is " + e);
+		      viewWindowManager.handleStopPolling(e);
+		      
+		      pollKey = module.getRoom() +"-"+ e.title ;
+		      service.closeAllPollingWindows();
+		} 
 	//##################################################################################
 		
 		  // Opening PollingAcceptInstructionsWindow

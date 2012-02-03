@@ -39,6 +39,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	
 			
 	public class PollingWindowManager {	
@@ -52,37 +53,12 @@ package org.bigbluebutton.modules.polling.managers
 		private var globalDispatcher:Dispatcher;
 		public static const LOGNAME:String = "[Polling::PollingWindowManager] ";
 		
-		
 		public function PollingWindowManager(service:PollingService) {
 		  LogUtil.debug(LOGNAME +" inside constructor");	
 		  this.service = service;
 		  globalDispatcher = new Dispatcher();
 		}
-		
-		
-		
-		// PollingViewWindow.mxml Window Handlers 
-		//#########################################################################
-		public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
-			LogUtil.debug(LOGNAME + "inside handleOpenPollingViewWindow");
-			LogUtil.debug(LOGNAME + "Event.title = " + e.title);
-			pollingWindow = new PollingViewWindow();
-			pollingWindow.title = e.title;
-			pollingWindow.question = e.question;
-			pollingWindow.isMultiple = e.isMultiple;
-			pollingWindow.answers = e.answers;
-			//LogUtil.debug(LOGNAME + " sending Window To startPolling");
-			openWindow(pollingWindow);
-		}
-		
-		public function handleClosePollingViewWindow(e:PollingViewWindowEvent):void{
-			LogUtil.debug(LOGNAME + " inside handleClosePollingViewWindow");
-			closeWindow(pollingWindow);
-			service.setPolling(false);
-		}
-		//##########################################################################
-		
-		
+				
 		//PollingInstructionsWindow.mxml Window Event Handlers
 		//##########################################################################
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
@@ -117,14 +93,13 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public function handleStartPollingEvent():void{
 			LogUtil.debug(LOGNAME+ "calling service to share PollingWindow");
-//			service.sharePollingWindow();
 		}
 		
 		
 		// Action makers (function that actually act on the windows )
 		//#############################################################################
 		public function openWindow(window:IBbbModuleWindow):void{
-			LogUtil.debug(LOGNAME + " inside openWindow calling OpwnWindowEvent");				
+			LogUtil.debug(LOGNAME + " inside openWindow calling OpwnWindowEvent with window: " + window );				
 			var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			windowEvent.window = window;
 			globalDispatcher.dispatchEvent(windowEvent);
@@ -132,7 +107,7 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		private function closeWindow(window:IBbbModuleWindow):void{
-			LogUtil.debug(LOGNAME + " inside closeWindow calling CloseWindowEvent");				
+			LogUtil.debug(LOGNAME + " inside closeWindow calling CloseWindowEvent with window: " + window );				
 			var windowEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			windowEvent.window = window;
 			globalDispatcher.dispatchEvent(windowEvent);
@@ -140,6 +115,34 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		//#################################################################################
 
+		
+		// PollingViewWindow.mxml Window Handlers 
+		//#########################################################################
+		public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
+			LogUtil.debug(LOGNAME + "inside handleOpenPollingViewWindow");
+			LogUtil.debug(LOGNAME + "Event.title = " + e.title);
+			pollingWindow = new PollingViewWindow();
+			pollingWindow.title = e.title;
+			pollingWindow.question = e.question;
+			pollingWindow.isMultiple = e.isMultiple;
+			pollingWindow.answers = e.answers;
+			openWindow(pollingWindow);
+		}
+		
+		public function handleClosePollingViewWindow(e:PollingViewWindowEvent):void{
+			LogUtil.debug(LOGNAME + " inside handleClosePollingViewWindow");
+			closeWindow(pollingWindow);
+			LogUtil.debug(LOGNAME + " After closeWindow");
+			service.setPolling(false);
+		}
+		
+		public function handleStopPolling(e:StopPollEvent):void{
+			LogUtil.debug(LOGNAME + " inside handleStopPolling");
+			service.setPolling(false);
+		}
+		//##########################################################################
+		
+		
 		// PollingStatsWindow.mxml Window Handlers 
 		//#########################################################################
 		public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{

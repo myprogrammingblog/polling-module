@@ -39,6 +39,7 @@
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
 			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+			import org.bigbluebutton.modules.polling.events.StopPollEvent;
 				]]>
 				
 	</mx:Script>
@@ -125,6 +126,10 @@
 	 
 	 <EventHandlers type="{PollRefreshEvent.GET}">
 		<MethodInvoker generator="{PollingManager}"  method="handleGetPollingStats" arguments="{event}"/>
+	 </EventHandlers>
+	 
+	 <EventHandlers type="{StopPollEvent.STOP_POLL}">
+		<MethodInvoker generator="{PollingManager}"  method="handleStopPolling" arguments="{event}"/>
 	 </EventHandlers>
 	 
 </EventMap>
