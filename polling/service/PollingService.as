@@ -36,6 +36,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
@@ -243,26 +244,30 @@ package org.bigbluebutton.modules.polling.service
 		//#################################################//
 		// Get poll from database, send to users for them to vote on.
 		
-	   	public function  getPoll(pollKey:String):void{
+	   	public function  getPoll(pollKey:String, refreshFlag:Boolean = false):void{	   	
 			LogUtil.debug(LOGNAME + "inside getPoll making netconnection getting our poll back! key: " + pollKey);
 			// So, the data stays in poll until nc.call ends, and then disappears.			
 			nc.call("poll.getPoll", new Responder(success, failure), pollKey);
 			// What happens in nc.call, stays in nc.call; data will have to reach the server to persist
-			LogUtil.debug(LOGNAME + "Leaving getPoll");
+			
 			//--------------------------------------//
+			
 			// Responder functions
 			function success(obj:Object):void{
 				var itemArray:Array = obj as Array;
+				LogUtil.debug(LOGNAME+" Responder success, refreshFlag is " + refreshFlag);
 				LogUtil.debug(LOGNAME+"Responder object success! " + itemArray);
-				extractPoll(itemArray);
+				extractPoll(itemArray, refreshFlag);
 			}
 	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in GETPOLL NC.CALL");
 			}
+			
+			//--------------------------------------//
 	   } // _getPoll 
 	  
-	     public function extractPoll(values:Array):void {
+	     public function extractPoll(values:Array, refreshFlag:Boolean):void {
 		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
 		    var poll:PollObject = new PollObject();
 		    		    
@@ -275,7 +280,11 @@ package org.bigbluebutton.modules.polling.service
 		    poll.time = values[6] as String;		    
 		    
 		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
-		    sharePollingWindow(poll);
+		    if (!refreshFlag){
+		    	sharePollingWindow(poll);
+		    }else{  
+		    	refreshResults(poll.votes);
+		    }
 		 }
 		 
 		 public function vote(pollKey:String, answerIDs:Array):void{
@@ -300,5 +309,11 @@ package org.bigbluebutton.modules.polling.service
 				pollKey, answerIDs
 			);
 		 } // _vote
+		 
+		 public function refreshResults(votes:Array):void{
+		 	var refreshEvent:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.REFRESH);
+		 	refreshEvent.votes = votes;
+		 	dispatcher.dispatchEvent(refreshEvent);
+		 } // _refreshResults
    }
 }

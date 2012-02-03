@@ -40,6 +40,7 @@
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
 			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 
 			import mx.validators.Validator;	
 			import mx.utils.ObjectUtil;
@@ -63,21 +64,32 @@
 			private var _userid:Number; 
 			private var window:PollingStatsWindow;
 			
-			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or ReadioButton info and sends it to VoteEvent
 
-
+			
 
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
 			}
 				
-			
+			private function refreshResults():void{
+				var e:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.GET);
+				e.title = title;
+				LogUtil.debug(LOGNAME + "Refreshing, poll title is " + e.title);
+				dispatchEvent(e);
+			} // end of function refreshResults
 						
 			private function closeWindow():void{
 				LogUtil.debug(LOGNAME + "inside closeWindow()");
 				dispatchEvent(new PollingStatsWindowEvent(PollingStatsWindowEvent.CLOSE));
 			}
  
+ 			public function refresh(newVotes:Array):void{
+ 				LogUtil.debug(LOGNAME + "Around the world in 80 days with " + newVotes);
+ 				votes = newVotes;
+ 				createResultsTable(answers.length, answers);
+ 				invalidateDisplayList();
+				validateNow();
+ 			}
  
 			private function onCreationComplete():void{
 				createResultsTable(answers.length, answers);
@@ -97,6 +109,17 @@
 				var _percent: Text;
 				var _hb: HBox; 
 				var _line: HRule;
+				
+				var totalVotes:int = 0;
+				for (var vote:String in votes){
+					totalVotes+= int(vote);
+				}
+				LogUtil.debug(LOGNAME + " Total votes are: " + totalVotes);
+				
+				// delete existing rows
+				resultBox.removeAllChildren();
+				
+				
 				// creating rows one by one
 				for (var i:int = 0; i < amount; i++) {
 					_tx = new Text();
@@ -120,8 +143,15 @@
 					
 					_percent.name = "percent" +i;
 					_percent.width = 30;
-					_percent.text = "ee";
-					//LogUtil.debug(LOGNAME + " createResultsTable _percent created");
+					
+					if (!isMultiple){
+						//radio buttons
+						_percent.text = Math.round(100*(votes[i]/totalVotes)) + "%";
+					}else{
+						//checkboxes
+						_percent.text = "ee";
+					}
+					
 					
 					resultBox.addChild(_hb);					
 					_hb.addChild(_tx);
@@ -155,7 +185,7 @@
           		
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
-       <mx:Button id="btnRefreshResults" label="Refresh" click="closeWindow()"  width="100" height="30"/>
+       <mx:Button id="btnRefreshResults" label="Refresh" click="refreshResults()"  width="100" height="30"/>
        <mx:Button id="btnClosePoll" label="Close Poll" click="closeWindow()"  width="100" height="30"/>
        </mx:ControlBar> 	 
 

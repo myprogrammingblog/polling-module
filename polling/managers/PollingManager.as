@@ -21,6 +21,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PublishPollEvent;
 	import org.bigbluebutton.modules.polling.events.VoteEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	
 	import org.bigbluebutton.modules.polling.service.PollingService;
 
@@ -146,13 +147,7 @@ package org.bigbluebutton.modules.polling.managers
 	
 		
 		public function handleVoteEvent(e:VoteEvent):void
-		{
-			
-			// What need to be done:
-			  // we need to have getPollKey() method  inside pollObject that returns pollkey so we don't have to include title in every event....
-			   // pollKey here is zero
-			   // or other object could be considered, but poll information should be somehow available through "get" methods....
-			   
+		{			   
 			LogUtil.debug(LOGNAME + " inside handleVoteEvent()");
 			e.pollKey = module.getRoom() +"-"+ e.title ;
 			service.vote(e.pollKey, e.answerID);
@@ -169,7 +164,19 @@ package org.bigbluebutton.modules.polling.managers
 		  public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
 			      LogUtil.debug(LOGNAME +" inside handleClosePollingStatsWindow ");
 			      viewWindowManager.handleClosePollingStatsWindow(e);
-			}  	
+			}
+		  // Refreshing PollingStatsWindow	
+		  public function handleRefreshPollingStatsWindow(e:PollRefreshEvent):void{
+			      LogUtil.debug(LOGNAME +" inside handleRefreshPollingStatsWindow ");
+			      viewWindowManager.handleRefreshPollingStatsWindow(e);
+		  }
+		  
+		  public function handleGetPollingStats(e:PollRefreshEvent):void{
+		      LogUtil.debug(LOGNAME +" inside handleGetPollingStats ");
+		      e.pollKey = module.getRoom() +"-"+ e.title ;
+		      LogUtil.debug(LOGNAME + " pollKey is " + e.pollKey);
+		      service.getPoll(pollKey, true);
+		  }  
 		//##################################################################################
    }
 }

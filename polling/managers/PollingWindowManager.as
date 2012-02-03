@@ -38,6 +38,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	
 			
 	public class PollingWindowManager {	
@@ -156,6 +157,11 @@ package org.bigbluebutton.modules.polling.managers
 		public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
 			LogUtil.debug(LOGNAME + " inside handleClosePollingStatsWindow");
 			closeWindow(statsWindow);
+		}
+		
+		public function handleRefreshPollingStatsWindow(e:PollRefreshEvent):void{
+			LogUtil.debug(LOGNAME + " inside handleRefreshPollingStatsWindow");
+			statsWindow.refresh(e.votes);
 		}
 		//##########################################################################
 	}

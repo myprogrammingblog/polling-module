@@ -39,6 +39,7 @@
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
+			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 
 			import mx.validators.Validator;	
 			import mx.utils.ObjectUtil;
@@ -183,7 +184,7 @@
 				}
 				LogUtil.debug(LOGNAME + " Title going into VoteEvent is " + title);
 				voteEvent.title = title;
-				dispatchEvent(voteEvent);
+				dispatchEvent(voteEvent);				
 				closeWindow();
 			} // _vote
 			
