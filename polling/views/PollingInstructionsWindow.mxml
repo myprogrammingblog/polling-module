@@ -72,7 +72,7 @@ Notes.mxml is the main view of the SharedNotes application
 			public var moduleAttributes:Object;
 			private var userName:String;
 			private  var module:PollingModule;
-			private var allowedChars:RegExp = /^[^;\\]*$/; // for security reasons some  characters are not allowed
+		//	private var allowedChars:RegExp = /^[^;\\]*$/; // for security reasons some  characters are not allowed
 			[Bindable] private var _poll:String = "Create Poll";
 			// Bindable is set to allow data to change when You hit Back and change something, this change will appear in review
 			[Bindable]private var _title:String;
@@ -217,8 +217,8 @@ Notes.mxml is the main view of the SharedNotes application
 			     		errMsg = "Please Provide a Title";
 			     	else if (pollTitle.length > _MAX_TITLE_LENGTH )
 			     		errMsg = "Title is too long, Max. " +_MAX_TITLE_LENGTH;	
-			       		else if(!allowedChars.test(pollTitle.text))
-			   			errMsg = "Title has forbidden characters";
+			       		//else if(!allowedChars.test(pollTitle.text))
+			   			//errMsg = "Title has forbidden characters";
 			   			else
 			   				_title = pollTitle.text;			
 			  return errMsg;
@@ -232,8 +232,8 @@ Notes.mxml is the main view of the SharedNotes application
 			     		errMsg = "Please Provide a Question";
 			     	 else if (pollQuestion.length > _MAX_QUESTION_LENGTH )
 			     		errMsg = "Question is too long. Maximum chars: "+ _MAX_QUESTION_LENGTH;		
-			      		 else if(!allowedChars.test(pollQuestion.text))
-			   			errMsg = "Question field has forbidden characters";	
+			      		// else if(!allowedChars.test(pollQuestion.text))
+			   			//errMsg = "Question field has forbidden characters";	
 			   	   else	
 			   	   	_question=pollQuestion.text;			
 			  return errMsg;
@@ -255,8 +255,8 @@ Notes.mxml is the main view of the SharedNotes application
 		     	// ALL THE MESSAGES NEED TO BE LOCALISED!!!!!
 			     if (pollAnswers.length == 0 )
 			     		errMsg = "Please provide at least 2 Answers";
-			       else if(!allowedChars.test(pollAnswers.text))
-			   		errMsg = "Answer field has forbidden characters";
+			      // else if(!allowedChars.test(pollAnswers.text))
+			   	//	errMsg = "Answer field has forbidden characters";
 			   //	 else if (!startWithStar.test(pollAnswers.text))
 			   //	 	errMsg = "Every answer should start with  a new line and '*' (e.g *Seneca)";
 			   	     else if (isDuplicateAnswers(answersArray))
@@ -428,7 +428,7 @@ Notes.mxml is the main view of the SharedNotes application
 				 	     	    _rb = new RadioButton();
 				 	              _rb.name = content.getItemAt(i).toString(); // giving button a name of array elelment to process it easier later
 				 	              _rb.groupName = "answers";
-				 	              _rb.label ="*";	
+				 	              _rb.label =" ";	
 				 	              _hb.addChild(_rb);
 				     
 				     

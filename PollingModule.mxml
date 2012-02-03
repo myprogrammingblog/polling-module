@@ -112,6 +112,10 @@
 				LogUtil.debug(LOGNAME + "STOPPING Polling MODULE");	
 			}
 			
+			public function getMeetingInfo():String{
+				return getMeetingInfo();
+			}
+			
 		]]>
 	</mx:Script>
 	

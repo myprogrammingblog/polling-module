@@ -21,7 +21,7 @@
 -->
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
-	width="310" height="150" 
+	width="330" height="150" 
 	xmlns:mate="http://mate.asfusion.com/" 
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	creationComplete="onCreationComplete()"
@@ -97,7 +97,7 @@
 				for(var s:String in answers){
 					lines = lines + ((s.length / 28) + 1);	
 				}				 	            	
-				height = height + (lines * 45);
+				height = height + ((lines+1) * 45);
 			}
 			
 			
@@ -111,14 +111,14 @@
 				var _line: HRule;
 				
 				var totalVotes:int = 0;
-				for (var vote:String in votes){
-					totalVotes+= int(vote);
+				for (var n:int = 0; n < votes.length; n++){
+					totalVotes+= int(votes[n]);
+					LogUtil.debug(LOGNAME + " Integer-cast vote is : " + int(votes[n]));
 				}
 				LogUtil.debug(LOGNAME + " Total votes are: " + totalVotes);
 				
 				// delete existing rows
 				resultBox.removeAllChildren();
-				
 				
 				// creating rows one by one
 				for (var i:int = 0; i < amount; i++) {
@@ -128,7 +128,7 @@
 					_hb = new HBox();
 					_line = new HRule();
 					
-					_line.width = 270;
+					_line.width = 290;
 					
 					_tx.name = "option" +i;
 					_tx.width = 200;
@@ -142,16 +142,16 @@
 					//LogUtil.debug(LOGNAME + " createResultsTable _votes created");
 					
 					_percent.name = "percent" +i;
-					_percent.width = 30;
+					_percent.width = 50;
 					
-					if (!isMultiple){
-						//radio buttons
+					// Percentage is in terms of how many votes each option has in terms of total votes
+					if (totalVotes > 0){
+						LogUtil.debug(LOGNAME + "Making percentage... Votes["+i+"] is "+votes[i]+" and totalVotes is "+totalVotes);
 						_percent.text = Math.round(100*(votes[i]/totalVotes)) + "%";
 					}else{
-						//checkboxes
-						_percent.text = "ee";
+						// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
+						_percent.text = " ";
 					}
-					
 					
 					resultBox.addChild(_hb);					
 					_hb.addChild(_tx);
@@ -160,9 +160,49 @@
 					
 					resultBox.addChild(_line);
 				} // end of loop
+								
 				resultBox.validateNow();	
+				didNotVote();
 			} // end of function createResultsTable
+			
+			private function didNotVote():void{
+				var _tx:Text = new Text();
+				var _votes:Text= new Text;
+				var _hb:HBox = new HBox();
+				
+				_tx.name = "optionNull";
+				_tx.width = 200;
+				_tx.text ="Did Not Vote"; 
+										
+				_votes.name = "voteNull";
+				_votes.width = 30;
+				_votes.text = "999";
+								
+				resultBox.addChild(_hb);					
+				_hb.addChild(_tx);
+				_hb.addChild(_votes);
+			}
 					
+					
+			private function stopPoll():void{
+				LogUtil.debug(LOGNAME + "Entering stopPoll()");
+				refreshResults();
+				btnRefreshResults.visible = false;
+					LogUtil.debug(LOGNAME + "Refresh button visible: " + btnRefreshResults.visible);
+				btnClosePoll.label = "Close";
+					LogUtil.debug(LOGNAME + "Close button label: " + btnClosePoll.label);
+				
+				btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
+				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick);
+				
+				//btnClosePoll.setStyle(click, "closeWindow()");
+				
+				// Some method to stop the poll and close all Viewer windows 
+			}
+			
+			private function closeButtonClick(e:Event):void{
+				closeWindow();
+			}
 		]]>
 	</mx:Script>
 
@@ -186,7 +226,7 @@
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
        <mx:Button id="btnRefreshResults" label="Refresh" click="refreshResults()"  width="100" height="30"/>
-       <mx:Button id="btnClosePoll" label="Close Poll" click="closeWindow()"  width="100" height="30"/>
+       <mx:Button id="btnClosePoll" label="Stop Poll" click="stopPoll()"  width="100" height="30"/>
        </mx:ControlBar> 	 
 
 
