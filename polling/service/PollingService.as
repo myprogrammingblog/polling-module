@@ -160,9 +160,9 @@ package org.bigbluebutton.modules.polling.service
 	   		isPolling = polling; 
 	   }
 	   
-	  /* public function getPollingStatus():Boolean{
+	   public function getPollingStatus():Boolean{
 	   		return isPolling;
-	   }*/
+	   }
 
 		import org.bigbluebutton.core.managers.UserManager;
         //Event Handlers

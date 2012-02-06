@@ -63,15 +63,18 @@ package org.bigbluebutton.modules.polling.managers
 		//##########################################################################
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
 			LogUtil.debug(LOGNAME + "inside handleOpenPollingInstructionsWindow");
-			instructionsWindow = new PollingInstructionsWindow();
-			openWindow(instructionsWindow);
-			
+			if (!service.getPollingStatus()){
+				instructionsWindow = new PollingInstructionsWindow();
+				openWindow(instructionsWindow);
+			}else{
+				LogUtil.debug(LOGNAME + "Instructions window denied; poll is still open!");
+			}
 		}
 		
 		public function handleClosePollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
 			LogUtil.debug(LOGNAME + " inside handleClosePollingInstructionsWindow");
 			closeWindow(instructionsWindow);
-			service.setPolling(true);
+			//service.setPolling(true);
 		}
 		
 		//PollingAcceptWindow.mxml Window Event Handlers
@@ -80,7 +83,7 @@ package org.bigbluebutton.modules.polling.managers
 			LogUtil.debug(LOGNAME + "inside handleOpenAcceptPollingInstructionsWindow");
 			acceptInstructionsWindow = new PollingAcceptWindow();
 			openWindow(acceptInstructionsWindow);
-			service.setPolling(false);
+			//service.setPolling(false);
 		}
 		
 		public function handleCloseAcceptPollingInstructionsWindow(e:AcceptPollingInstructionsWindowEvent):void{
@@ -127,13 +130,14 @@ package org.bigbluebutton.modules.polling.managers
 			pollingWindow.isMultiple = e.isMultiple;
 			pollingWindow.answers = e.answers;
 			openWindow(pollingWindow);
+			//service.setPolling(true);
 		}
 		
 		public function handleClosePollingViewWindow(e:PollingViewWindowEvent):void{
 			LogUtil.debug(LOGNAME + " inside handleClosePollingViewWindow");
 			closeWindow(pollingWindow);
 			LogUtil.debug(LOGNAME + " After closeWindow");
-			service.setPolling(false);
+			//service.setPolling(false);
 		}
 		
 		public function handleStopPolling(e:StopPollEvent):void{
@@ -155,6 +159,7 @@ package org.bigbluebutton.modules.polling.managers
 			statsWindow.answers = e.answers;
 			statsWindow.votes = e.votes;
 			openWindow(statsWindow);
+			service.setPolling(true);
 		}
 		
 		public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
