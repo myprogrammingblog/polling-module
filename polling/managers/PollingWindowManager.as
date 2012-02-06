@@ -164,7 +164,7 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public function handleRefreshPollingStatsWindow(e:PollRefreshEvent):void{
 			LogUtil.debug(LOGNAME + " inside handleRefreshPollingStatsWindow");
-			statsWindow.refresh(e.votes);
+			statsWindow.refresh(e.votes, e.totalVotes);
 		}
 		//##########################################################################
 	}

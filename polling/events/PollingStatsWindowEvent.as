@@ -31,6 +31,7 @@ package org.bigbluebutton.modules.polling.events
 		public var answers:Array;
 		public var votes:Array;
 		public var time:String;
+		public var totalVotes:int;
 		
 		public function PollingStatsWindowEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

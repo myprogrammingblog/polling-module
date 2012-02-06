@@ -27,6 +27,7 @@ package org.bigbluebutton.modules.polling.events
 		public var pollKey:String;
 		public var title:String;
 		public var votes:Array;
+		public var totalVotes:int;
 		
 		public function PollRefreshEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

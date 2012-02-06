@@ -42,6 +42,10 @@
 			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 			import org.bigbluebutton.modules.polling.events.StopPollEvent;
+			import org.bigbluebutton.core.managers.UserManager;
+			import org.bigbluebutton.main.model.users.Conference 
+			import org.bigbluebutton.main.model.users.BBBUser;
+			import org.bigbluebutton.common.Role;
 
 			import mx.validators.Validator;	
 			import mx.utils.ObjectUtil;
@@ -61,10 +65,13 @@
 			public var votes:Array;
 			public var time:String;
 			
+			public var participants:int;
+			public var votesCast:int;
+			
 			public var moduleAttributes:Object;
 			private var _userid:Number; 
 			private var window:PollingStatsWindow;
-			
+			private var conference:Conference;
 
 			
 
@@ -73,6 +80,8 @@
 			}
 				
 			private function refreshResults():void{
+				//LogUtil.debug(LOGNAME + "Result of getMeetingInfo is " + getMeetingInfo());
+			
 				var e:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.GET);
 				e.title = title;
 				dispatchEvent(e);
@@ -83,20 +92,34 @@
 				dispatchEvent(new PollingStatsWindowEvent(PollingStatsWindowEvent.CLOSE));
 			}
  
- 			public function refresh(newVotes:Array):void{
+ 			public function refresh(newVotes:Array, _totalVotes:int):void{
  				votes = newVotes;
+ 				votesCast = _totalVotes;
  				createResultsTable(answers.length, answers);
+ 				didNotVote();
  				invalidateDisplayList();
 				validateNow();
  			}
  
 			private function onCreationComplete():void{
+				conference = UserManager.getInstance().getConference();
+				votesCast = 0;
 				createResultsTable(answers.length, answers);
 				var lines:int = (question.length / 28) + 1;;
 				for(var s:String in answers){
 					lines = lines + ((s.length / 28) + 1);	
 				}				 	            	
 				height = height + ((lines+1) * 45);
+				
+				var p:BBBUser;
+				for (var i:int = 0; i < conference.users.length; i++) {
+					p = conference.users.getItemAt(i) as BBBUser;
+					if (p.role != Role.MODERATOR) {
+						participants++;
+					}
+				} 
+								
+				LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators.");
 			}
 			
 			
@@ -155,7 +178,7 @@
 				} // end of loop
 								
 				resultBox.validateNow();	
-				didNotVote();
+				//didNotVote();
 			} // end of function createResultsTable
 			
 			private function didNotVote():void{
@@ -169,7 +192,7 @@
 										
 				_votes.name = "voteNull";
 				_votes.width = 30;
-				_votes.text = "999";
+				_votes.text = (participants - votesCast).toString();
 								
 				resultBox.addChild(_hb);					
 				_hb.addChild(_tx);

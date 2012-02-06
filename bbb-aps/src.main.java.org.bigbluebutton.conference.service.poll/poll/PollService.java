@@ -46,11 +46,11 @@ public class PollService {
 	private Poll poll;
 	
 	// This method is called by the savePoll method in bbb-client PollingService.as
-	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple, String room, ArrayList votes, String time ) {
+	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple, String room, ArrayList votes, String time, int totalVotes ) {
 		log.debug(LOGNAME + "[TEST ]Step 1 : pollService received info: title:"+title+ " answers:"+ answers.toString()+   " Question: "+question+ " isMultiple ? " +isMultiple.toString());
 	    String roomName = Red5.getConnectionLocal().getScope().getName();
 	    String pollTime = DateFormatUtils.formatUTC(System.currentTimeMillis(), "MM/dd/yy HH:mm");
-	    poll = new Poll(title, question, answers, isMultiple, roomName, votes, pollTime);
+	    poll = new Poll(title, question, answers, isMultiple, roomName, votes, pollTime, 0);
 	    log.debug(LOGNAME + "[TEST ] Step 3 :  Sending Poll object to PollApplication");
 		application.savePoll(poll);
 	}
@@ -73,7 +73,8 @@ public class PollService {
 		values.add(poll.question);
 		values.add(poll.answers);
 		values.add(poll.votes);
-		values.add(poll.time);		
+		values.add(poll.time);	
+		values.add(poll.totalVotes);
 		return values;
 	}
 	

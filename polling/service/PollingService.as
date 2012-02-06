@@ -33,6 +33,7 @@ package org.bigbluebutton.modules.polling.service
 	import mx.controls.Alert;
 	import org.bigbluebutton.core.managers.UserManager;
 	
+	
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
@@ -117,13 +118,13 @@ package org.bigbluebutton.modules.polling.service
          		LogUtil.debug(LOGNAME + "Sharing window: Poll title is: " + poll.title);
          	
          	if (isConnected = true ) {
-         			pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time); 
+         			pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time, poll.totalVotes); 
          	}
          }
          
          
          
-         public function openPollingWindow(title:String, question:String, isMultiple:Boolean, answers:Array, votes:Array, time:String):void{
+         public function openPollingWindow(title:String, question:String, isMultiple:Boolean, answers:Array, votes:Array, time:String, totalVotes:int):void{
          	var username:String = module.username;
          	
          	LogUtil.debug(LOGNAME + "Opening window: Answers are : " + answers);
@@ -149,6 +150,7 @@ package org.bigbluebutton.modules.polling.service
          		stats.votes = votes;
          		stats.isMultiple = isMultiple;
          		stats.time = time;
+         		stats.totalVotes = totalVotes;
          		
 				dispatcher.dispatchEvent(stats);
          	}
@@ -206,18 +208,8 @@ package org.bigbluebutton.modules.polling.service
 			LogUtil.debug(LOGNAME+"Shared object is connected");	
 		}
 		
-		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean, room:String, votes:Array, time:String ):void
+		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean, room:String, votes:Array, time:String):void
 		{
-			/*
-		     LogUtil.debug(LOGNAME + "inside savePoll() making NetConnection: " + nc);
-		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call answers: " + answers);
-		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call question: " +  question);
-		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call title: " + title);
-		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call isMultiple: " + isMultiple);
-		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call room: " + room);
-		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call votes: " + votes);
-		     LogUtil.debug(LOGNAME + "inside savePoll() making netconnection call time: " + time);
-		    */
 			nc.call("poll.savePoll",
 				new Responder(
 					function(result:Object):void { 
@@ -236,7 +228,8 @@ package org.bigbluebutton.modules.polling.service
 				isMultiple,
 				room,
 				votes,
-				time
+				time,
+				0
 			); 
 			//_netConnection.call
 			
@@ -280,12 +273,13 @@ package org.bigbluebutton.modules.polling.service
 		    poll.answers = values[4] as Array;
 		    poll.votes = values[5] as Array;	    
 		    poll.time = values[6] as String;		    
+		    poll.totalVotes = values[7] as int;
 		    
 		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
 		    if (!refreshFlag){
 		    	sharePollingWindow(poll);
 		    }else{  
-		    	refreshResults(poll.votes);
+		    	refreshResults(poll.votes, poll.totalVotes);
 		    }
 		 }
 		 
@@ -330,9 +324,10 @@ package org.bigbluebutton.modules.polling.service
 			);
 		 } // _vote
 		 
-		 public function refreshResults(votes:Array):void{
+		 public function refreshResults(votes:Array, totalVotes:int):void{
 		 	var refreshEvent:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.REFRESH);
 		 	refreshEvent.votes = votes;
+		 	refreshEvent.totalVotes = totalVotes;
 		 	dispatcher.dispatchEvent(refreshEvent);
 		 } // _refreshResults
    }

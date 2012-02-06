@@ -40,6 +40,8 @@
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
 			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+			
+			import org.bigbluebutton.main.model.users.Conference;
 
 			import mx.validators.Validator;	
 			import mx.utils.ObjectUtil;
@@ -237,7 +239,7 @@
           		
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
-       <mx:Button id="btnAcceptPoll" label="Vote" click="Vote()"  width="100" height="30"/>
+       <mx:Button id="btnAcceptPoll" label="Submit" click="Vote()"  width="100" height="30"/>
        </mx:ControlBar> 	 
 
 

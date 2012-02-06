@@ -85,13 +85,6 @@ public class PollRecorder {
 			jedis.hset(pollKey, "room", poll.room);
 			jedis.hset(pollKey, "time", poll.time);
 				
-			String existingVotes = new String();
-			if (poll.votes != null){
-				// Copy poll.votes into existingVotes
-			}else{
-				// set it to zero
-			}
-			
 			// Dynamically creates enough fields in the hash to store all of the answers and their corresponding votes.
 			// If the poll is freshly created and has no votes yet, the votes are initialized at zero;
 			// otherwise it fetches the previous number of votes.
@@ -106,7 +99,15 @@ public class PollRecorder {
 					log.debug("[TEST] answer"+i+" votes: " + poll.votes.toArray()[i-1].toString());
 				}
 			}
-
+			
+			Integer tv = poll.totalVotes;
+			String totalVotesStr = tv.toString();
+			
+			if (totalVotesStr == null){
+				jedis.hset(pollKey, "totalVotes", "0");
+			}else{
+				jedis.hset(pollKey, "totalVotes", totalVotesStr);
+			}
 			log.debug("[TEST] Poll " + pollKey + " saved!");
 
 			//redisPool.returnResource(jedis);
