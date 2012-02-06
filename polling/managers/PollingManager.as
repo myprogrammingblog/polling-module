@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
+	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 	
 	import org.bigbluebutton.modules.polling.service.PollingService;
 
@@ -98,6 +99,11 @@ package org.bigbluebutton.modules.polling.managers
 		      viewWindowManager.handleOpenPollingInstructionsWindow(e);
 		     }		     
 				
+	  // Checking the polling status to prevent a presenter from publishing two polls at a time
+	  public function handleCheckStatusEvent(e:PollingStatusCheckEvent):void{
+		  LogUtil.debug(LOGNAME +" inside handleCheckStatusEvent ");
+		  viewWindowManager.handleCheckStatusEvent(e);
+	  }
 		//##################################################################################	
 						
 	  // Opening PollingViewWindow
@@ -149,10 +155,13 @@ package org.bigbluebutton.modules.polling.managers
 	
 		public function handlePublishPollEvent(e:PublishPollEvent):void
 		{
-			//var pollKey:String;
-			LogUtil.debug(LOGNAME + " inside handlePublishPollEvent(), calling getPoll");
-			pollKey = module.getRoom() +"-"+ e.title ;
-			service.getPoll(pollKey);
+			if (!service.getPollingStatus()){
+				LogUtil.debug(LOGNAME + " inside handlePublishPollEvent(), calling getPoll");
+				pollKey = module.getRoom() +"-"+ e.title ;
+				service.getPoll(pollKey);
+			}else{
+				LogUtil.debug(LOGNAME + "Publishing denied; poll is still open!");
+			}
 		}	
 		
 	

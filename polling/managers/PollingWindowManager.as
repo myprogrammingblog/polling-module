@@ -40,6 +40,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
+	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 	
 			
 	public class PollingWindowManager {	
@@ -63,12 +64,8 @@ package org.bigbluebutton.modules.polling.managers
 		//##########################################################################
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
 			LogUtil.debug(LOGNAME + "inside handleOpenPollingInstructionsWindow");
-			if (!service.getPollingStatus()){
-				instructionsWindow = new PollingInstructionsWindow();
-				openWindow(instructionsWindow);
-			}else{
-				LogUtil.debug(LOGNAME + "Instructions window denied; poll is still open!");
-			}
+			instructionsWindow = new PollingInstructionsWindow();
+			openWindow(instructionsWindow);
 		}
 		
 		public function handleClosePollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
@@ -76,6 +73,13 @@ package org.bigbluebutton.modules.polling.managers
 			closeWindow(instructionsWindow);
 			//service.setPolling(true);
 		}
+		
+		// Checking the polling status to prevent a presenter from publishing two polls at a time
+		  public function handleCheckStatusEvent(e:PollingStatusCheckEvent):void{
+			  LogUtil.debug(LOGNAME +" inside handleCheckStatusEvent ");
+			  e.allowed = !service.getPollingStatus();
+			  instructionsWindow.publishingAllowed = e.allowed;
+		  }
 		
 		//PollingAcceptWindow.mxml Window Event Handlers
 		//##########################################################################
@@ -89,8 +93,8 @@ package org.bigbluebutton.modules.polling.managers
 		public function handleCloseAcceptPollingInstructionsWindow(e:AcceptPollingInstructionsWindowEvent):void{
 			LogUtil.debug(LOGNAME + " inside handleCloseAcceptPollingInstructionsWindow");
 			closeWindow(acceptInstructionsWindow);
-			
 		}
+		
 		
 		//##########################################################################
 		

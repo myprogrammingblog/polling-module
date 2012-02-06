@@ -62,7 +62,7 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-
+			import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 			
 			
 
@@ -81,6 +81,7 @@ Notes.mxml is the main view of the SharedNotes application
 			[Bindable]private var _isMultiple:Boolean =false;
 			private var _answersArray:Array;
 			
+			public var publishingAllowed:Boolean = true;
 			
 			private var manager:PollingManager = new PollingManager();
 			
@@ -202,7 +203,9 @@ Notes.mxml is the main view of the SharedNotes application
 			    	
 			    }
 			
-			
+				allowPublishing();
+				LogUtil.debug(LOGNAME + "Publishing is allowed? " + publishingAllowed);
+				publishButton.enabled = publishingAllowed;
 			}
 			
 			// GENERATING ERROR MESSAGES
@@ -485,6 +488,11 @@ Notes.mxml is the main view of the SharedNotes application
 			
 				dispatchEvent(new StartPollingEvent(StartPollingEvent.START));	
 				closeInstructionsWindow();
+			}
+			
+			private function allowPublishing():void {
+				dispatchEvent(new PollingStatusCheckEvent(PollingStatusCheckEvent.CHECK));
+				LogUtil.debug(LOGNAME + "Survived status checking, status is " + publishingAllowed);
 			}
 			
 		]]>

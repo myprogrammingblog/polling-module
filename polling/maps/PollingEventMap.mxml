@@ -40,6 +40,7 @@
 			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 			import org.bigbluebutton.modules.polling.events.StopPollEvent;
+			import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 				]]>
 				
 	</mx:Script>
@@ -130,6 +131,11 @@
 	 
 	 <EventHandlers type="{StopPollEvent.STOP_POLL}">
 		<MethodInvoker generator="{PollingManager}"  method="handleStopPolling" arguments="{event}"/>
+	 </EventHandlers>
+	 
+	 <!-- Event to check if a poll is already open before allowing presenter to publish a second poll -->
+	 <EventHandlers type="{PollingStatusCheckEvent.CHECK}">
+		<MethodInvoker generator="{PollingManager}"  method="handleCheckStatusEvent" arguments="{event}"/>
 	 </EventHandlers>
 	 
 </EventMap>
