@@ -91,13 +91,15 @@ public class PollInvoker {
     	   String pRoom = jedis.hget(pollKey, "room");
     	   String pTime = jedis.hget(pollKey, "time");
     	   String pTotalVotes = jedis.hget(pollKey, "totalVotes");
+    	   boolean pStatus = false;
+    	   if (jedis.hget(pollKey, "status").compareTo("true") == 0) {pStatus = true;}
 		
     	   // ANSWER EXTRACTION
     	   long pollSize = jedis.hlen(pollKey);
     	   // IMPORTANT! 
     	   // Increase the value of otherFields for each field you add to the hash which is not a new answer
     	   // (locales, langauge, etc)
-    	   int otherFields = 6;
+    	   int otherFields = 7;
     	   long numAnswers = (pollSize-otherFields)/2;
        
     	   // Create an ArrayList of Strings for answers, and one of ints for answer votes
@@ -109,14 +111,9 @@ public class PollInvoker {
     		   pVotes.add(Integer.parseInt(jedis.hget(pollKey, "answer"+j)));
     	   }
     	   
-    	   Poll poll = new Poll(pTitle, pQuestion, pAnswers, pMultiple, pRoom, pVotes, pTime, Integer.parseInt(pTotalVotes));
+    	   Poll poll = new Poll(pTitle, pQuestion, pAnswers, pMultiple, pRoom, pVotes, pTime, Integer.parseInt(pTotalVotes), pStatus);
     	   
-    	   try
-    	   {
-    		   //redisPool.returnResource(jedis);
-    		   log.debug("[TEST] Returning resource successfully in invoke");
-    	   }
-    	   finally{return poll;}
+    	   return poll;
        }
        log.error("[ERROR] A poll is being invoked that does not exist. Null exception will be thrown.");
        //redisPool.returnResource(jedis);
@@ -124,25 +121,37 @@ public class PollInvoker {
    }
    
    // Gets the ID of the current room, and returns a list of all available polls.
-   public ArrayList <String> pollList()
-   {
-	   //Jedis jedis = PollApplication.dbConnect(); 
+   public ArrayList <String> titleList()
+   { 
+	   log.debug("Entering PollInvoker titleList");
 	   Jedis jedis = dbConnect();
-	   
        String roomName = Red5.getConnectionLocal().getScope().getName();
-	   ArrayList <String> pollKeyList = new ArrayList <String>(); 
-       for (String s : jedis.keys(roomName+"\"*\""))
+	   ArrayList <String> pollTitleList = new ArrayList <String>(); 
+       for (String s : jedis.keys(roomName+"*"))
        {
-    	   pollKeyList.add(s);
+    	   log.debug("[TEST] Getting titles, key is " + s);
+    	   pollTitleList.add(jedis.hget(s, "title"));
+    	   log.debug("[TEST] Getting titles, title is " + jedis.hget(s, "title"));
        }
-	   
-	   log.debug("[TEST] Listing available polls for room " + roomName);
-	   for (String s : pollKeyList)
-	   {
-		   log.debug("[TEST] " + s);
-	   }
-	   
-	   //redisPool.returnResource(jedis);
-	   return pollKeyList;
+       log.debug("[TEST] titleList is " + pollTitleList);
+       log.debug("Leaving PollInvoker titleList");
+	   return pollTitleList;
+   }
+   
+   public ArrayList <String> statusList()
+   { 
+	   log.debug("Entering PollInvoker statusList");
+	   Jedis jedis = dbConnect();
+       String roomName = Red5.getConnectionLocal().getScope().getName();
+	   ArrayList <String> pollStatusList = new ArrayList <String>(); 
+       for (String s : jedis.keys(roomName+"*"))
+       {
+    	   log.debug("[TEST] Getting status, key is " + s);
+    	   pollStatusList.add(jedis.hget(s, "status"));
+    	   log.debug("[TEST] Getting status, status is " + jedis.hget(s, "status"));
+       }
+       log.debug("[TEST] statusList is " + pollStatusList);
+       log.debug("Leaving PollInvoker statusList");
+       return pollStatusList;
    }
 }

@@ -29,6 +29,7 @@
 			
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			
+			/*
 			import org.bigbluebutton.modules.polling.events.ModuleEvent;
 			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
@@ -42,6 +43,13 @@
 			import org.bigbluebutton.modules.polling.events.StopPollEvent;
 			import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 			import org.bigbluebutton.modules.polling.events.ToolbarComboEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
+			import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
+			import org.bigbluebutton.modules.polling.events.PollReturnStatusEvent;
+			*/
+			
+			import org.bigbluebutton.modules.polling.events.*;
 			
 				]]>
 				
@@ -140,9 +148,17 @@
 		<MethodInvoker generator="{PollingManager}"  method="handleCheckStatusEvent" arguments="{event}"/>
 	 </EventHandlers>
 	 
-	 <!-- Events to display or hide the combobox for the Polling menu -->
-	 <EventHandlers type="{ToolbarComboEvent.ADD}">
-		<MethodInvoker generator="{PollingManager}"  method="handleAddToolbarComboEvent" arguments="{event}"/>
+	 <!-- Events to update the list of poll titles and statuses to display in the Polling Menu -->
+	 <EventHandlers type="{PollGetTitlesEvent.UPDATE}">
+		<MethodInvoker generator="{PollingManager}"  method="handleUpdateTitlesEvent" arguments="{event}"/>
 	 </EventHandlers>
-	 
+	 <EventHandlers type="{PollGetStatusEvent.UPDATE}">
+		<MethodInvoker generator="{PollingManager}"  method="handleUpdateStatusEvent" arguments="{event}"/>
+	 </EventHandlers>
+	 <EventHandlers type="{PollReturnTitlesEvent.UPDATE}">
+		<MethodInvoker generator="{PollingManager}"  method="handleReturnTitlesEvent" arguments="{event}"/>
+	 </EventHandlers>
+	 <EventHandlers type="{PollReturnStatusEvent.UPDATE}">
+		<MethodInvoker generator="{PollingManager}"  method="handleReturnStatusEvent" arguments="{event}"/>
+	 </EventHandlers>
 </EventMap>

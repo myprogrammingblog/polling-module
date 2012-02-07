@@ -142,6 +142,30 @@ public class PollApplication {
 	    ++poll.totalVotes;
 	    savePoll(poll);
 	}
+	
+	public ArrayList titleList()
+	{
+		log.debug("Entering PollApplication titleList");
+		PollInvoker pollInvoker = new PollInvoker();
+		ArrayList titles = pollInvoker.titleList(); 
+		log.debug("Leaving PollApplication titleList");
+		return titles;
+	}
+	
+	public ArrayList statusList()
+	{
+		log.debug("Entering PollInvoker titleList");
+		PollInvoker pollInvoker = new PollInvoker();
+		ArrayList status = pollInvoker.statusList();
+		log.debug("Leaving PollApplication statusList");
+		return status;
+	}
+	
+	public void setStatus(String pollKey, Boolean status){
+		log.debug("[TEST] In pollApplication, setting status of " + pollKey + " to " + status);	
+        PollRecorder pollRecorder = new PollRecorder();
+        pollRecorder.setStatus(pollKey, status);
+	}
 }
 
 	

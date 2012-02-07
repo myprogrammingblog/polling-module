@@ -38,6 +38,11 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+	import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
+	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
+	import org.bigbluebutton.modules.polling.events.PollReturnStatusEvent;
+	
 	
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
@@ -151,13 +156,22 @@ package org.bigbluebutton.modules.polling.service
          		stats.isMultiple = isMultiple;
          		stats.time = time;
          		stats.totalVotes = totalVotes;
+         		stats.status = false;
          		
 				dispatcher.dispatchEvent(stats);
          	}
          }
 
 	   public function setPolling(polling:Boolean):void{
-	   		isPolling = polling; 
+	   		isPolling = polling;
+	   }
+	   
+	   public function setStatus(pollKey:String, status:Boolean):void{
+	   		if (status){
+	   			openPoll(pollKey);
+	   		}else{
+	   			closePoll(pollKey);
+	   		}
 	   }
 	   
 	   public function getPollingStatus():Boolean{
@@ -229,10 +243,10 @@ package org.bigbluebutton.modules.polling.service
 				room,
 				votes,
 				time,
-				0
+				0,
+				true
 			); 
 			//_netConnection.call
-			
 			LogUtil.debug(LOGNAME + " After Connection");
 		}	   
 	
@@ -274,6 +288,7 @@ package org.bigbluebutton.modules.polling.service
 		    poll.votes = values[5] as Array;	    
 		    poll.time = values[6] as String;		    
 		    poll.totalVotes = values[7] as int;
+		    poll.status = values[8] as Boolean;
 		    
 		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
 		    if (!refreshFlag){
@@ -330,5 +345,79 @@ package org.bigbluebutton.modules.polling.service
 		 	refreshEvent.totalVotes = totalVotes;
 		 	dispatcher.dispatchEvent(refreshEvent);
 		 } // _refreshResults
+		 
+		 public function updateTitles():void{
+		 	nc.call("poll.titleList", new Responder(success, failure));
+		 	
+		 	//--------------------------------------//
+			
+			// Responder functions
+			function success(obj:Object):void{
+				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
+				event.titleList = obj as Array;
+				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);
+				dispatcher.dispatchEvent(event);
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure in UPDATE_TITLES NC.CALL");
+			}
+			
+			//--------------------------------------//
+		 } // _updateTitles
+		 
+		 public function updateStatus():void{
+		 	nc.call("poll.statusList", new Responder(success, failure));
+		 	
+		 	//--------------------------------------//
+			
+			// Responder functions
+			function success(obj:Object):void{
+				var event:PollReturnStatusEvent = new PollReturnStatusEvent(PollReturnStatusEvent.UPDATE);
+				event.statusList = obj as Array;
+				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);
+				dispatcher.dispatchEvent(event);
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure in UPDATE_STATUS NC.CALL");
+			}
+			
+			//--------------------------------------//
+		 } // _updateStatus
+		 
+		 public function openPoll(pollKey:String):void{
+		 	nc.call("poll.setStatus", new Responder(success, failure), pollKey, true);
+		 	
+		 	//--------------------------------------//
+			
+			// Responder functions
+			function success(obj:Object):void{
+				LogUtil.debug(LOGNAME+"Responder object success! in SET POLL TO OPEN");
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure in OPENPOLL NC.CALL");
+			}
+			
+			//--------------------------------------//
+		 }
+		 
+		 public function closePoll(pollKey:String):void{
+		 	nc.call("poll.setStatus", new Responder(success, failure), pollKey, false);
+		 	
+		 	//--------------------------------------//
+			
+			// Responder functions
+			function success(obj:Object):void{
+				LogUtil.debug(LOGNAME+"Responder object success! SET POLL TO CLOSED");
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure in CLOSEPOLL NC.CALL");
+			}
+			
+			//--------------------------------------//
+		 }
    }
 }

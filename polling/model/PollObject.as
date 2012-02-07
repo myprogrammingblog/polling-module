@@ -18,5 +18,6 @@ package org.bigbluebutton.modules.polling.model
 		public var votes:Array;
 		public var time:String;
 		public var totalVotes:int;
+		public var status:Boolean;
 	}
 }

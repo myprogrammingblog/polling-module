@@ -19,22 +19,13 @@
 package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
-	
-	public class PollingStatsWindowEvent extends Event
+
+	public class PollGetStatusEvent extends Event
 	{
-		public static const OPEN:String = "OPEN_POLLING_STATS_WINDOW";
-		public static const CLOSE:String = "CLOSE_POLLING_STATS_WINDOW";
-				
-		public var title:String;
-		public var isMultiple:Boolean;
-		public var question:String;
-		public var answers:Array;
-		public var votes:Array;
-		public var time:String;
-		public var totalVotes:int;
-		public var status:Boolean;
+		public static const UPDATE:String = "UPDATE";
+		public var statusList:Array;
 		
-		public function PollingStatsWindowEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function PollGetStatusEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
 			super(type, bubbles, cancelable);
 		}

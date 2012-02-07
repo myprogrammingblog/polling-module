@@ -26,10 +26,11 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.common.LogUtil;
 	import org.bigbluebutton.modules.polling.views.ToolbarButton;
 	
+	
 	import flash.display.DisplayObjectContainer;
 		
 	public class ToolbarButtonManager {		
-		private var button:ToolbarButton;
+		public var button:ToolbarButton;
 		private var globalDispatcher:Dispatcher;
 		private var buttonShownOnToolbar:Boolean = false;
 		

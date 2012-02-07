@@ -108,8 +108,14 @@ public class PollRecorder {
 			}else{
 				jedis.hset(pollKey, "totalVotes", totalVotesStr);
 			}
+			jedis.hset(pollKey, "status", poll.status.toString());
 			log.debug("[TEST] Poll " + pollKey + " saved!");
 
 			//redisPool.returnResource(jedis);
+        }
+        
+        public void setStatus(String pollKey, Boolean status){
+        	Jedis jedis = dbConnect();
+        	jedis.hset(pollKey, "status", status.toString());
         }
 }

@@ -35,8 +35,6 @@ import org.red5.server.api.Red5;
 import redis.clients.jedis.Jedis;
 
 
-
-
 public class PollService {
 	
 	private static Logger log = Red5LoggerFactory.getLogger( PollService.class, "bigbluebutton" );
@@ -46,11 +44,11 @@ public class PollService {
 	private Poll poll;
 	
 	// This method is called by the savePoll method in bbb-client PollingService.as
-	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple, String room, ArrayList votes, String time, int totalVotes ) {
+	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple, String room, ArrayList votes, String time, int totalVotes, Boolean status ) {
 		log.debug(LOGNAME + "[TEST ]Step 1 : pollService received info: title:"+title+ " answers:"+ answers.toString()+   " Question: "+question+ " isMultiple ? " +isMultiple.toString());
 	    String roomName = Red5.getConnectionLocal().getScope().getName();
 	    String pollTime = DateFormatUtils.formatUTC(System.currentTimeMillis(), "MM/dd/yy HH:mm");
-	    poll = new Poll(title, question, answers, isMultiple, roomName, votes, pollTime, 0);
+	    poll = new Poll(title, question, answers, isMultiple, roomName, votes, pollTime, 0, status);
 	    log.debug(LOGNAME + "[TEST ] Step 3 :  Sending Poll object to PollApplication");
 		application.savePoll(poll);
 	}
@@ -75,6 +73,7 @@ public class PollService {
 		values.add(poll.votes);
 		values.add(poll.time);	
 		values.add(poll.totalVotes);
+		values.add(poll.status);
 		return values;
 	}
 	
@@ -85,5 +84,19 @@ public class PollService {
 		log.debug(LOGNAME + "JAVA-SIDE VOTING FINISHED");
 	}
 	
+	public ArrayList titleList()
+	{
+		log.debug("In PollService titleList()");
+		return application.titleList();
+	}
 	
+	public ArrayList statusList()
+	{
+		log.debug("In PollService statusList()");
+		return application.statusList();
+	}
+	
+	public void setStatus(String pollKey, Boolean status){
+		application.setStatus(pollKey, status);
+	}
 }

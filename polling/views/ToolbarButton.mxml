@@ -22,62 +22,6 @@
 
 
 -->
-<!--mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:mate="http://mate.asfusion.com/"	
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.polling.toolTip')}"
-	implements="org.bigbluebutton.common.IBbbToolbarComponent"
-	>
-	<mx:Script>
-		<![CDATA[
-		    import com.asfusion.mate.events.Dispatcher;
-			import org.bigbluebutton.common.Images;
-			import org.bigbluebutton.common.LogUtil;
-			import org.bigbluebutton.main.views.MainToolbar;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.ToolbarComboEvent;
-			
-			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
-			import org.bigbluebutton.modules.polling.model.ValueObject;
-			import mx.collections.ArrayCollection;
-			import mx.controls.*;
-			
-			private var images:Images = new Images();
-			
-			[Bindable] public var pollIcon:Class = images.pollIcon;
-			[Bindable] private var myMenuData:ArrayCollection = new ArrayCollection();
-			private function createAndShow():void{
-				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
-            	myMenu.itemRenderer = new ClassFactory(ToolbarPollingRenderer);
-			}
-			
-			public function init():void {
-            	myMenuData.addItem(new ValueObject("MA", "MenuItem A", "menuOddItem"));
-            }
-			
-			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
-			
-			/*private function openPollingInstructions():void {
-				LogUtil.debug(LOGNAME +"openPollingInstructions() - clicked icon");
-				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.OPEN));
-				this.enabled = false;
-				LogUtil.debug(LOGNAME +"COMBO: sending event");
-				dispatchEvent(new ToolbarComboEvent(ToolbarComboEvent.ADD));
-				LogUtil.debug(LOGNAME +"COMBO:after sending event");
-			}*/
-			
-			public function getAlignment():String{
-				LogUtil.debug(LOGNAME +"Aligning Poll button");
-				return MainToolbar.ALIGN_RIGHT;
-			}
-		]]>
-	</mx:Script>
-	<mx:VBox>
-		<mx:Button id="myButton" initialize="init()" label="Open Menu" click="createAndShow();"/>    
-    </mx:VBox>
-</mx:Application-->
-
-<!-- -->
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"	
@@ -95,12 +39,16 @@
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.ToolbarComboEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
 			
 			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
 			import org.bigbluebutton.modules.polling.model.ValueObject;
 			import mx.collections.ArrayCollection;
-			import mx.controls.*;
+			import mx.controls.Menu;
+			import mx.events.MenuEvent;
+			
+			import org.bigbluebutton.modules.polling.model.PollObject;
 			
 			private var images:Images = new Images();
 			
@@ -109,28 +57,84 @@
 			
 			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
 			
+			public var titleList:Array;
+			public var statusList:Array;
+			
 			private function createAndShow():void{
 				LogUtil.debug(LOGNAME +"Toolbar Polling Button Clicked");
+				
+				getTitleList();
+				getStatusList();
+				refreshMenu();
+				
 				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
 				myMenu.itemRenderer = new ClassFactory(ToolbarPollingRenderer);
-            	//myMenu.dataProvider = myMenuData;
             	myMenu.show(this.x + 10, this.y + this.height + 10);
-            	LogUtil.debug(LOGNAME +"Survived CreateandShow");
+            	
+            	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuEventTest);
+        		        
+        		LogUtil.debug(LOGNAME +"Survived CreateandShow");
 			}
+			
+			// These two events trigger an update of the titleList and the parallel statusList
+			private function getTitleList():void{
+				dispatchEvent(new PollGetTitlesEvent(PollGetTitlesEvent.UPDATE));
+			}
+			private function getStatusList():void{
+				dispatchEvent(new PollGetStatusEvent(PollGetStatusEvent.UPDATE));
+			}
+			
+			private function refreshMenu():void{
+				LogUtil.debug(LOGNAME +" About to populate menu; titleList is " + titleList);
+				var counter:int = 0;
+				for each (var s:String in titleList){
+					++counter;
+					LogUtil.debug(LOGNAME +"Adding title: " + s)
+					var unique:Boolean = true;
+					for (var i:int=0; i < myMenuData.length; i++){
+						if (myMenuData.getItemAt(i).label == s){
+							unique = false;
+						}
+					}
+					if (unique){
+						myMenuData.addItem(new ValueObject(counter.toString(), s));
+					}
+				}
+            	LogUtil.debug(LOGNAME +"Survived menudata.additem");
+			}
+			
+        	private function menuEventTest(event:MenuEvent):void {
+            	LogUtil.debug("event.type: " + event.type);
+            	LogUtil.debug("event.label: " + event.label);	
+            	LogUtil.debug("event.index: " + event.index);
+            	
+            	if(event.index == 0){
+            	  openPollingInstructions();
+            	}
+            	
+	            if (event.item) {
+        	        LogUtil.debug("Item label: " + event.item.@label)
+            	    LogUtil.debug("Item selected: " + event.item.@toggled);
+                	LogUtil.debug("Item type: " + event.item.@type);
+            	}
+        	}
 			
 			public function init():void {
 				LogUtil.debug(LOGNAME +"Entering function init()");
-            	myMenuData.addItem(new ValueObject("MA", "MenuItem A"));
-            	myMenuData.addItem(new ValueObject("MB", "MenuItem B"));
-            	myMenuData.addItem(new ValueObject("MC", "MenuItem C"));
-            	myMenuData.addItem(new ValueObject("MD", "MenuItem D"));
-            	LogUtil.debug(LOGNAME +"Survived menudata.additem");
+				myMenuData.addItem(new ValueObject("create", "Create New Poll"));            	
             }			
 								
 			public function getAlignment():String{
 				LogUtil.debug(LOGNAME +"Aligning Poll button");
 				return MainToolbar.ALIGN_RIGHT;
 			}
+			
+			
+			private function openPollingInstructions():void {
+				LogUtil.debug(LOGNAME +"openPollingInstructions() - clicked icon");
+				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.OPEN));
+				this.enabled=false;
+				}
 		]]>
 	</mx:Script>
 </mx:Button>    
