@@ -41,6 +41,8 @@
 			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 			import org.bigbluebutton.modules.polling.events.StopPollEvent;
 			import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
+			import org.bigbluebutton.modules.polling.events.ToolbarComboEvent;
+			
 				]]>
 				
 	</mx:Script>
@@ -136,6 +138,11 @@
 	 <!-- Event to check if a poll is already open before allowing presenter to publish a second poll -->
 	 <EventHandlers type="{PollingStatusCheckEvent.CHECK}">
 		<MethodInvoker generator="{PollingManager}"  method="handleCheckStatusEvent" arguments="{event}"/>
+	 </EventHandlers>
+	 
+	 <!-- Events to display or hide the combobox for the Polling menu -->
+	 <EventHandlers type="{ToolbarComboEvent.ADD}">
+		<MethodInvoker generator="{PollingManager}"  method="handleAddToolbarComboEvent" arguments="{event}"/>
 	 </EventHandlers>
 	 
 </EventMap>

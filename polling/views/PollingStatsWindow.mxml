@@ -65,8 +65,8 @@
 			public var votes:Array;
 			public var time:String;
 			
-			public var participants:int;
-			public var votesCast:int;
+			[Bindable] public var participants:int;
+			[Bindable] public var votesCast:int;
 			
 			public var moduleAttributes:Object;
 			private var _userid:Number; 
@@ -96,7 +96,7 @@
  				votes = newVotes;
  				votesCast = _totalVotes;
  				createResultsTable(answers.length, answers);
- 				didNotVote();
+ 				//didNotVote();
  				invalidateDisplayList();
 				validateNow();
  			}
@@ -104,7 +104,7 @@
 			private function onCreationComplete():void{
 				conference = UserManager.getInstance().getConference();
 				votesCast = 0;
-				createResultsTable(answers.length, answers);
+				
 				var lines:int = (question.length / 28) + 1;;
 				for(var s:String in answers){
 					lines = lines + ((s.length / 28) + 1);	
@@ -119,7 +119,9 @@
 					}
 				} 
 								
-				LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators.");
+				LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators onCreationComplete.");
+				
+				createResultsTable(answers.length, answers);
 			}
 			
 			
@@ -177,8 +179,9 @@
 					resultBox.addChild(_line);
 				} // end of loop
 								
+				didNotVote();
+				invalidateDisplayList();
 				resultBox.validateNow();	
-				//didNotVote();
 			} // end of function createResultsTable
 			
 			private function didNotVote():void{
@@ -192,6 +195,7 @@
 										
 				_votes.name = "voteNull";
 				_votes.width = 30;
+				
 				_votes.text = (participants - votesCast).toString();
 								
 				resultBox.addChild(_hb);					

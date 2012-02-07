@@ -22,13 +22,11 @@
 
 
 -->
-
-<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
-	xmlns:mate="http://mate.asfusion.com/"
-	icon="{pollIcon}" 
+<!--mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mate="http://mate.asfusion.com/"	
 	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.polling.toolTip')}"
-	click="openPollingInstructions()"
-	implements="org.bigbluebutton.common.IBbbToolbarComponent">
+	implements="org.bigbluebutton.common.IBbbToolbarComponent"
+	>
 	<mx:Script>
 		<![CDATA[
 		    import com.asfusion.mate.events.Dispatcher;
@@ -37,23 +35,102 @@
 			import org.bigbluebutton.main.views.MainToolbar;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+			import org.bigbluebutton.modules.polling.events.ToolbarComboEvent;
 			
+			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
+			import org.bigbluebutton.modules.polling.model.ValueObject;
+			import mx.collections.ArrayCollection;
+			import mx.controls.*;
 			
 			private var images:Images = new Images();
 			
 			[Bindable] public var pollIcon:Class = images.pollIcon;
-			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
-			
-			private function openPollingInstructions():void {
-				LogUtil.debug(LOGNAME +"openPollingInstructions() --> clicked icon");
-				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.OPEN));
-				this.enabled = false;
-				LogUtil.debug(LOGNAME +"inside ToolBarButton  icon disabled");
+			[Bindable] private var myMenuData:ArrayCollection = new ArrayCollection();
+			private function createAndShow():void{
+				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
+            	myMenu.itemRenderer = new ClassFactory(ToolbarPollingRenderer);
 			}
 			
+			public function init():void {
+            	myMenuData.addItem(new ValueObject("MA", "MenuItem A", "menuOddItem"));
+            }
+			
+			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
+			
+			/*private function openPollingInstructions():void {
+				LogUtil.debug(LOGNAME +"openPollingInstructions() - clicked icon");
+				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.OPEN));
+				this.enabled = false;
+				LogUtil.debug(LOGNAME +"COMBO: sending event");
+				dispatchEvent(new ToolbarComboEvent(ToolbarComboEvent.ADD));
+				LogUtil.debug(LOGNAME +"COMBO:after sending event");
+			}*/
+			
 			public function getAlignment():String{
+				LogUtil.debug(LOGNAME +"Aligning Poll button");
 				return MainToolbar.ALIGN_RIGHT;
 			}
 		]]>
 	</mx:Script>
-</mx:Button>
+	<mx:VBox>
+		<mx:Button id="myButton" initialize="init()" label="Open Menu" click="createAndShow();"/>    
+    </mx:VBox>
+</mx:Application-->
+
+<!-- -->
+
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
+	xmlns:mate="http://mate.asfusion.com/"	
+	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.polling.toolTip')}"
+	implements="org.bigbluebutton.common.IBbbToolbarComponent"
+	initialize="init()" 
+	click="createAndShow();"
+	icon="{pollIcon}" 
+	>
+	<mx:Script>
+		<![CDATA[
+		    import com.asfusion.mate.events.Dispatcher;
+			import org.bigbluebutton.common.Images;
+			import org.bigbluebutton.common.LogUtil;
+			import org.bigbluebutton.main.views.MainToolbar;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
+			import org.bigbluebutton.modules.polling.events.ToolbarComboEvent;
+			
+			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
+			import org.bigbluebutton.modules.polling.model.ValueObject;
+			import mx.collections.ArrayCollection;
+			import mx.controls.*;
+			
+			private var images:Images = new Images();
+			
+			[Bindable] public var pollIcon:Class = images.pollIcon;
+			[Bindable] private var myMenuData:ArrayCollection = new ArrayCollection();
+			
+			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
+			
+			private function createAndShow():void{
+				LogUtil.debug(LOGNAME +"Toolbar Polling Button Clicked");
+				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
+				myMenu.itemRenderer = new ClassFactory(ToolbarPollingRenderer);
+            	//myMenu.dataProvider = myMenuData;
+            	myMenu.show(this.x + 10, this.y + this.height + 10);
+            	LogUtil.debug(LOGNAME +"Survived CreateandShow");
+			}
+			
+			public function init():void {
+				LogUtil.debug(LOGNAME +"Entering function init()");
+            	myMenuData.addItem(new ValueObject("MA", "MenuItem A"));
+            	myMenuData.addItem(new ValueObject("MB", "MenuItem B"));
+            	myMenuData.addItem(new ValueObject("MC", "MenuItem C"));
+            	myMenuData.addItem(new ValueObject("MD", "MenuItem D"));
+            	LogUtil.debug(LOGNAME +"Survived menudata.additem");
+            }			
+								
+			public function getAlignment():String{
+				LogUtil.debug(LOGNAME +"Aligning Poll button");
+				return MainToolbar.ALIGN_RIGHT;
+			}
+		]]>
+	</mx:Script>
+</mx:Button>    

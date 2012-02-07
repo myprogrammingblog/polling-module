@@ -24,50 +24,48 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.main.events.MadePresenterEvent;
 	import org.bigbluebutton.common.events.ToolbarButtonEvent;
 	import org.bigbluebutton.common.LogUtil;
-	
-	
-
 	import org.bigbluebutton.modules.polling.views.ToolbarButton;
 	
-			
+	import flash.display.DisplayObjectContainer;
+		
 	public class ToolbarButtonManager {		
 		private var button:ToolbarButton;
 		private var globalDispatcher:Dispatcher;
 		private var buttonShownOnToolbar:Boolean = false;
+		
 		public static const LOGNAME:String = "[Polling :: ToolBarButtonManager] ";	
 		
 		public function ToolbarButtonManager() {
 			LogUtil.debug(LOGNAME + " initialized ")
 			globalDispatcher = new Dispatcher();
 			button = new ToolbarButton();
-				
 		}
-													
+		
+		// Button
 		public function addToolbarButton():void {
 			LogUtil.debug(LOGNAME + " inside addToolbarButton");
 			
 
 			if ((button != null) && (!buttonShownOnToolbar)) {
 				button = new ToolbarButton();
-				   			   	
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
 				event.button = button;
 				globalDispatcher.dispatchEvent(event);	
 				buttonShownOnToolbar = true;	
-				button.enabled = true;		
+				button.enabled = true;	
 			}
 		}
-			
+		
 		public function removeToolbarButton():void {
 			LogUtil.debug(LOGNAME + " inside removeToolbarButton");
 			if (buttonShownOnToolbar) {
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.REMOVE);
 				event.button = button;
 				globalDispatcher.dispatchEvent(event);	
-				buttonShownOnToolbar = false;			
+				buttonShownOnToolbar = false;
 			}
 		}
-						
+		
 		public function enableToolbarButton():void {
 			LogUtil.debug(LOGNAME + " inside enableToolbarButton");
 			button.enabled = true;
@@ -77,5 +75,6 @@ package org.bigbluebutton.modules.polling.managers
 			LogUtil.debug(LOGNAME + " inside disableToolbarButton");
 			button.enabled = false;
 		}
+		// _Button
 	}
 }

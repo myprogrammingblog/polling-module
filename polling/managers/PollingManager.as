@@ -24,6 +24,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
+	import org.bigbluebutton.modules.polling.events.ToolbarComboEvent;
 	
 	import org.bigbluebutton.modules.polling.service.PollingService;
 
@@ -67,12 +68,13 @@ package org.bigbluebutton.modules.polling.managers
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void{
 			LogUtil.debug(LOGNAME +" inside handleMadePresenterEvent :: adding toolbar button");
 			toolbarButtonManager.addToolbarButton();
-			
+			//toolbarButtonManager.addToolbarCombo();
 		}
 		
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
 			LogUtil.debug(LOGNAME +" inside handleMadeViewerEvent :: removing toolbar button");
 			toolbarButtonManager.removeToolbarButton();
+			//toolbarButtonManager.removeToolbarCombo();
 		}
 		//######################################################################################
 		
@@ -160,7 +162,7 @@ package org.bigbluebutton.modules.polling.managers
 				pollKey = module.getRoom() +"-"+ e.title ;
 				service.getPoll(pollKey);
 			}else{
-				LogUtil.debug(LOGNAME + "Publishing denied; poll is still open!");
+				LogUtil.debug(LOGNAME + "Publishing denied; poll is stillb open!");
 			}
 		}	
 		
@@ -197,6 +199,14 @@ package org.bigbluebutton.modules.polling.managers
 		      LogUtil.debug(LOGNAME + " pollKey is " + e.pollKey);
 		      service.getPoll(pollKey, true);
 		  }  
+		//##################################################################################
+		  
+		// Refreshing PollingStatsWindow	
+		  public function handleAddToolbarComboEvent(e:ToolbarComboEvent):void{
+			  LogUtil.debug(LOGNAME +" COMBO : inside handleAddToolbarComboEvent ");
+			  //  toolbarButtonManager.setChildIndex(e.button,toolbarButtonManager.numChildren-1); 
+		  }
+
 		//##################################################################################
    }
 }
