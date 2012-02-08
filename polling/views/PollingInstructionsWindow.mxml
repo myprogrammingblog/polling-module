@@ -30,7 +30,7 @@ Notes.mxml is the main view of the SharedNotes application
 	implements="org.bigbluebutton.common.IBbbModuleWindow" 
 	creationComplete="onCreationComplete()"
 	label="Create Poll" layout="absolute" 
-	title="{_poll}">
+	title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 	
 	<!-- Pre Defined Validation -->
 	
@@ -63,6 +63,7 @@ Notes.mxml is the main view of the SharedNotes application
 			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
+			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			
 
@@ -73,7 +74,7 @@ Notes.mxml is the main view of the SharedNotes application
 			private var userName:String;
 			private  var module:PollingModule;
 		//	private var allowedChars:RegExp = /^[^;\\]*$/; // for security reasons some  characters are not allowed
-			[Bindable] private var _poll:String = "Create Poll";
+
 			// Bindable is set to allow data to change when You hit Back and change something, this change will appear in review
 			[Bindable]private var _title:String;
 			[Bindable]private var _question:String;
@@ -103,8 +104,8 @@ Notes.mxml is the main view of the SharedNotes application
 
  
 			private function onCreationComplete():void{
-				LogUtil.debug(LOGNAME + "Inside Creation Complete");
-				LogUtil.debug(LOGNAME + "Instructions Window is Created");
+				//LogUtil.debug(LOGNAME + "Inside Creation Complete");
+				//LogUtil.debug(LOGNAME + "Instructions Window is Created");
 				userName = moduleAttributes.username;
 				this.module = module;
 			}
@@ -115,7 +116,7 @@ Notes.mxml is the main view of the SharedNotes application
 			}
 			// function invoked when close window
 			private function closeInstructionsWindow():void {	
-				LogUtil.debug(LOGNAME + "inside  closeinstructionsWindow");		
+				//LogUtil.debug(LOGNAME + "inside  closeinstructionsWindow");		
 
 				dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.CLOSE));				
 			}			
@@ -130,7 +131,7 @@ Notes.mxml is the main view of the SharedNotes application
 			
 				
 			private function openAcceptInstructions():void {
-				LogUtil.debug(LOGNAME + "inside  acceptInstructions");		
+				//LogUtil.debug(LOGNAME + "inside  acceptInstructions");		
 				dispatchEvent(new AcceptPollingInstructionsWindowEvent(AcceptPollingInstructionsWindowEvent.OPEN));
 				closeInstructionsWindow()
 			titleErrMsg.text="";
@@ -196,15 +197,15 @@ Notes.mxml is the main view of the SharedNotes application
 			        aErrMsg.visible=false;
 			   
 			    if(valid){
-			    LogUtil.debug(LOGNAME + "passisibg  drawcheckboxes : "  + _answers.length + " " +_answers);	
+			  //  LogUtil.debug(LOGNAME + "passisibg  drawcheckboxes : "  + _answers.length + " " +_answers);	
 			    formatAndReview();
-			    _poll = "Poll Preview";
+			    //_poll = ResourceUtil.getInstance().getString('bbb.polling.pollPreview');
 			    
 			    	
 			    }
 			
 				allowPublishing();
-				LogUtil.debug(LOGNAME + "Publishing is allowed? " + publishingAllowed);
+			//	LogUtil.debug(LOGNAME + "Publishing is allowed? " + publishingAllowed);
 				publishButton.enabled = publishingAllowed;
 			}
 			
@@ -217,9 +218,9 @@ Notes.mxml is the main view of the SharedNotes application
 			   var errMsg:String = "VALID";
 
 			     if (pollTitle.length == 0 )
-			     		errMsg = "Please Provide a Title";
+			     		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.noTitle');
 			     	else if (pollTitle.length > _MAX_TITLE_LENGTH )
-			     		errMsg = "Title is too long, Max. " +_MAX_TITLE_LENGTH;	
+			     		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.tooLongTitle')+" " +_MAX_TITLE_LENGTH;	
 			       		//else if(!allowedChars.test(pollTitle.text))
 			   			//errMsg = "Title has forbidden characters";
 			   			else
@@ -232,9 +233,9 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			   var errMsg:String = "VALID";
 			     if (pollQuestion.length == 0 )
-			     		errMsg = "Please Provide a Question";
+			     		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.noQuestion');
 			     	 else if (pollQuestion.length > _MAX_QUESTION_LENGTH )
-			     		errMsg = "Question is too long. Maximum chars: "+ _MAX_QUESTION_LENGTH;		
+			     		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongQuestion') + " "+ _MAX_QUESTION_LENGTH;		
 			      		// else if(!allowedChars.test(pollQuestion.text))
 			   			//errMsg = "Question field has forbidden characters";	
 			   	   else	
@@ -257,17 +258,17 @@ Notes.mxml is the main view of the SharedNotes application
 		     		answersArray = makeAnswersPretty(answersArray);		
 		     	// ALL THE MESSAGES NEED TO BE LOCALISED!!!!!
 			     if (pollAnswers.length == 0 )
-			     		errMsg = "Please provide at least 2 Answers";
+			     		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.atLeast2Answers');
 			      // else if(!allowedChars.test(pollAnswers.text))
 			   	//	errMsg = "Answer field has forbidden characters";
 			   //	 else if (!startWithStar.test(pollAnswers.text))
 			   //	 	errMsg = "Every answer should start with  a new line and '*' (e.g *Seneca)";
 			   	     else if (isDuplicateAnswers(answersArray))
-			   	        		 errMsg = "Every answer should be unique";	
+			   	        		 errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.answerUnique');	
 			   	 	else if(answersArray.length < 2)
-			   	 	 	 errMsg = "Please provide at least 2 Answers start each with new line";
+			   	 	 	 errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.eachNewLine');
 			   	 	   else if(answersArray.length > _MAX_ANSWERS_AMOUNT)
-			   	 	  		errMsg = "You have too many answers. Max, answers allowed: "+_MAX_ANSWERS_AMOUNT;
+			   	 	  		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toomuchAnswers') +" "+_MAX_ANSWERS_AMOUNT;
 			   	 		else {
 			   	 	
 			   	 			
@@ -279,13 +280,13 @@ Notes.mxml is the main view of the SharedNotes application
 			   	 						answersArray.splice(i,1);
 			   	 				  //  	LogUtil.debug("deleting element " + i + "because it is empty");
 			   	 		    }else if(answersArray[i].length > _MAX_ANSWER_LENGTH){
-			   	 		    	errMsg = "Your answers are too long. Max length is "+_MAX_ANSWER_LENGTH+" per answer";
+			   	 		    	errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongAnswer') +" "+_MAX_ANSWER_LENGTH;
 			   	 		    	valid=false;
 			   	 		    }
 			   	 		    // if last character of the array element is  return (new line) or space, we it to have accurate string and than checking for duplicates again
 			   	 		    
-			   	 		
-			   	 		    LogUtil.debug("answers array elementr:" + answersArray[i].substring(0,answersArray[i].length-1))
+			  
+			   	 		//    LogUtil.debug("answers array elementr:" + answersArray[i].substring(0,answersArray[i].length-1))
 
 			   	 		    
 			   	 		    
@@ -298,7 +299,7 @@ Notes.mxml is the main view of the SharedNotes application
 			   	        		 
 			   	 		//TESTING TO BE DELETED WHEN WORKS
 			   	 		for (var b:int=0; b<  _answers.length; b++){
-			   	 		LogUtil.debug("global element [" +b+"] is " + _answers.getItemAt(b));
+			   	 		//LogUtil.debug("global element [" +b+"] is " + _answers.getItemAt(b));
 			   	 		
 			   	 		}  	 		
 			   	 	}	
@@ -311,7 +312,7 @@ Notes.mxml is the main view of the SharedNotes application
 		
 		
 		public function goBack():void{
-			_poll = "Create Poll";
+		//	_poll = ResourceUtil.getInstance().getString('bbb.polling.createPoll');
 		  	back.visible=false;
 			publishButton.visible=false;
 		  	options.removeAllChildren();
@@ -343,7 +344,7 @@ Notes.mxml is the main view of the SharedNotes application
 		
 	  	  for (i = 0; i < arr.length; i++){
 	  	  
-	  	  	LogUtil.debug("BEFORE REPLACE: " + arr[i]);
+	  	  	//LogUtil.debug("BEFORE REPLACE: " + arr[i]);
 		  	  arr[i] = arr[i].replace(trim, "");
 		  	
 		  	 
@@ -372,7 +373,7 @@ Notes.mxml is the main view of the SharedNotes application
 			
 			// if Multiple enabled than add check all that apply to string, or if it already added and user desided he don't want multiple than delete it
 			    	if(_isMultiple){
-			    		_question += "\n (check all that may apply)"; // NEED TO BE LOCALIZED
+			    		_question += "\n" + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll'); // NEED TO BE LOCALIZED
 			    	   }
 			    	   else if(( !_isMultiple && _question.substr(_question.length-28,_question.length) == "\n (check all that may apply)" )) // NEED TO BE LOZALIZED
 					           _question.slice(0,_question.length-28);
@@ -510,21 +511,21 @@ Notes.mxml is the main view of the SharedNotes application
            	<mx:VBox width="90%" height="90%" >
            	
             		<mx:Form width="100%"  id="instructionsForm"  paddingTop="30" paddingBottom="10" paddingLeft="30">
-           
-	   		   <mx:FormItem fontWeight="bold"   label="Title :" paddingLeft="35" required="true" >
+            
+	   		   <mx:FormItem fontWeight="bold"   label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.title')}" paddingLeft="35" required="true" >
 				<mx:TextInput id="pollTitle" /> 
 				<mx:Label id="titleErrMsg"  text="" visible="false" width="100%" color="red" fontSize="9" fontWeight="normal"/> 
   		          </mx:FormItem>
 		
-	      		<mx:FormItem  fontWeight="bold" label="Question :" paddingLeft="35"  paddingTop="20"  >
+	      		<mx:FormItem  fontWeight="bold" label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.question')}" paddingLeft="35"  paddingTop="20"  >
 				<mx:TextArea id="pollQuestion" width="200" height="100" /> 
 				<mx:Label id="qErrMsg"  text="" visible="false" width="100%" color="red" fontSize="9" fontWeight="normal" /> 
 	     		</mx:FormItem>
 	     
 	     
-	      		<mx:FormItem  fontWeight="bold" label="Answers :" paddingLeft="35"  paddingTop="30"  >
+	      		<mx:FormItem  fontWeight="bold" label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.answers')}" paddingLeft="35"  paddingTop="30"  >
 				<mx:TextArea id="pollAnswers" width="200" height="100" /> 
-				<mx:Label id="answerHint"  text="Hint: Start every answer with a new line" visible="true" width="100%"  fontSize="9" fontWeight="normal" /> 
+				<mx:Label id="answerHint"  text="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.hint')}" visible="true" width="100%"  fontSize="9" fontWeight="normal" /> 
 	    		</mx:FormItem>
 	     
 	     		<mx:FormItem  fontWeight="bold"  paddingLeft="20"  paddingTop="5"  >
@@ -532,7 +533,7 @@ Notes.mxml is the main view of the SharedNotes application
 	     		</mx:FormItem>
 	     
 	     		 <mx:FormItem  paddingLeft="10"  paddingTop="20" >
-	     		    <mx:CheckBox id="multiple_response" label="Allow users to choose more than one response" click="isMultiple()" />
+	     		    <mx:CheckBox id="multiple_response" label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" click="isMultiple()" />
 	     		 </mx:FormItem>
 	   
 	   	  </mx:Form>   
@@ -544,7 +545,7 @@ Notes.mxml is the main view of the SharedNotes application
 	    <mx:Canvas id="review">
           		 <mx:VBox width="90%" height="90%"  paddingLeft="40">
           		 	
-          		 	<mx:Label   text="Here is you Poll:" fontSize="11" fontWeight="bold" width ="100%" paddingTop="60" paddingLeft="20" paddingBottom="20"/> 
+          		 	<mx:Label   text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}" fontSize="11" fontWeight="bold" width ="100%" paddingTop="60" paddingLeft="20" paddingBottom="20"/> 
           		 	<mx:Panel id="titleShow"  title="{_title}" width="90%"  >
           		 	
           		 	
@@ -560,7 +561,7 @@ Notes.mxml is the main view of the SharedNotes application
           		 	</mx:VBox>
           		 	</mx:Panel> 
           		 	
-          		 	<mx:Label   text="  if you want to make any changes click 'Back' button" 
+          		 	<mx:Label   text=" {ResourceUtil.getInstance().getString('bbb.polling.pollPreview.ifYouWantChanges')}" 
           		 		    fontSize="11" 
           		 		    fontWeight="normal" width ="100%"  
           		 		    paddingLeft="20" paddingBottom="20" paddingTop="20"
@@ -575,23 +576,23 @@ Notes.mxml is the main view of the SharedNotes application
 	   <mx:ControlBar x="60" y="460"  >
 		<mx:HBox paddingLeft="20" paddingRight="10" paddingTop="10" paddingBottom="10"> 
 		<!-- Back Button is not visible while instructions and visible while preView -->
-		 <mx:Button id="back" label="Modify" click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()"  width="100" height="30" visible="false"/>
+		 <mx:Button id="back" label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()"  width="100" height="30" visible="false"/>
 		   
-		   <mx:Button id="publishButton" label="Publish" click="publish()"  width="100" height="30" visible="false"/>
+		   <mx:Button id="publishButton" label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}" click="publish()"  width="100" height="30" visible="false"/>
 		 <mx:ViewStack id="buttons">
 		 
 		   <!--buttons that appear when Instructions is displayed -->
 		    <mx:Canvas id="instrButtons">
-			<mx:Button id="next" label="Preview" click="validateAndSubmit()"  width="100" height="30"/>	
+			<mx:Button id="next" label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.preview')}" click="validateAndSubmit()"  width="100" height="30"/>	
 		   </mx:Canvas>
 		   <!-- buttons that appear on Review  -->
 		   <mx:Canvas id="reviewButtons">
-			<mx:Button id="SavePoll" label="Save" click="savePoll()"  width="100" height="30"/>
+			<mx:Button id="SavePoll" label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.save')}" click="savePoll()"  width="100" height="30"/>
 		   </mx:Canvas>	
 		   
 		   </mx:ViewStack>
 		    <!-- Cancel button appear everywhere -->
-		    <mx:Button id="Cancel" label="Cancel" click="closeInstructionsWindow()"  width="100" height="30"/>
+		    <mx:Button id="Cancel" label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.cancel')}" click="closeInstructionsWindow()"  width="100" height="30"/>
 		    
 		
 		</mx:HBox>	 
