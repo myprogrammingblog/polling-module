@@ -29,6 +29,7 @@
 	implements="org.bigbluebutton.common.IBbbToolbarComponent"
 	initialize="init()" 
 	click="createAndShow();"
+	rollOver="listUpdate();"
 	icon="{pollIcon}" 
 	>
 	<mx:Script>
@@ -44,6 +45,7 @@
 			
 			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
 			import org.bigbluebutton.modules.polling.model.ValueObject;
+			import org.bigbluebutton.modules.polling.model.PollObject;
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
@@ -57,23 +59,43 @@
 			
 			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
 			
-			public var titleList:Array;
-			public var statusList:Array;
+			[Bindable] public var titleList:Array;
+			[Bindable] public var statusList:Array;
+			[Bindable] public var pollList:Array;
 			
 			private function createAndShow():void{
 				LogUtil.debug(LOGNAME +"Toolbar Polling Button Clicked");
 				
-				getTitleList();
-				getStatusList();
-				refreshMenu();
+				listUpdate();
 				
 				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
 				myMenu.itemRenderer = new ClassFactory(ToolbarPollingRenderer);
+				
             	myMenu.show(this.x + 10, this.y + this.height + 10);
             	
-            	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuEventTest);
-        		        
+            	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuEventTest);    
         		LogUtil.debug(LOGNAME +"Survived CreateandShow");
+			}
+			
+			private function refreshMenu():void{
+				LogUtil.debug(LOGNAME +" About to populate menu; titleList is " + titleList);
+				var counter:int = 0;
+				for each (var s:String in titleList){
+					LogUtil.debug(LOGNAME +"Counter is " + counter);
+					var unique:Boolean = true;
+					for (var i:int=0; i < myMenuData.length; i++){
+						if (myMenuData.getItemAt(i).label == s){
+							unique = false;
+						}
+					}
+					if (unique){
+						LogUtil.debug(LOGNAME +"Adding title: " + s)
+						myMenuData.addItem(new ValueObject(counter.toString(), s));
+						LogUtil.debug(LOGNAME +"Status for poll: " + s + " is: " + statusList[counter].toString())
+					}
+					++counter;
+				}
+				LogUtil.debug(LOGNAME +"Survived menudata.additem");
 			}
 			
 			// These two events trigger an update of the titleList and the parallel statusList
@@ -84,23 +106,12 @@
 				dispatchEvent(new PollGetStatusEvent(PollGetStatusEvent.UPDATE));
 			}
 			
-			private function refreshMenu():void{
-				LogUtil.debug(LOGNAME +" About to populate menu; titleList is " + titleList);
-				var counter:int = 0;
-				for each (var s:String in titleList){
-					++counter;
-					LogUtil.debug(LOGNAME +"Adding title: " + s)
-					var unique:Boolean = true;
-					for (var i:int=0; i < myMenuData.length; i++){
-						if (myMenuData.getItemAt(i).label == s){
-							unique = false;
-						}
-					}
-					if (unique){
-						myMenuData.addItem(new ValueObject(counter.toString(), s));
-					}
-				}
-            	LogUtil.debug(LOGNAME +"Survived menudata.additem");
+			public function listUpdate():void{
+				LogUtil.debug(LOGNAME +"Entering listUpdate");
+				getTitleList();
+				getStatusList();
+				refreshMenu();
+				LogUtil.debug(LOGNAME +"Survived listUpdate");
 			}
 			
         	private function menuEventTest(event:MenuEvent):void {
@@ -111,17 +122,11 @@
             	if(event.index == 0){
             	  openPollingInstructions();
             	}
-            	
-	            if (event.item) {
-        	        LogUtil.debug("Item label: " + event.item.@label)
-            	    LogUtil.debug("Item selected: " + event.item.@toggled);
-                	LogUtil.debug("Item type: " + event.item.@type);
-            	}
         	}
 			
 			public function init():void {
 				LogUtil.debug(LOGNAME +"Entering function init()");
-				myMenuData.addItem(new ValueObject("create", "Create New Poll"));            	
+				myMenuData.addItem(new ValueObject("create", "Create New Poll"));         	
             }			
 								
 			public function getAlignment():String{

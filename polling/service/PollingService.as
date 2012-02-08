@@ -348,15 +348,19 @@ package org.bigbluebutton.modules.polling.service
 		 
 		 public function updateTitles():void{
 		 	nc.call("poll.titleList", new Responder(success, failure));
-		 	
+		 	LogUtil.debug(LOGNAME+"After nc.call in updateTitles");
 		 	//--------------------------------------//
 			
 			// Responder functions
 			function success(obj:Object):void{
+				/*
 				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
 				event.titleList = obj as Array;
-				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);
+				
 				dispatcher.dispatchEvent(event);
+				*/
+				dispatchTitleList(obj as Array);
+				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);
 			}
 	
 			function failure(obj:Object):void{
@@ -365,6 +369,14 @@ package org.bigbluebutton.modules.polling.service
 			
 			//--------------------------------------//
 		 } // _updateTitles
+		 
+		 public function dispatchTitleList(titles:Array):void{
+		 	LogUtil.debug(LOGNAME+"Dispatching titles: " + titles);
+		 	var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
+			event.titleList = titles;
+			dispatcher.dispatchEvent(event);
+			LogUtil.debug(LOGNAME+"Return title event has been dispatched");
+		 } 
 		 
 		 public function updateStatus():void{
 		 	nc.call("poll.statusList", new Responder(success, failure));
