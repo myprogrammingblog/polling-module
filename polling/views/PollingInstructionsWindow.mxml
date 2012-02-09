@@ -61,7 +61,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		private var userName:String;
 		private var module:PollingModule;
 		
-		[Bindable] public var incomingPoll:PollObject;
+		
 		
 		// private var allowedChars:RegExp = /^[^;\\]*$/; // for security reasons some characters are not allowed
 		
@@ -74,6 +74,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		public var publishingAllowed:Boolean = true;
 		private var manager:PollingManager = new PollingManager();
 		[Bindable]public var invalidTitles:Array;
+		[Bindable] public var incomingPoll:PollObject;
+		[Bindable] public var editing:Boolean;
 		
 		// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
 		//################################################
@@ -88,16 +90,29 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function onCreationComplete():void{
-		//LogUtil.debug(LOGNAME + "Inside Creation Complete");
-		//LogUtil.debug(LOGNAME + "Instructions Window is Created");
-		userName = moduleAttributes.username;
-		this.module = module;
-			/*
-			// Use the PollGetTitlesEvent to fetch a list of already-used titles
-			LogUtil.debug(LOGNAME + "WATERFALL Dispatching event to create list of titles on Instruction Window Creation");
-			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
-			dispatchEvent(getTitlesEvent);
-			*/
+			//LogUtil.debug(LOGNAME + "Inside Creation Complete");
+			LogUtil.debug(LOGNAME + "Instructions Window is Created");
+			LogUtil.debug(LOGNAME + "About to check incomingPoll");
+			if (incomingPoll != null){
+				//incomingPoll.checkObject();
+				LogUtil.debug(LOGNAME + "Editing is: " + editing);
+				pollTitle.text = incomingPoll.title;
+				pollQuestion.text = incomingPoll.question;
+								
+				for (var i:int = 0; i < incomingPoll.answers.length; i++){
+					pollAnswers.text += incomingPoll.answers[i];
+					if (i < incomingPoll.answers.length-1){
+						pollAnswers.text += "\n";
+					}
+				}  
+								
+				multiple_response.selected = incomingPoll.isMultiple;
+			}else{
+				editing = false;
+				LogUtil.debug(LOGNAME + "NULL OBJECT: incomingPoll; editing is " + editing);
+			}
+			userName = moduleAttributes.username;
+			this.module = module;
 		}
 		
 		// Overwritting close to use custom function
@@ -180,10 +195,15 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			var errMsg:String = "VALID";
 			//LogUtil.debug(LOGNAME + "Checking the list of titles that have been used : " + invalidTitles);
 			
-			for each (var s:String in invalidTitles){
-					if (StringUtil.trim(pollTitle.text.toUpperCase()) == StringUtil.trim(s.toUpperCase()))
-						errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.duplicateTitle');
+			// If the presenter is creating a new poll, the module will not permit duplicate titles.
+			// If the presenter is editing an existing poll, the module will ignore duplicate titles long enough to save it again.
+			if (!editing){
+				for each (var s:String in invalidTitles){
+						if (StringUtil.trim(pollTitle.text.toUpperCase()) == StringUtil.trim(s.toUpperCase()))
+							errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.duplicateTitle');
+				}
 			}
+			
 			if (pollTitle.length == 0 )
 				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.noTitle');
 			else if (pollTitle.length > _MAX_TITLE_LENGTH )

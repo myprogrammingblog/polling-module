@@ -25,15 +25,19 @@ package org.bigbluebutton.modules.polling.model
 	
 		// This just loops through the PollObject and does a bunch of LogUtil messages to verify the contents.
 		public function checkObject():void{
-			LogUtil.debug(LOGNAME + "Running CheckObject on the poll with title " + title);
-			LogUtil.debug(LOGNAME + "Room is: " + room);
-			LogUtil.debug(LOGNAME + "isMultiple is: " + isMultiple.toString());
-			LogUtil.debug(LOGNAME + "Question is: " + question);
-			LogUtil.debug(LOGNAME + "Answers are: " + answers);
-			LogUtil.debug(LOGNAME + "Votes are: " + votes);
-			LogUtil.debug(LOGNAME + "Time is: " + time);
-			LogUtil.debug(LOGNAME + "TotalVotes is: " + totalVotes);
-			LogUtil.debug(LOGNAME + "Status is: " + status.toString());
+			if (this != null){
+				LogUtil.debug(LOGNAME + "Running CheckObject on the poll with title " + title);
+				LogUtil.debug(LOGNAME + "Room is: " + room);
+				LogUtil.debug(LOGNAME + "isMultiple is: " + isMultiple.toString());
+				LogUtil.debug(LOGNAME + "Question is: " + question);
+				LogUtil.debug(LOGNAME + "Answers are: " + answers);
+				LogUtil.debug(LOGNAME + "Votes are: " + votes);
+				LogUtil.debug(LOGNAME + "Time is: " + time);
+				LogUtil.debug(LOGNAME + "TotalVotes is: " + totalVotes);
+				LogUtil.debug(LOGNAME + "Status is: " + status.toString());
+			}else{
+				LogUtil.debug(LOGNAME + "This PollObject is NULL.");
+			}
 		}
 	}
 }

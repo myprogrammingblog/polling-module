@@ -42,6 +42,9 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+	
+	import org.bigbluebutton.modules.polling.model.PollObject;
 			
 	public class PollingWindowManager {	
 			
@@ -67,9 +70,32 @@ package org.bigbluebutton.modules.polling.managers
 			instructionsWindow = new PollingInstructionsWindow();
 			
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
-			LogUtil.debug(LOGNAME + "WATERFALL Dispatching event to create list of titles on Instruction Window Creation");
+			LogUtil.debug(LOGNAME + "Dispatching event to create list of titles on Instruction Window Creation");
 			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
 			globalDispatcher.dispatchEvent(getTitlesEvent);
+			openWindow(instructionsWindow);
+		}
+		
+		public function handleOpenPollingInstructionsWindowWithExistingPoll(e:OpenSavedPollEvent):void{
+			LogUtil.debug(LOGNAME + "inside handleOpenPollingInstructionsWindowWithExistingPoll");
+			instructionsWindow = new PollingInstructionsWindow();
+			
+			// Use the PollGetTitlesEvent to fetch a list of already-used titles
+			LogUtil.debug(LOGNAME + "Dispatching event to create list of titles on Instruction Window Creation");
+			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
+			globalDispatcher.dispatchEvent(getTitlesEvent);
+			LogUtil.debug(LOGNAME + "Passing poll object to Instruction window.....");
+			if (e.poll != null){
+				LogUtil.debug(LOGNAME + "Sending a non-null poll object to Instruction window");
+				e.poll.checkObject();
+				instructionsWindow.incomingPoll = new PollObject();
+				instructionsWindow.incomingPoll = e.poll;
+				instructionsWindow.editing = true;
+				LogUtil.debug(LOGNAME + "Examining poll in instruction window");
+				instructionsWindow.incomingPoll.checkObject();
+			}else{
+				LogUtil.debug(LOGNAME + "Tried to a null poll object to Instruction window");
+			}
 			
 			openWindow(instructionsWindow);
 		}

@@ -155,14 +155,18 @@
             		//LogUtil.debug("Which holds a: " + myMenuData.getItemAt(event.index).poll);
             		var poll:PollObject = pollList[event.index-1];
             		poll.checkObject();
-            		/*
+
             		if (poll.status){
             			// Poll has not been used yet, open instructions window
             			var openPollEvent:OpenSavedPollEvent = new OpenSavedPollEvent(OpenSavedPollEvent.OPEN);
+            			openPollEvent.poll = poll;
+            			LogUtil.debug("Checking poll progress at the beginning of the path: ");
+            			poll.checkObject();
+            			openPollEvent.poll.checkObject();
+            			dispatchEvent(openPollEvent);
             		}else{
             			// Poll has been closed, show results
             		}
-            		*/
             	}
         	}
 			

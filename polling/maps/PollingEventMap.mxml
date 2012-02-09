@@ -177,4 +177,8 @@
 		<MethodInvoker generator="{PollingManager}"  method="handleCheckTitlesEvent" arguments="{event}"/>
 	 </EventHandlers>
 	 
+	 <EventHandlers type="{OpenSavedPollEvent.OPEN}">
+		<MethodInvoker generator="{PollingManager}"  method="handleOpenSavedPollEvent" arguments="{event}"/>
+	 </EventHandlers>
+	 
 </EventMap>

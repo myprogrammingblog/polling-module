@@ -106,7 +106,7 @@ package org.bigbluebutton.modules.polling.managers
 	  public function handleOpenPollingInstructionsWindowEvent(e:PollingInstructionsWindowEvent):void {
 			  LogUtil.debug(LOGNAME +" inside handleCloseInstructionsWindowEvent ");
 		      viewWindowManager.handleOpenPollingInstructionsWindow(e);
-		     }		     
+		      }
 				
 	  // Checking the polling status to prevent a presenter from publishing two polls at a time
 	  public function handleCheckStatusEvent(e:PollingStatusCheckEvent):void{
@@ -268,13 +268,6 @@ package org.bigbluebutton.modules.polling.managers
 				  LogUtil.debug(LOGNAME + " Match not found, adding item.");
 				  toolbarButtonManager.button.pollList.addItem(e.poll);
 			  }
-			  /*
-			  LogUtil.debug(LOGNAME +"For-loop in Manager");
-			  for (var n:int = 0; n < toolbarButtonManager.button.pollList.length; n++){
-				toolbarButtonManager.button.pollList.getItemAt(n).checkObject();
-			  }			  
-			  LogUtil.debug(LOGNAME +"Finished For-loop in Manager");
-			  */
 		  }
 		
 		  public function handleCheckTitlesEvent(e:PollGetTitlesEvent):void{
@@ -291,6 +284,14 @@ package org.bigbluebutton.modules.polling.managers
 				  LogUtil.debug(LOGNAME +" Invalid event type: " + e.type);
 			  }
 		  }
+		//##################################################################################
+		  
+		  public function handleOpenSavedPollEvent(e:OpenSavedPollEvent):void{
+		  	LogUtil.debug(LOGNAME +" Checking poll progress through event path, event poll is: ");
+		  	e.poll.checkObject();
+		  	viewWindowManager.handleOpenPollingInstructionsWindowWithExistingPoll(e);
+		  }
+		  
 		//##################################################################################
    }
 }
