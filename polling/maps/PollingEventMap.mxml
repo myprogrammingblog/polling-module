@@ -169,4 +169,12 @@
 	 <EventHandlers type="{PollGetPollEvent.RETURN}">
 		<MethodInvoker generator="{PollingManager}"  method="handleReturnPollEvent" arguments="{event}"/>
 	 </EventHandlers>
+	 
+	 <EventHandlers type="{PollGetTitlesEvent.CHECK}">
+		<MethodInvoker generator="{PollingManager}"  method="handleCheckTitlesEvent" arguments="{event}"/>
+	 </EventHandlers>
+	 <EventHandlers type="{PollGetTitlesEvent.RETURN}">
+		<MethodInvoker generator="{PollingManager}"  method="handleCheckTitlesEvent" arguments="{event}"/>
+	 </EventHandlers>
+	 
 </EventMap>

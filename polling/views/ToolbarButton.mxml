@@ -44,6 +44,7 @@
 			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
+			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 			
 			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
 			import org.bigbluebutton.modules.polling.model.ValueObject;
@@ -148,7 +149,20 @@
             	LogUtil.debug("event.index: " + event.index);
             	
             	if(event.index == 0){
-            	  openPollingInstructions();
+            	  	openPollingInstructions();
+            	}else{
+            		LogUtil.debug("Checking menu item at: " + event.index);
+            		//LogUtil.debug("Which holds a: " + myMenuData.getItemAt(event.index).poll);
+            		var poll:PollObject = pollList[event.index-1];
+            		poll.checkObject();
+            		/*
+            		if (poll.status){
+            			// Poll has not been used yet, open instructions window
+            			var openPollEvent:OpenSavedPollEvent = new OpenSavedPollEvent(OpenSavedPollEvent.OPEN);
+            		}else{
+            			// Poll has been closed, show results
+            		}
+            		*/
             	}
         	}
 			

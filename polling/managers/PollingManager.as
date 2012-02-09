@@ -256,15 +256,7 @@ package org.bigbluebutton.modules.polling.managers
 			  if (toolbarButtonManager.button.pollList.length != null){
 				  LogUtil.debug(LOGNAME +" About to enter for-loop with length " + toolbarButtonManager.button.pollList.length);
 				  for (var i:int = 0; i < toolbarButtonManager.button.pollList.length; i++){
-					  LogUtil.debug(LOGNAME +" In for-loop, i is " + i);
 					  var listKey:String = toolbarButtonManager.button.pollList.getItemAt(i).room+"-"+toolbarButtonManager.button.pollList.getItemAt(i).title;
-					  
-					  if (listKey != null){
-						  LogUtil.debug(LOGNAME + "PollList["+i+"] key is "+listKey);
-						  LogUtil.debug(LOGNAME + "------Event key is "+e.pollKey);
-					  }else{
-						  LogUtil.debug(LOGNAME +" For some reason there was a null item at position " + i);
-					  }
 					  if (e.pollKey == listKey){
 						  LogUtil.debug(LOGNAME + " Match found, unique is false.");
 						  unique = false;
@@ -276,14 +268,29 @@ package org.bigbluebutton.modules.polling.managers
 				  LogUtil.debug(LOGNAME + " Match not found, adding item.");
 				  toolbarButtonManager.button.pollList.addItem(e.poll);
 			  }
-			  
+			  /*
 			  LogUtil.debug(LOGNAME +"For-loop in Manager");
 			  for (var n:int = 0; n < toolbarButtonManager.button.pollList.length; n++){
 				toolbarButtonManager.button.pollList.getItemAt(n).checkObject();
 			  }			  
 			  LogUtil.debug(LOGNAME +"Finished For-loop in Manager");
+			  */
 		  }
 		
+		  public function handleCheckTitlesEvent(e:PollGetTitlesEvent):void{
+			  LogUtil.debug(LOGNAME +" inside handleCheckTitleEvent ");
+			  if (e.type == "CHECK"){
+				  LogUtil.debug(LOGNAME +" Event type is CHECK ");
+				  service.checkTitles();
+			  }
+			  else if (e.type == "RETURN"){
+				  LogUtil.debug(LOGNAME +" Event type is RETURN ");
+				  viewWindowManager.handleCheckTitlesInInstructions(e);
+			  }
+			  else{
+				  LogUtil.debug(LOGNAME +" Invalid event type: " + e.type);
+			  }
+		  }
 		//##################################################################################
    }
 }

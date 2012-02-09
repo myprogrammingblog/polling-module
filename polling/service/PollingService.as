@@ -400,6 +400,26 @@ package org.bigbluebutton.modules.polling.service
 			//--------------------------------------//
 		 } // _updateStatus
 		 
+		 public function checkTitles():void{
+		 	nc.call("poll.titleList", new Responder(success, failure));
+		 	LogUtil.debug(LOGNAME+"After nc.call in checkTitles");
+		 	//--------------------------------------//
+			
+			// Responder functions
+			function success(obj:Object):void{
+				var event:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.RETURN);
+				event.titleList = obj as Array;
+				LogUtil.debug(LOGNAME+"Responder object success! Sending titles " + event.titleList);
+				dispatcher.dispatchEvent(event);
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure in CHECK_TITLES NC.CALL");
+			}
+			
+			//--------------------------------------//
+		 } // _checkTitles
+		 
 		 public function openPoll(pollKey:String):void{
 		 	nc.call("poll.setStatus", new Responder(success, failure), pollKey, true);
 		 	

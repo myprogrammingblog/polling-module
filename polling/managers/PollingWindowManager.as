@@ -41,7 +41,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
-	
+	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 			
 	public class PollingWindowManager {	
 			
@@ -65,6 +65,12 @@ package org.bigbluebutton.modules.polling.managers
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
 			LogUtil.debug(LOGNAME + "inside handleOpenPollingInstructionsWindow");
 			instructionsWindow = new PollingInstructionsWindow();
+			
+			// Use the PollGetTitlesEvent to fetch a list of already-used titles
+			LogUtil.debug(LOGNAME + "WATERFALL Dispatching event to create list of titles on Instruction Window Creation");
+			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
+			globalDispatcher.dispatchEvent(getTitlesEvent);
+			
 			openWindow(instructionsWindow);
 		}
 		
@@ -80,7 +86,12 @@ package org.bigbluebutton.modules.polling.managers
 			  e.allowed = !service.getPollingStatus();
 			  instructionsWindow.publishingAllowed = e.allowed;
 		  }
-		
+		  
+		  public function handleCheckTitlesInInstructions(e:PollGetTitlesEvent):void{
+			  LogUtil.debug(LOGNAME +" inside handleCheckTitlesInInstructions ");
+			  LogUtil.debug(LOGNAME +" BINGO titles going into instructions: " + e.titleList);
+			  instructionsWindow.invalidTitles = e.titleList;
+		  }
 		//PollingAcceptWindow.mxml Window Event Handlers
 		//##########################################################################
 		public function handleOpenAcceptPollingInstructionsWindow(e:AcceptPollingInstructionsWindowEvent):void{
