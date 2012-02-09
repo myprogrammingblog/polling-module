@@ -28,6 +28,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollReturnStatusEvent;
+	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 	*/
 	
 	import org.bigbluebutton.modules.polling.events.*;
@@ -160,6 +161,7 @@ package org.bigbluebutton.modules.polling.managers
 			pollKey = module.getRoom() +"-"+ e.title ;
 			service.savePoll(e.answers, e.question, e.title, e.isMultiple, module.getRoom(), e.votes, e.time);
 			service.setStatus(pollKey, true);
+			//toolbarButtonManager.button.getPollList();
 		}	
 		
 	
@@ -168,13 +170,13 @@ package org.bigbluebutton.modules.polling.managers
 			if (!service.getPollingStatus()){
 				LogUtil.debug(LOGNAME + " inside handlePublishPollEvent(), calling getPoll");
 				pollKey = module.getRoom() +"-"+ e.title ;
-				service.getPoll(pollKey);
+				service.getPoll(pollKey, "publish");
+				//toolbarButtonManager.button.getPollList();
 			}else{
 				LogUtil.debug(LOGNAME + "Publishing denied; poll is still open!");
 			}
 		}	
 		
-	
 		
 		public function handleVoteEvent(e:VoteEvent):void
 		{			   
@@ -206,7 +208,7 @@ package org.bigbluebutton.modules.polling.managers
 		      LogUtil.debug(LOGNAME +" inside handleGetPollingStats ");
 		      e.pollKey = module.getRoom() +"-"+ e.title ;
 		      LogUtil.debug(LOGNAME + " pollKey is " + e.pollKey);
-		      service.getPoll(pollKey, true);
+		      service.getPoll(pollKey, "refresh");
 		  }  
 		//##################################################################################
 		  
@@ -221,6 +223,7 @@ package org.bigbluebutton.modules.polling.managers
 		  // Make a call to the service to update the list of titles and statuses for the Polling Menu
 		  public function handleUpdateTitlesEvent(e:PollGetTitlesEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleUpdateTitleEvent ");
+			  toolbarButtonManager.button.roomID = module.getRoom();
 			  service.updateTitles();
 		  }
 		  public function handleUpdateStatusEvent(e:PollGetStatusEvent):void{
@@ -237,6 +240,48 @@ package org.bigbluebutton.modules.polling.managers
 			  LogUtil.debug(LOGNAME +" inside handleReturnStatusEvent ");
 			  toolbarButtonManager.button.statusList = e.statusList;
 			  LogUtil.debug(LOGNAME +" inside handleReturnStatusEvent Status List is " + toolbarButtonManager.button.statusList);
+		  }
+		  
+		  public function handleGetPollEvent(e:PollGetPollEvent):void{
+			  LogUtil.debug(LOGNAME +" inside handleGetPollEvent ");
+			  service.getPoll(e.pollKey, "menu");
+			  //toolbarButtonManager.button.pollList.addItem(----------);
+		  }
+		  public function handleReturnPollEvent(e:PollGetPollEvent):void{
+			  LogUtil.debug(LOGNAME +" inside handleReturnPollEvent with poll title " + e.poll.title);
+			  LogUtil.debug(LOGNAME +" inside handleReturnPollEvent with poll object " + e.poll);
+			  			  
+			  var unique:Boolean = true;
+			  			  
+			  if (toolbarButtonManager.button.pollList.length != null){
+				  LogUtil.debug(LOGNAME +" About to enter for-loop with length " + toolbarButtonManager.button.pollList.length);
+				  for (var i:int = 0; i < toolbarButtonManager.button.pollList.length; i++){
+					  LogUtil.debug(LOGNAME +" In for-loop, i is " + i);
+					  var listKey:String = toolbarButtonManager.button.pollList.getItemAt(i).room+"-"+toolbarButtonManager.button.pollList.getItemAt(i).title;
+					  
+					  if (listKey != null){
+						  LogUtil.debug(LOGNAME + "PollList["+i+"] key is "+listKey);
+						  LogUtil.debug(LOGNAME + "------Event key is "+e.pollKey);
+					  }else{
+						  LogUtil.debug(LOGNAME +" For some reason there was a null item at position " + i);
+					  }
+					  if (e.pollKey == listKey){
+						  LogUtil.debug(LOGNAME + " Match found, unique is false.");
+						  unique = false;
+					  } // _compare pollKeys
+				  } // _for-loop
+			  } // _if pollList is null
+			  LogUtil.debug(LOGNAME +" For-loop is done, checking unique");
+			  if (unique){
+				  LogUtil.debug(LOGNAME + " Match not found, adding item.");
+				  toolbarButtonManager.button.pollList.addItem(e.poll);
+			  }
+			  
+			  LogUtil.debug(LOGNAME +"For-loop in Manager");
+			  for (var n:int = 0; n < toolbarButtonManager.button.pollList.length; n++){
+				toolbarButtonManager.button.pollList.getItemAt(n).checkObject();
+			  }			  
+			  LogUtil.debug(LOGNAME +"Finished For-loop in Manager");
 		  }
 		
 		//##################################################################################

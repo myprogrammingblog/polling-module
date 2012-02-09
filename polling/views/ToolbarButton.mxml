@@ -30,6 +30,7 @@
 	initialize="init()" 
 	click="createAndShow();"
 	rollOver="listUpdate();"
+	rollOut="getPollList();"
 	icon="{pollIcon}" 
 	>
 	<mx:Script>
@@ -42,6 +43,7 @@
 	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 			
 			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
 			import org.bigbluebutton.modules.polling.model.ValueObject;
@@ -59,9 +61,10 @@
 			
 			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
 			
+			[Bindable] public var roomID:String;
 			[Bindable] public var titleList:Array;
 			[Bindable] public var statusList:Array;
-			//[Bindable] public var pollList:ArrayCollection = new ArrayCollection();
+			[Bindable] public var pollList:ArrayCollection;
 			
 			private function createAndShow():void{
 				LogUtil.debug(LOGNAME +"Toolbar Polling Button Clicked");
@@ -79,6 +82,8 @@
 			
 			private function refreshMenu():void{
 				LogUtil.debug(LOGNAME +" About to populate menu; titleList is " + titleList);
+				LogUtil.debug(LOGNAME +" About to populate menu; statusList is " + statusList);
+				LogUtil.debug(LOGNAME +" About to populate menu; pollList.length is " + pollList.length);
 				var counter:int = 0;
 				for each (var s:String in titleList){
 					++counter;
@@ -95,14 +100,29 @@
 						LogUtil.debug(LOGNAME +"Status for poll: " + s + " is: " + statusList[counter-1].toString())
 					}
 				}
-				//getPollList();
 				LogUtil.debug(LOGNAME +"Survived menudata.additem");
 			}
 			
-			private function getPollList():void{
+			public function getPollList():void{
+				LogUtil.debug(LOGNAME +"Entering getPollList() on rollOut");
+				
+				//LogUtil.debug(LOGNAME +"About to loop through myMenuData to start getPollList, length is " + myMenuData.length);
 				for (var i:int = 1; i < myMenuData.length; i++){
-					LogUtil.debug(LOGNAME +"Going to get poll with key " + myMenuData.getItemAt(i).pollKey);
+					var key:String = roomID + "-" + myMenuData.getItemAt(i).label;
+					myMenuData.getItemAt(i).pollKey = key; 
+					//LogUtil.debug(LOGNAME +"Going to get poll with key " + myMenuData.getItemAt(i).pollKey);
+					var pollEvent:PollGetPollEvent = new PollGetPollEvent(PollGetPollEvent.GET);
+					pollEvent.pollKey = key;
+					dispatchEvent(pollEvent);
 				}
+				
+				// It keeps re-adding items that are already there
+				LogUtil.debug(LOGNAME +"For-loop in ToolbarButton");
+				for (var n:int = 0; n < pollList.length; n++){
+					LogUtil.debug(LOGNAME +"PollList["+n+"] is: " + pollList[n]);
+					LogUtil.debug(LOGNAME +"PollList["+n+"] has title: " + pollList[n].title);
+				}
+				LogUtil.debug(LOGNAME +"Leaving getPollList() after rollOut");
 			}
 			
 			// These two events trigger an update of the titleList and the parallel statusList
@@ -117,6 +137,7 @@
 				LogUtil.debug(LOGNAME +"Entering listUpdate");
 				getTitleList();
 				getStatusList();
+				//getPollList();
 				refreshMenu();
 				LogUtil.debug(LOGNAME +"Survived listUpdate");
 			}
@@ -133,7 +154,8 @@
 			
 			public function init():void {
 				LogUtil.debug(LOGNAME +"Entering function init()");
-				myMenuData.addItem(new ValueObject("create", "Create New Poll"));         	
+				myMenuData.addItem(new ValueObject("create", "Create New Poll"));
+				pollList = new ArrayCollection();         	
             }			
 								
 			public function getAlignment():String{

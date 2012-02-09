@@ -42,7 +42,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
 	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollReturnStatusEvent;
-	
+	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 	
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
@@ -253,7 +253,7 @@ package org.bigbluebutton.modules.polling.service
 		//#################################################//
 		// Get poll from database, send to users for them to vote on.
 		
-	   	public function  getPoll(pollKey:String, refreshFlag:Boolean = false):void{	   	
+	   	public function  getPoll(pollKey:String, option:String):void{	   	
 			LogUtil.debug(LOGNAME + "inside getPoll making netconnection getting our poll back! key: " + pollKey);
 			// So, the data stays in poll until nc.call ends, and then disappears.			
 			nc.call("poll.getPoll", new Responder(success, failure), pollKey);
@@ -264,9 +264,9 @@ package org.bigbluebutton.modules.polling.service
 			// Responder functions
 			function success(obj:Object):void{
 				var itemArray:Array = obj as Array;
-				LogUtil.debug(LOGNAME+" Responder success, refreshFlag is " + refreshFlag);
+				LogUtil.debug(LOGNAME+" Responder success, option is " + option);
 				LogUtil.debug(LOGNAME+"Responder object success! " + itemArray);
-				extractPoll(itemArray, refreshFlag);
+				extractPoll(itemArray, pollKey, option);
 			}
 	
 			function failure(obj:Object):void{
@@ -276,7 +276,7 @@ package org.bigbluebutton.modules.polling.service
 			//--------------------------------------//
 	   } // _getPoll 
 	  
-	     public function extractPoll(values:Array, refreshFlag:Boolean):void {
+	     public function extractPoll(values:Array, pollKey:String, option:String):void {
 		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
 		    var poll:PollObject = new PollObject();
 		    		    
@@ -291,10 +291,22 @@ package org.bigbluebutton.modules.polling.service
 		    poll.status = values[8] as Boolean;
 		    
 		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
-		    if (!refreshFlag){
+		    if (option == "publish"){
+		    	LogUtil.debug(LOGNAME + "You hit option publish");
 		    	sharePollingWindow(poll);
-		    }else{  
+		    }
+		    else if (option == "refresh"){
+		    	LogUtil.debug(LOGNAME + "You hit option refresh");  
 		    	refreshResults(poll.votes, poll.totalVotes);
+		    }
+		    else if (option == "menu"){
+		    	LogUtil.debug(LOGNAME + "STEP 3 DISPATCH POLLS");
+		    	LogUtil.debug(LOGNAME + "You hit option menu");
+		    	var pollReturn:PollGetPollEvent = new PollGetPollEvent(PollGetPollEvent.RETURN);
+				pollReturn.poll = poll;		
+				pollReturn.pollKey = pollKey;
+				LogUtil.debug(LOGNAME + "About to dispatch poll with title " + pollReturn.poll.title);
+				dispatcher.dispatchEvent(pollReturn);
 		    }
 		 }
 		 
@@ -353,13 +365,10 @@ package org.bigbluebutton.modules.polling.service
 			
 			// Responder functions
 			function success(obj:Object):void{
-				/*
+				LogUtil.debug(LOGNAME + "STEP 1 DISPATCH TITLES");
 				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
 				event.titleList = obj as Array;
-				
 				dispatcher.dispatchEvent(event);
-				*/
-				dispatchTitleList(obj as Array);
 				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);
 			}
 	
@@ -370,14 +379,6 @@ package org.bigbluebutton.modules.polling.service
 			//--------------------------------------//
 		 } // _updateTitles
 		 
-		 public function dispatchTitleList(titles:Array):void{
-		 	LogUtil.debug(LOGNAME+"Dispatching titles: " + titles);
-		 	var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
-			event.titleList = titles;
-			dispatcher.dispatchEvent(event);
-			LogUtil.debug(LOGNAME+"Return title event has been dispatched");
-		 } 
-		 
 		 public function updateStatus():void{
 		 	nc.call("poll.statusList", new Responder(success, failure));
 		 	
@@ -385,6 +386,7 @@ package org.bigbluebutton.modules.polling.service
 			
 			// Responder functions
 			function success(obj:Object):void{
+			LogUtil.debug(LOGNAME + "STEP 2 DISPATCH STATUS");
 				var event:PollReturnStatusEvent = new PollReturnStatusEvent(PollReturnStatusEvent.UPDATE);
 				event.statusList = obj as Array;
 				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);

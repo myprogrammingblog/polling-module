@@ -47,6 +47,7 @@
 			import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
 			import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
 			import org.bigbluebutton.modules.polling.events.PollReturnStatusEvent;
+			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 			*/
 			
 			import org.bigbluebutton.modules.polling.events.*;
@@ -160,5 +161,12 @@
 	 </EventHandlers>
 	 <EventHandlers type="{PollReturnStatusEvent.UPDATE}">
 		<MethodInvoker generator="{PollingManager}"  method="handleReturnStatusEvent" arguments="{event}"/>
+	 </EventHandlers>
+	 
+	 <EventHandlers type="{PollGetPollEvent.GET}">
+		<MethodInvoker generator="{PollingManager}"  method="handleGetPollEvent" arguments="{event}"/>
+	 </EventHandlers>
+	 <EventHandlers type="{PollGetPollEvent.RETURN}">
+		<MethodInvoker generator="{PollingManager}"  method="handleReturnPollEvent" arguments="{event}"/>
 	 </EventHandlers>
 </EventMap>
