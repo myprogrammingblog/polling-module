@@ -94,18 +94,17 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			LogUtil.debug(LOGNAME + "Instructions Window is Created");
 			LogUtil.debug(LOGNAME + "About to check incomingPoll");
 			if (incomingPoll != null){
+				// Edits are being saved properly, but not retrieved properly
 				//incomingPoll.checkObject();
 				LogUtil.debug(LOGNAME + "Editing is: " + editing);
 				pollTitle.text = incomingPoll.title;
-				pollQuestion.text = incomingPoll.question;
-								
+				pollQuestion.text = incomingPoll.question;		
 				for (var i:int = 0; i < incomingPoll.answers.length; i++){
 					pollAnswers.text += incomingPoll.answers[i];
 					if (i < incomingPoll.answers.length-1){
 						pollAnswers.text += "\n";
 					}
 				}  
-								
 				multiple_response.selected = incomingPoll.isMultiple;
 			}else{
 				editing = false;
@@ -116,22 +115,26 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		// Overwritting close to use custom function
+		
 		override public function close(event:MouseEvent = null):void {
 		closeInstructionsWindow();
 		}
 		// function invoked when close window
+		
 		private function closeInstructionsWindow():void {
 		//LogUtil.debug(LOGNAME + "inside closeinstructionsWindow");
 		
 		dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.CLOSE));
 		}
 		// function invoked when checkbox is checked
+		
 		private function isMultiple():void{
 		if(multiple_response.selected == true)
 		_isMultiple= true;
 		else
 		_isMultiple= false;
 		}
+		
 		private function openAcceptInstructions():void {
 		//LogUtil.debug(LOGNAME + "inside acceptInstructions");
 		dispatchEvent(new AcceptPollingInstructionsWindowEvent(AcceptPollingInstructionsWindowEvent.OPEN));
@@ -144,7 +147,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
 		closeInstructionsWindow();
 		}*/
+		
 		//TESTING
+		
 		private function reviewChanges():void{
 		LogUtil.debug(LOGNAME + "WHAT WE HAVE:");
 		LogUtil.debug(LOGNAME + "Title: "+_title);
@@ -214,6 +219,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		} // _TITLE VALIDATION
 		
 		//QUESTION VALIDATION
+		
 		private function questionError():String{
 		var errMsg:String = "VALID";
 		if (pollQuestion.length == 0 )
@@ -227,6 +233,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		return errMsg;
 		}
 		// ANSWER VALIDATION
+		
 		private function answerError():String{
 		var errMsg:String = "VALID";
 		// var startWithStar:RegExp = /^[*]/; // should start with *
@@ -274,7 +281,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		return errMsg;
 		}
+		
 		//#####################################################################################################
+		
 		public function goBack():void{
 		// _poll = ResourceUtil.getInstance().getString('bbb.polling.createPoll');
 		back.visible=false;
@@ -370,38 +379,30 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		
 		
 		private function savePoll(callingFromPublish:Boolean = false):void {
-		LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
-		//manager.savePoll(_answers, _question, _title, _isMultiple);
-		var savePollEvent: SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
-		//savePollEvent.answers = _answers;
-		savePollEvent.answers = _answersArray;
-		savePollEvent.question = _question;
-		savePollEvent.title = _title;
-		savePollEvent.isMultiple = _isMultiple;
-		dispatchEvent(savePollEvent);
-		if(!callingFromPublish)
-		closeInstructionsWindow();
+				LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
+			var savePollEvent: SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
+			savePollEvent.answers = _answersArray;
+			savePollEvent.question = _question;
+			savePollEvent.title = _title;
+			savePollEvent.isMultiple = _isMultiple;
+			dispatchEvent(savePollEvent);
+			if(!callingFromPublish)
+				closeInstructionsWindow();
 		}
+		
 		private function publish():void {
-		savePoll(true);
-		LogUtil.debug(LOGNAME + "inside publish calling servie method getPoll()");
-		var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
-		LogUtil.debug(LOGNAME + "after PUBLISH constructor");
-		//var viewEvent: PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
-		LogUtil.debug(LOGNAME + "after VIEW constructor");
-		// sending title
-		publishPollEvent.title = _title;
-		LogUtil.debug(LOGNAME + "inside publish survived key generation");
-		dispatchEvent(publishPollEvent);
-		LogUtil.debug(LOGNAME + "inside publish survived dispatch event");
-		//dispatchEvent(viewEvent);
-		//LogUtil.debug(LOGNAME + "inside view survived dispatch event");
-		dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
-		closeInstructionsWindow();
+			savePoll(true);
+			var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
+			// sending title
+			publishPollEvent.title = _title;
+			dispatchEvent(publishPollEvent);
+			dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
+			closeInstructionsWindow();
 		}
+		
 		private function allowPublishing():void {
-		dispatchEvent(new PollingStatusCheckEvent(PollingStatusCheckEvent.CHECK));
-		LogUtil.debug(LOGNAME + "Survived status checking, status is " + publishingAllowed);
+			dispatchEvent(new PollingStatusCheckEvent(PollingStatusCheckEvent.CHECK));
+			LogUtil.debug(LOGNAME + "Survived status checking, status is " + publishingAllowed);
 		}
 		]]>
 	</mx:Script>

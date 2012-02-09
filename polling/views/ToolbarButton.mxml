@@ -90,6 +90,7 @@
 					++counter;
 					LogUtil.debug(LOGNAME +"Counter is " + counter);
 					var unique:Boolean = true;
+					
 					for (var i:int=0; i < myMenuData.length; i++){
 						if (myMenuData.getItemAt(i).label == s){
 							unique = false;

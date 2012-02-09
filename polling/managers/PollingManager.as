@@ -247,6 +247,8 @@ package org.bigbluebutton.modules.polling.managers
 			  service.getPoll(e.pollKey, "menu");
 			  //toolbarButtonManager.button.pollList.addItem(----------);
 		  }
+		  
+		  // The key to replacing items may lay here
 		  public function handleReturnPollEvent(e:PollGetPollEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleReturnPollEvent with poll title " + e.poll.title);
 			  LogUtil.debug(LOGNAME +" inside handleReturnPollEvent with poll object " + e.poll);
@@ -260,6 +262,8 @@ package org.bigbluebutton.modules.polling.managers
 					  if (e.pollKey == listKey){
 						  LogUtil.debug(LOGNAME + " Match found, unique is false.");
 						  unique = false;
+						  // Try to delete and replace the offending poll
+						  toolbarButtonManager.button.pollList.setItemAt(e.poll, i);
 					  } // _compare pollKeys
 				  } // _for-loop
 			  } // _if pollList is null

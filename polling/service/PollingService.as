@@ -306,6 +306,7 @@ package org.bigbluebutton.modules.polling.service
 				pollReturn.poll = poll;		
 				pollReturn.pollKey = pollKey;
 				LogUtil.debug(LOGNAME + "About to dispatch poll with title " + pollReturn.poll.title);
+				pollReturn.poll.checkObject();
 				dispatcher.dispatchEvent(pollReturn);
 		    }
 		 }
