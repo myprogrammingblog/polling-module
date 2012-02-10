@@ -248,13 +248,13 @@ package org.bigbluebutton.modules.polling.managers
 			  //toolbarButtonManager.button.pollList.addItem(----------);
 		  }
 		  
-		  // The key to replacing items may lay here
-		  public function handleReturnPollEvent(e:PollGetPollEvent):void{
+		   public function handleReturnPollEvent(e:PollGetPollEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleReturnPollEvent with poll title " + e.poll.title);
 			  LogUtil.debug(LOGNAME +" inside handleReturnPollEvent with poll object " + e.poll);
 			  			  
 			  var unique:Boolean = true;
-			  			  
+			  
+			  
 			  if (toolbarButtonManager.button.pollList.length != null){
 				  LogUtil.debug(LOGNAME +" About to enter for-loop with length " + toolbarButtonManager.button.pollList.length);
 				  for (var i:int = 0; i < toolbarButtonManager.button.pollList.length; i++){
