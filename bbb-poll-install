@@ -1,0 +1,116 @@
+#!/bin/bash
+# Do we want to back it up to the firstuser Desktop, or to the desktop of the user who's running the script?
+# export USER=$(whoami)
+
+# BBB - CHANGE TO YOUR BIGBLUEBUTTON DIRECTORY
+
+BBB=/home/firstuser/dev/source/bigbluebutton
+
+
+
+# check if each directory is created
+# check if each file is copied
+# exit on any error  
+# make sure user used sudo before command
+
+# Also could be done :
+  #Ask user to enter BBB directory
+  # Make sure it exist
+  # Use this directory in Installation process
+
+
+# run ant locales
+# run ant
+# recompile bbb-aps
+# run compile-client-module Polling Module
+
+
+# Validation - check if BBB directory exist
+if [ -d $BBB ]
+then
+echo "Copying polling recorder to bbb-aps ......"
+
+mkdir -p $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/recorder/polling
+
+ if [ -d $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/recorder/polling ]
+   then
+            cp -R ./bbb-aps/src.main.java.bigbluebutton.conference.service.recorder  $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/recorder/polling
+	    echo "                                                      [Done]"	
+    else
+          echo "Error Copying Server Side components. make sure you use 'sudo ./bbb-poll-install '"
+          exit
+fi   
+
+echo "Copying  poll module  to bbb-aps ......"
+
+
+mkdir -p $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/poll
+
+if [ -d $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/poll ]
+  then
+         cp -R  ./bbb-aps/src.main.java.org.bigbluebutton.conference.service.poll  $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/poll
+  	 echo "                                                             [Done]"	
+       else
+             echo "Error Copying Server Side components. make sure you use 'sudo ./bbb-poll-install '"
+            exit
+fi   
+
+
+echo "Copying WEB-INF Dependencies...."
+cp -R  ./bbb-aps/src.main.webapps.WEB-INF/bbb-aps.xml $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/bbb-apps.xml
+cp -R  ./bbb-aps/src.main.webapps.WEB-INF/red5-web.xml  $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/red5-web.xml
+ echo "                                                             [Done]"	
+
+echo "Copying Client Side ....."
+mkdir -p $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling
+cp -R    ./polling $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling 
+cp -R    ./PollingModule.mxml $BBB/bigbluebutton-client/src/ 
+
+echo "Copying Client Side Dependencies ....."
+cp -R   ./polling_icon_dependencies/common.assets.images/poll_icon.png $BBB/bigbluebutton-client/src/org/bigbluebutton/common/assets/images
+cp -R   ./polling_icon_dependencies/common.events $BBB/bigbluebutton-client/src/org/bigbluebutton/common/events/
+
+echo "Copying Locales..."
+cp -R   ./client.locale/  $BBB/bigbluebutton-client/client/locale
+ echo "                                                             [Done]"	
+
+#cp -R   ./org.bigbluebutton.main.views/LogWindow.mxml  $BBB/bigbluebutton-client/src/org/bigbluebutton/main/views/LogWindow.mxml
+
+
+echo "Recompiling bbb-client"
+
+cd $BBB/bigbluebutton-client/
+ant
+
+echo "Compiling Polling Module"
+
+ mxmlc  $BBB/bigbluebutton-client/src/PollingModule.mxml -sp $BBB/bigbluebutton-client/src  -l $BBB/bigbluebutton-client/libs -locale -accessible
+if [ -f $BBB/bigbluebutton-client/src/PollingModule.swf ]
+  then
+mv $BBB/bigbluebutton/bigbluebutton-client/src/PollingModule.swf $BBB/bigbluebutton-client/bin
+echo "                                                                [Done]"
+fi
+
+echo "Recompiling locales"
+cd $BBB/bigbluebutton-client/
+ant locales
+
+echo "Stopping red5-server"
+sudo /etc/init.d/red5 stop
+
+echo "Recompiling bbb-aps"
+cd $BBB/bigbluebutton-apps; gradle war deploy
+
+echo "Starting red5-server"
+cd /usr/share/red5/ ;sudo -u red5 ./red5.sh 
+
+
+echo "Polling Installation completed"
+
+
+else
+  echo "ERROR: Cannot find your bigbluebutton directory, if it is not in  $BBB , please change the path in bbb-poll-install file. "
+fi
+
+
+

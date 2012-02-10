@@ -1,0 +1,7 @@
+
+Before you can add Polling Module to your Big Blue Button you need to make sure that  your Big Blue Button development environment is properly installed, and you don't have any compilation errors for compiling bigbluebutton-client and bigbluebutton-apps.
+
+ If your path to bigbluebutton is not: /home/firstuser/dev/source/bigbluebutton
+
+  Please go to bbb-poll-install file and change the BBB variable path to 
+ the path of your 'bigbluebutton' folder, otherwise it won't work.
