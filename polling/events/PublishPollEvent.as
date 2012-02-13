@@ -19,7 +19,6 @@
 package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
-
 	
 	public class PublishPollEvent extends Event
 	{
@@ -31,6 +30,5 @@ package org.bigbluebutton.modules.polling.events
 		{
 			super(type, bubbles, cancelable);
 		}
-		
 	}
 }

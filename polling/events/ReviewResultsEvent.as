@@ -19,14 +19,17 @@
 package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
-
-	public class PollReturnTitlesEvent extends Event
+	import org.bigbluebutton.modules.polling.model.PollObject;	
+	
+	public class ReviewResultsEvent extends Event
 	{
-		public static const UPDATE:String = "UPDATE";
-		public var titleList:Array;		
+		public static const REVIEW:String = "REVIEW";
+		public var pollKey:String;
+		public var poll:PollObject;
 		
-		public function PollReturnTitlesEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
+		public function ReviewResultsEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
+			poll = new PollObject();
 			super(type, bubbles, cancelable);
 		}
 		

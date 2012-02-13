@@ -12,25 +12,6 @@ package org.bigbluebutton.modules.polling.managers
 
 	import org.bigbluebutton.common.IBbbModuleWindow;
 
-	/*
-	import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.SavePollEvent;
-	import org.bigbluebutton.modules.polling.events.PublishPollEvent;
-	import org.bigbluebutton.modules.polling.events.VoteEvent;
-	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-	import org.bigbluebutton.modules.polling.events.StopPollEvent;
-	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
-	import org.bigbluebutton.modules.polling.events.ToolbarComboEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.PollReturnStatusEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
-	*/
-	
 	import org.bigbluebutton.modules.polling.events.*;
 	
 	import org.bigbluebutton.modules.polling.service.PollingService;
@@ -75,13 +56,11 @@ package org.bigbluebutton.modules.polling.managers
 		public function handleMadePresenterEvent(e:MadePresenterEvent):void{
 			LogUtil.debug(LOGNAME +" inside handleMadePresenterEvent :: adding toolbar button");
 			toolbarButtonManager.addToolbarButton();
-			//toolbarButtonManager.addToolbarCombo();
 		}
 		
 		public function handleMadeViewerEvent(e:MadePresenterEvent):void{
 			LogUtil.debug(LOGNAME +" inside handleMadeViewerEvent :: removing toolbar button");
 			toolbarButtonManager.removeToolbarButton();
-			//toolbarButtonManager.removeToolbarCombo();
 		}
 		//######################################################################################
 		
@@ -135,8 +114,9 @@ package org.bigbluebutton.modules.polling.managers
 		      LogUtil.debug(LOGNAME +" Event is " + e);
 		      viewWindowManager.handleStopPolling(e);
 		      
-		      pollKey = module.getRoom() +"-"+ e.title ;
-		      service.setStatus(pollKey, false);
+		      pollKey = module.getRoom() +"-"+ e.poll.title ;
+		      //e.status = false;
+		      //service.setStatus(pollKey, false);
 		      service.closeAllPollingWindows();
 		} 
 	//##################################################################################
@@ -152,28 +132,31 @@ package org.bigbluebutton.modules.polling.managers
 	   public function handleCloseAcceptPollingInstructionsWindow(e:AcceptPollingInstructionsWindowEvent):void{
 		      LogUtil.debug(LOGNAME +" handleCloseAcceptPollingInstructionsWindow ");
 		      viewWindowManager.handleCloseAcceptPollingInstructionsWindow(e);
-		       toolbarButtonManager.enableToolbarButton();
+		      toolbarButtonManager.enableToolbarButton();
 		}  	
 		//##################################################################################
 	   public function handleSavePollEvent(e:SavePollEvent):void
 		{
 			LogUtil.debug(LOGNAME + " inside savePoll(), calling service...");
-			pollKey = module.getRoom() +"-"+ e.title ;
-			service.savePoll(e.answers, e.question, e.title, e.isMultiple, module.getRoom(), e.votes, e.time);
-			service.setStatus(pollKey, true);
-			//toolbarButtonManager.button.getPollList();
+			e.poll.room = module.getRoom();
+			pollKey = e.poll.room +"-"+ e.poll.title ;
+			LogUtil.debug(LOGNAME + " poll.didNotVote is " + e.poll.didNotVote + " in Manager.HandleSavePoll");
+			service.savePoll(e.poll);
+			//service.setStatus(pollKey, true);
 		}	
 		
 	
 		public function handlePublishPollEvent(e:PublishPollEvent):void
 		{
-			if (!service.getPollingStatus()){
+			if (!service.getPollingStatus() && (e.title != null)){
 				LogUtil.debug(LOGNAME + " inside handlePublishPollEvent(), calling getPoll");
 				pollKey = module.getRoom() +"-"+ e.title ;
 				service.getPoll(pollKey, "publish");
-				//toolbarButtonManager.button.getPollList();
 			}else{
-				LogUtil.debug(LOGNAME + "Publishing denied; poll is still open!");
+				if (service.getPollingStatus())
+					LogUtil.debug(LOGNAME + "Publishing denied; poll is still open!");
+				if (e.title == null)
+					LogUtil.debug(LOGNAME + "Publishing denied; poll title is null");
 			}
 		}	
 		
@@ -190,7 +173,7 @@ package org.bigbluebutton.modules.polling.managers
 		  // Opening PollingStatsWindow
 		  public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
 			      LogUtil.debug(LOGNAME +" inside handleOpenPollingStatsWindow ");
-			      pollKey = module.getRoom() +"-"+ e.title ;
+			      e.poll.room = module.getRoom();
 			      viewWindowManager.handleOpenPollingStatsWindow(e);
 			}  	
 		  // Closing PollingStatsWindow	
@@ -206,18 +189,12 @@ package org.bigbluebutton.modules.polling.managers
 		  
 		  public function handleGetPollingStats(e:PollRefreshEvent):void{
 		      LogUtil.debug(LOGNAME +" inside handleGetPollingStats ");
-		      e.pollKey = module.getRoom() +"-"+ e.title ;
+		      e.poll.room = module.getRoom();
+		      e.pollKey = e.poll.room +"-"+ e.poll.title ;
 		      LogUtil.debug(LOGNAME + " pollKey is " + e.pollKey);
-		      service.getPoll(pollKey, "refresh");
+		      service.getPoll(e.pollKey, "refresh");
 		  }  
-		//##################################################################################
-		  
-		// Refreshing PollingStatsWindow	
-		  public function handleAddToolbarComboEvent(e:ToolbarComboEvent):void{
-			  LogUtil.debug(LOGNAME +" COMBO : inside handleAddToolbarComboEvent ");
-			  //  toolbarButtonManager.setChildIndex(e.button,toolbarButtonManager.numChildren-1); 
-		  }
-
+		
 		//##################################################################################
 
 		  // Make a call to the service to update the list of titles and statuses for the Polling Menu
@@ -245,7 +222,6 @@ package org.bigbluebutton.modules.polling.managers
 		  public function handleGetPollEvent(e:PollGetPollEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleGetPollEvent ");
 			  service.getPoll(e.pollKey, "menu");
-			  //toolbarButtonManager.button.pollList.addItem(----------);
 		  }
 		  
 		   public function handleReturnPollEvent(e:PollGetPollEvent):void{
@@ -253,8 +229,7 @@ package org.bigbluebutton.modules.polling.managers
 			  LogUtil.debug(LOGNAME +" inside handleReturnPollEvent with poll object " + e.poll);
 			  			  
 			  var unique:Boolean = true;
-			  
-			  
+
 			  if (toolbarButtonManager.button.pollList.length != null){
 				  LogUtil.debug(LOGNAME +" About to enter for-loop with length " + toolbarButtonManager.button.pollList.length);
 				  for (var i:int = 0; i < toolbarButtonManager.button.pollList.length; i++){
@@ -262,7 +237,7 @@ package org.bigbluebutton.modules.polling.managers
 					  if (e.pollKey == listKey){
 						  LogUtil.debug(LOGNAME + " Match found, unique is false.");
 						  unique = false;
-						  // Try to delete and replace the offending poll
+						  // Delete and replace the offending poll
 						  toolbarButtonManager.button.pollList.setItemAt(e.poll, i);
 					  } // _compare pollKeys
 				  } // _for-loop
@@ -296,6 +271,11 @@ package org.bigbluebutton.modules.polling.managers
 		  	viewWindowManager.handleOpenPollingInstructionsWindowWithExistingPoll(e);
 		  }
 		  
+		  public function handleReviewResultsEvent(e:ReviewResultsEvent):void{
+			  LogUtil.debug(LOGNAME +" Reviewing results event, event poll is: ");
+			  e.poll.checkObject();
+			  viewWindowManager.handleReviewResultsEvent(e);
+		  }
 		//##################################################################################
    }
 }

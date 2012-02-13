@@ -29,27 +29,6 @@
 			
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			
-			/*
-			import org.bigbluebutton.modules.polling.events.ModuleEvent;
-			import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
-			import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-			import org.bigbluebutton.modules.polling.events.SavePollEvent;
-			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
-			import org.bigbluebutton.modules.polling.events.VoteEvent;
-			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-			import org.bigbluebutton.modules.polling.events.StopPollEvent;
-			import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
-			import org.bigbluebutton.modules.polling.events.ToolbarComboEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
-			import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
-			import org.bigbluebutton.modules.polling.events.PollReturnStatusEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
-			*/
-			
 			import org.bigbluebutton.modules.polling.events.*;
 			
 				]]>
@@ -181,4 +160,7 @@
 		<MethodInvoker generator="{PollingManager}"  method="handleOpenSavedPollEvent" arguments="{event}"/>
 	 </EventHandlers>
 	 
+	 <EventHandlers type="{ReviewResultsEvent.REVIEW}">
+		<MethodInvoker generator="{PollingManager}"  method="handleReviewResultsEvent" arguments="{event}"/>
+	 </EventHandlers>
 </EventMap>

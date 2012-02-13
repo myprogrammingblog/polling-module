@@ -83,24 +83,18 @@ public class PollInvoker {
        
        if (jedis.exists(pollKey))
        {
-    	   // POPULATING POLL OBJECT WITH INFORMATION
-    	   String pTitle = jedis.hget(pollKey, "title");
-    	   String pQuestion = jedis.hget(pollKey, "question");
+    	   // Get Boolean values from string-based Redis hash
     	   boolean pMultiple = false;
-    	   if (jedis.hget(pollKey, "multiple").compareTo("true") == 0) {pMultiple = true;}
-    	   String pRoom = jedis.hget(pollKey, "room");
-    	   String pTime = jedis.hget(pollKey, "time");
-    	   String pTotalVotes = jedis.hget(pollKey, "totalVotes");
     	   boolean pStatus = false;
-    	   if (jedis.hget(pollKey, "status").compareTo("true") == 0) {pStatus = true;}
+    	   if (jedis.hget(pollKey, "multiple").compareTo("true") == 0)
+    		   pMultiple = true;
+    	   if (jedis.hget(pollKey, "status").compareTo("true") == 0) 
+    		   pStatus = true;
 		
     	   // ANSWER EXTRACTION
     	   long pollSize = jedis.hlen(pollKey);
-    	   // IMPORTANT! 
-    	   // Increase the value of otherFields for each field you add to the hash which is not a new answer
-    	   // (locales, langauge, etc)
-    	   int otherFields = 7;
-    	   long numAnswers = (pollSize-otherFields)/2;
+    	   // otherFields is defined in Poll.java as the number of fields the hash has which are not answers or votes.
+    	   long numAnswers = (pollSize-Poll.getOtherFields())/2;
        
     	   // Create an ArrayList of Strings for answers, and one of ints for answer votes
     	   ArrayList <String> pAnswers = new ArrayList <String>();
@@ -110,9 +104,23 @@ public class PollInvoker {
     		   pAnswers.add(jedis.hget(pollKey, "answer"+j+"text"));
     		   pVotes.add(Integer.parseInt(jedis.hget(pollKey, "answer"+j)));
     	   }
+    	       	   
+    	   ArrayList retrievedPoll = new ArrayList();
     	   
-    	   Poll poll = new Poll(pTitle, pQuestion, pAnswers, pMultiple, pRoom, pVotes, pTime, Integer.parseInt(pTotalVotes), pStatus);
+    	   retrievedPoll.add(jedis.hget(pollKey, "title"));
+    	   retrievedPoll.add(jedis.hget(pollKey, "room"));
+    	   retrievedPoll.add(pMultiple);
+    	   retrievedPoll.add(jedis.hget(pollKey, "question"));
+    	   // answers
+		   retrievedPoll.add(pAnswers);
+    	   // votes
+		   retrievedPoll.add(pVotes);
+    	   retrievedPoll.add(jedis.hget(pollKey, "time"));
+    	   retrievedPoll.add(jedis.hget(pollKey, "totalVotes"));
+    	   retrievedPoll.add(pStatus);
+		   retrievedPoll.add(jedis.hget(pollKey, "didNotVote"));    	   
     	   
+		   Poll poll = new Poll(retrievedPoll);
     	   return poll;
        }
        log.error("[ERROR] A poll is being invoked that does not exist. Null exception will be thrown.");

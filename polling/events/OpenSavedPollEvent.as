@@ -29,6 +29,7 @@ package org.bigbluebutton.modules.polling.events
 		
 		public function OpenSavedPollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
+			poll = new PollObject();
 			super(type, bubbles, cancelable);
 		}
 		

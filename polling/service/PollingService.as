@@ -123,48 +123,46 @@ package org.bigbluebutton.modules.polling.service
          		LogUtil.debug(LOGNAME + "Sharing window: Poll title is: " + poll.title);
          	
          	if (isConnected = true ) {
-         			pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time, poll.totalVotes); 
+         			poll.checkObject();
+           			//LogUtil.debug(LOGNAME + "Going into shared object send NOW");
+         			pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.didNotVote);
+         			LogUtil.debug(LOGNAME+"Survived sharing object");
          	}
          }
-         
-         
-         
-         public function openPollingWindow(title:String, question:String, isMultiple:Boolean, answers:Array, votes:Array, time:String, totalVotes:int):void{
-         	var username:String = module.username;
-         	
-         	LogUtil.debug(LOGNAME + "Opening window: Answers are : " + answers);
-         	LogUtil.debug(LOGNAME + "Opening window: Poll title is: " + title);
-         	         	
-         	//var role:String = module.role;
-         	if (!UserManager.getInstance().getConference().amIModerator()){
-         		LogUtil.debug(LOGNAME + "dispatching Open polling view window for NON moderator users");	
-         		var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
-         		e.title = title;
-         		e.question = question;
-         		e.answers = answers;
-         		e.votes = votes;
-         		e.isMultiple = isMultiple;
-         		e.time = time;
-         		
-				dispatcher.dispatchEvent(e);
-         	}else{
-         		var stats:PollingStatsWindowEvent = new PollingStatsWindowEvent(PollingStatsWindowEvent.OPEN);
-         		stats.title = title;
-         		stats.question = question;
-         		stats.answers = answers;
-         		stats.votes = votes;
-         		stats.isMultiple = isMultiple;
-         		stats.time = time;
-         		stats.totalVotes = totalVotes;
-         		stats.status = false;
-         		
-				dispatcher.dispatchEvent(stats);
-         	}
+                  
+         public function openPollingWindow(title:String, question:String, isMultiple:Boolean, answers:Array, votes:Array, time:String, totalVotes:int, didNotVote:int):void{
+         		var username:String = module.username;
+         		var poll:PollObject = new PollObject();
+         		poll.title = title;
+         		poll.question = question;
+         		poll.isMultiple = isMultiple; 
+         		poll.answers = answers;
+         		poll.votes = votes;
+         		poll.time = time;
+         		poll.totalVotes = totalVotes;
+         		poll.didNotVote = didNotVote;
+          		//LogUtil.debug(LOGNAME + "Opening window: Answers are : " + answers);
+          		//LogUtil.debug(LOGNAME + "Opening window: Poll title is: " + title);
+          		if (!UserManager.getInstance().getConference().amIModerator()){
+          		//	LogUtil.debug(LOGNAME + "dispatching Open polling view window for NON moderator users");
+          			var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
+	        		e.poll = poll;
+          			dispatcher.dispatchEvent(e);
+          		}else{
+          			//LogUtil.debug(LOGNAME + "Checking the object for moderator polling view");
+          			var stats:PollingStatsWindowEvent = new PollingStatsWindowEvent(PollingStatsWindowEvent.OPEN);
+          			//LogUtil.debug(LOGNAME + "Survived creating stats event");
+          			stats.poll = poll;
+          			stats.poll.status = false;
+          			//LogUtil.debug(LOGNAME + "Survived populating stats event");
+          			dispatcher.dispatchEvent(stats);
+          		}
          }
 
 	   public function setPolling(polling:Boolean):void{
 	   		isPolling = polling;
 	   }
+	   
 	   
 	   public function setStatus(pollKey:String, status:Boolean):void{
 	   		if (status){
@@ -173,6 +171,7 @@ package org.bigbluebutton.modules.polling.service
 	   			closePoll(pollKey);
 	   		}
 	   }
+	   
 	   
 	   public function getPollingStatus():Boolean{
 	   		return isPolling;
@@ -222,37 +221,30 @@ package org.bigbluebutton.modules.polling.service
 			LogUtil.debug(LOGNAME+"Shared object is connected");	
 		}
 		
-		public function savePoll(answers:Array, question:String, title:String, isMultiple:Boolean, room:String, votes:Array, time:String):void
+		// Streamlined, experimental SavePoll
+		public function savePoll(poll:PollObject):void
 		{
+			var serverPoll:Array = new Array(poll.title, poll.room, poll.isMultiple, poll.question, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.status, poll.didNotVote);
+			LogUtil.debug(LOGNAME + " poll.didNotVote is " + serverPoll[9] + " right before nc.call");
 			nc.call("poll.savePoll",
 				new Responder(
 					function(result:Object):void { 
-						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server "); 
+						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server with [experimental] savePoll"); 
 					},	
 					function(status:Object):void { 
-						LogUtil.error(LOGNAME + "Error occurred sending info to server in SAVEPOLL NC.CALL"); 
+						LogUtil.error(LOGNAME + "Error occurred sending info to server in [experimental] SAVEPOLL NC.CALL"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 						} 
 					}
 				),
-				answers,
-				question,
-				title,
-				isMultiple,
-				room,
-				votes,
-				time,
-				0,
-				true
+				serverPoll
 			); 
 			//_netConnection.call
 			LogUtil.debug(LOGNAME + " After Connection");
-		}	   
-	
+		}
 		//#################################################//
-		// Get poll from database, send to users for them to vote on.
-		
+				
 	   	public function  getPoll(pollKey:String, option:String):void{	   	
 			LogUtil.debug(LOGNAME + "inside getPoll making netconnection getting our poll back! key: " + pollKey);
 			// So, the data stays in poll until nc.call ends, and then disappears.			
@@ -280,24 +272,27 @@ package org.bigbluebutton.modules.polling.service
 		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
 		    var poll:PollObject = new PollObject();
 		    		    
-		    poll.title = values[0] as String;
-		    poll.room = values[1] as String;
+		    poll.title 		= values[0] as String;
+		    poll.room 		= values[1] as String;
 		    poll.isMultiple = values[2] as Boolean;
-		    poll.question = values[3] as String;
-		    poll.answers = values[4] as Array;
-		    poll.votes = values[5] as Array;	    
-		    poll.time = values[6] as String;		    
+		    poll.question 	= values[3] as String;
+		    poll.answers 	= values[4] as Array;
+		    poll.votes 		= values[5] as Array;	    
+		    poll.time 		= values[6] as String;		    
 		    poll.totalVotes = values[7] as int;
-		    poll.status = values[8] as Boolean;
+		    poll.status 	= values[8] as Boolean;
+		    poll.didNotVote = values[9] as int;
 		    
 		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
 		    if (option == "publish"){
 		    	LogUtil.debug(LOGNAME + "You hit option publish");
+		    	LogUtil.debug(LOGNAME + " poll.didNotVote is " + poll.didNotVote + " in extractPoll for publishing");
 		    	sharePollingWindow(poll);
 		    }
 		    else if (option == "refresh"){
-		    	LogUtil.debug(LOGNAME + "You hit option refresh");  
-		    	refreshResults(poll.votes, poll.totalVotes);
+		    	LogUtil.debug(LOGNAME + "You hit option refresh"); 
+		    	LogUtil.debug(LOGNAME + " poll.didNotVote is " + poll.didNotVote + " in extractPoll for refreshing");
+		    	refreshResults(poll);
 		    }
 		    else if (option == "menu"){
 		    	LogUtil.debug(LOGNAME + "STEP 3 DISPATCH POLLS");
@@ -332,7 +327,7 @@ package org.bigbluebutton.modules.polling.service
 		 public function vote(pollKey:String, answerIDs:Array):void{
 		 	// answerIDs will indicate by integer which option(s) the user voted for
 		 	// i.e., they voted for 3 and 5 on multiple choice, answerIDs will hold [0] = 3, [1] = 5
-		 	// (could be out of order, shouldn't matter) 
+		 	// It works the same regardless of if AnswerIDs holds {3,5} or {5,3} 
 		 	
 		 	 LogUtil.debug("What are we sending to apps ? pollkey: " +pollKey+ " answers: " + answerIDs.toString());
 		 	nc.call(
@@ -352,10 +347,11 @@ package org.bigbluebutton.modules.polling.service
 			);
 		 } // _vote
 		 
-		 public function refreshResults(votes:Array, totalVotes:int):void{
+		 public function refreshResults(poll:PollObject):void{
 		 	var refreshEvent:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.REFRESH);
-		 	refreshEvent.votes = votes;
-		 	refreshEvent.totalVotes = totalVotes;
+		 	refreshEvent.poll = poll;
+		 	LogUtil.debug(LOGNAME+"In refreshResults, checking for refreshEvent null:");
+		 	refreshEvent.poll.checkObject();
 		 	dispatcher.dispatchEvent(refreshEvent);
 		 } // _refreshResults
 		 
@@ -369,8 +365,8 @@ package org.bigbluebutton.modules.polling.service
 				LogUtil.debug(LOGNAME + "STEP 1 DISPATCH TITLES");
 				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
 				event.titleList = obj as Array;
-				dispatcher.dispatchEvent(event);
 				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);
+				dispatcher.dispatchEvent(event);
 			}
 	
 			function failure(obj:Object):void{
@@ -387,7 +383,7 @@ package org.bigbluebutton.modules.polling.service
 			
 			// Responder functions
 			function success(obj:Object):void{
-			LogUtil.debug(LOGNAME + "STEP 2 DISPATCH STATUS");
+				LogUtil.debug(LOGNAME + "STEP 2 DISPATCH STATUS");
 				var event:PollReturnStatusEvent = new PollReturnStatusEvent(PollReturnStatusEvent.UPDATE);
 				event.statusList = obj as Array;
 				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);
@@ -425,7 +421,7 @@ package org.bigbluebutton.modules.polling.service
 		 	nc.call("poll.setStatus", new Responder(success, failure), pollKey, true);
 		 	
 		 	//--------------------------------------//
-			
+
 			// Responder functions
 			function success(obj:Object):void{
 				LogUtil.debug(LOGNAME+"Responder object success! in SET POLL TO OPEN");

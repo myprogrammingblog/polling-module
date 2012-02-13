@@ -35,50 +35,63 @@ import java.util.HashMap;
 public class Poll{
 
 	private static Logger log = Red5LoggerFactory.getLogger( Poll.class, "bigbluebutton" );
+	
 	private String LOGNAME = "[Poll]";
-	public final String title;
-	public final String room;
-	public final Boolean isMultiple;
-	public final String question;
-	public ArrayList <String> answers;
-	public ArrayList <Integer> votes;
-	public String time;
-	public int totalVotes;
-	public Boolean status;
-	//public Map <String, Integer> answersCounter;
+	
+	// IMPORTANT: For every field you add to the hash, add one to the value of otherFields.
+	// The value MUST always reflect how many fields are in the hash, except for answers and votes.
+	// Again, the variable otherFields in PollInvoker.invoke MUST be set to the number of fields in our Poll, minus two.
+	
+	private static int otherFields = 8;
+	
+	public final String title;			// 1
+	public final String room;			// 2
+	public final Boolean isMultiple;	// 3
+	public final String question;		// 4
+	public ArrayList <String> answers;	// -
+	public ArrayList <Integer> votes;	// -
+	public String time;					// 5
+	public int totalVotes;				// 6
+	public Boolean status;				// 7
+	public int didNotVote;				// 8
 	
 	@SuppressWarnings("unchecked")
-	public Poll( String title , String question , ArrayList answers, Boolean isMultiple, String room, ArrayList votes, String time, int totalVotes, Boolean status){
-		log.debug(LOGNAME + "[TEST] Step 2 :  Poll.java encapsulated received info into object");
-		this.question = question;
-		this.title= title;
-		this.isMultiple = isMultiple;
-		this.answers = answers;
-		this.room = room;
-		this.votes = votes;
-		this.time = time;
-		this.totalVotes = totalVotes;
-		this.status = status;
-		//answersCounter(); // creating string-integer value pair for counting vote results
+	public Poll (ArrayList otherPoll){
+		 title 		= otherPoll.get(0).toString();
+		 room 		= otherPoll.get(1).toString();
+		 isMultiple = (Boolean)otherPoll.get(2);
+		 question 	= otherPoll.get(3).toString();
+		 answers 	= (ArrayList)otherPoll.get(4);
+		 votes 		= (ArrayList)otherPoll.get(5);
+		 time 		= otherPoll.get(6).toString();
+		 totalVotes = Integer.parseInt(otherPoll.get(7).toString());
+		 status 	= (Boolean)otherPoll.get(8);
+		 didNotVote = Integer.parseInt(otherPoll.get(9).toString());
 	}
 
 	public String getRoom() {
 		return room;
 	}
-
-	/*
-	 * *
-	 *  Function that creates a HashMap of answer-integer. Integers that will be incremented as soon as vote starts, thus statistics will be counted
-	 **
-	public void answersCounter (){
-		answersCounter = new HashMap<String, Integer>();
-		String _answers;
-		for(int i=0; i<answers.size(); i++){
-			log.debug(LOGNAME + "[TEST2] _answers :" + answers.get(i));
-			answersCounter.put(answers.get(i).toString(), 0);
-			log.debug(LOGNAME + "[TEST2] add to answer count  :"+ answersCounter.entrySet());
+	
+	public void checkObject(){
+		// This just loops through the Poll and does a bunch of log.debug messages to verify the contents.
+		if (this != null){
+			log.debug(LOGNAME + "Running CheckObject on the poll with title " + title);
+			log.debug(LOGNAME + "Room is: " + room);
+			log.debug(LOGNAME + "isMultiple is: " + isMultiple.toString());
+			log.debug(LOGNAME + "Question is: " + question);
+			log.debug(LOGNAME + "Answers are: " + answers);
+			log.debug(LOGNAME + "Votes are: " + votes);
+			log.debug(LOGNAME + "Time is: " + time);
+			log.debug(LOGNAME + "TotalVotes is: " + totalVotes);
+			log.debug(LOGNAME + "Status is: " + status.toString());
+			log.debug(LOGNAME + "DidNotVote is: " + didNotVote);
+		}else{
+			log.debug(LOGNAME + "This Poll is NULL.");
 		}
-			
-	}*/
-
+	}
+	
+	public static int getOtherFields(){
+		return otherFields;
+	}
 }

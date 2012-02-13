@@ -45,6 +45,7 @@
 			import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+			import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
 			
 			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
 			import org.bigbluebutton.modules.polling.model.ValueObject;
@@ -98,11 +99,9 @@
 							unique = false;
 						}
 					}
-					if (unique){
+					if (unique && (s != null)){
 						LogUtil.debug(LOGNAME +"Adding title: " + s)
-						
 						myMenuData.addItem(new ValueObject(counter.toString(), s));
-						
 						LogUtil.debug(LOGNAME +"Status for poll: " + s + " is: " + statusList[counter-1].toString())
 					}
 				}
@@ -114,9 +113,11 @@
 				
 				//LogUtil.debug(LOGNAME +"About to loop through myMenuData to start getPollList, length is " + myMenuData.length);
 				for (var i:int = 1; i < myMenuData.length; i++){
+					LogUtil.debug(LOGNAME +"In for-loop");
 					var key:String = roomID + "-" + myMenuData.getItemAt(i).label;
+					LogUtil.debug(LOGNAME +"Survived key generation");
 					myMenuData.getItemAt(i).pollKey = key; 
-					//LogUtil.debug(LOGNAME +"Going to get poll with key " + myMenuData.getItemAt(i).pollKey);
+					LogUtil.debug(LOGNAME +"Going to get poll with key " + myMenuData.getItemAt(i).pollKey);
 					var pollEvent:PollGetPollEvent = new PollGetPollEvent(PollGetPollEvent.GET);
 					pollEvent.pollKey = key;
 					dispatchEvent(pollEvent);
@@ -149,30 +150,39 @@
 			}
 			
         	private function menuClick(event:MenuEvent):void {
+            	/*
             	LogUtil.debug("event.type: " + event.type);
             	LogUtil.debug("event.label: " + event.label);	
             	LogUtil.debug("event.index: " + event.index);
-            	
+            	*/
+            	LogUtil.debug("You've clicked a menu item");
             	if(event.index == 0){
+            		LogUtil.debug("Opening new poll");
             	  	openPollingInstructions();
             	}else{
             		LogUtil.debug("Checking menu item at: " + event.index);
-            		//LogUtil.debug("Which holds a: " + myMenuData.getItemAt(event.index).poll);
+            		//pollList[event.index-1].checkObject();
+            		
             		var poll:PollObject = pollList[event.index-1];
-            		poll.checkObject();
+            		
+            		//poll.checkObject();
 
             		if (poll.status){
             			// Poll has not been used yet, open instructions window
             			var openPollEvent:OpenSavedPollEvent = new OpenSavedPollEvent(OpenSavedPollEvent.OPEN);
             			openPollEvent.poll = poll;
             			LogUtil.debug("Checking poll progress at the beginning of the path: ");
-            			poll.checkObject();
-            			openPollEvent.poll.checkObject();
+            			//poll.checkObject();
+            			//openPollEvent.poll.checkObject();
             			dispatchEvent(openPollEvent);
             		}else{
             			// Poll has been closed, show results
             			// Try doing something similar to what you did to the Instructions window
-            			// Aw, BALZAC. You're going to have to add a didnotvote field to the rassafrassin' hash. Durn it.
+            			LogUtil.debug("You have selected a poll that was already published.");
+            			poll.checkObject();
+            			var reviewEvent:ReviewResultsEvent = new ReviewResultsEvent(ReviewResultsEvent.REVIEW);
+            			reviewEvent.poll = poll;
+            			dispatchEvent(reviewEvent);
             		}
             	}
         	}

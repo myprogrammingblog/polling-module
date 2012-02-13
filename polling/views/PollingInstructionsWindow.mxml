@@ -49,10 +49,14 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 		import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 		import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
-		import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 		import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 		import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 		import org.bigbluebutton.modules.polling.model.PollObject;
+		
+		import org.bigbluebutton.core.managers.UserManager;
+		import org.bigbluebutton.main.model.users.Conference 
+		import org.bigbluebutton.main.model.users.BBBUser;
+		import org.bigbluebutton.common.Role;
 		
 		import org.bigbluebutton.util.i18n.ResourceUtil;
 		
@@ -61,11 +65,14 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		private var userName:String;
 		private var module:PollingModule;
 		
+		[Bindable] public var participants:int;
+		
 		
 		
 		// private var allowedChars:RegExp = /^[^;\\]*$/; // for security reasons some characters are not allowed
 		
 		// Bindable is set to allow data to change when You hit Back and change something, this change will appear in review
+		private var conference:Conference;
 		[Bindable]private var _title:String;
 		[Bindable]private var _question:String;
 		[Bindable]private var _answers:ArrayCollection;
@@ -73,7 +80,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		private var _answersArray:Array;
 		public var publishingAllowed:Boolean = true;
 		private var manager:PollingManager = new PollingManager();
-		[Bindable]public var invalidTitles:Array;
+		[Bindable] public var invalidTitles:Array;
 		[Bindable] public var incomingPoll:PollObject;
 		[Bindable] public var editing:Boolean;
 		
@@ -90,11 +97,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function onCreationComplete():void{
-			//LogUtil.debug(LOGNAME + "Inside Creation Complete");
 			LogUtil.debug(LOGNAME + "Instructions Window is Created");
 			LogUtil.debug(LOGNAME + "About to check incomingPoll");
 			if (incomingPoll != null){
-				// Edits are being saved properly, but not retrieved properly
 				//incomingPoll.checkObject();
 				LogUtil.debug(LOGNAME + "Editing is: " + editing);
 				pollTitle.text = incomingPoll.title;
@@ -162,36 +167,39 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		// DATA VALIDATION
 		//##################################################################################
 		private function validateAndSubmit():void {
-		var valid:Boolean = true;
-		// Gathering Error Messages
-		titleErrMsg.text = titleError();
-		qErrMsg.text = questionError();
-		aErrMsg.text = answerError();
-		// Making Error messages Visible if there is an Error
-		if (titleErrMsg.text != "VALID"){ // checking if function returned any error string
-		titleErrMsg.visible=true;
-		valid = false; // setting flag to false in case of error
-		}else
-		titleErrMsg.visible=false;
-		if(qErrMsg.text != "VALID"){
-		qErrMsg.visible=true;
-		valid = false;
-		} else
-		qErrMsg.visible=false;
-		if (aErrMsg.text != "VALID") {
-		aErrMsg.visible=true;
-		valid = false;
-		
-		}else
-		aErrMsg.visible=false;
-		if(valid){
-		// LogUtil.debug(LOGNAME + "passisibg drawcheckboxes : " + _answers.length + " " +_answers);
-		formatAndReview();
-		//_poll = ResourceUtil.getInstance().getString('bbb.polling.pollPreview');
-		}
-		allowPublishing();
-		// LogUtil.debug(LOGNAME + "Publishing is allowed? " + publishingAllowed);
-		publishButton.enabled = publishingAllowed;
+			var valid:Boolean = true;
+			// Gathering Error Messages
+			titleErrMsg.text = titleError();
+				LogUtil.debug(LOGNAME + "Survived title validation");
+			qErrMsg.text = questionError();
+				LogUtil.debug(LOGNAME + "Survived question validation");
+			aErrMsg.text = answerError();
+				LogUtil.debug(LOGNAME + "Survived answer validation");
+			// Making Error messages Visible if there is an Error
+			if (titleErrMsg.text != "VALID"){ // checking if function returned any error string
+				titleErrMsg.visible=true;
+				valid = false; // setting flag to false in case of error
+			}else
+				titleErrMsg.visible=false;
+			if(qErrMsg.text != "VALID"){
+				qErrMsg.visible=true;
+				valid = false;
+			} else
+				qErrMsg.visible=false;
+			if (aErrMsg.text != "VALID") {
+				aErrMsg.visible=true;
+				valid = false;
+			}else
+				aErrMsg.visible=false;
+			if(valid){
+				LogUtil.debug(LOGNAME + "Survived ALL validation");
+				formatAndReview();
+			}else{
+				LogUtil.debug(LOGNAME + "Something went wrong.....");
+			}
+			allowPublishing();
+			LogUtil.debug(LOGNAME + "Publishing is allowed? " + publishingAllowed);
+			publishButton.enabled = publishingAllowed;
 		}
 		// GENERATING ERROR MESSAGES
 		//################################
@@ -203,18 +211,33 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			// If the presenter is creating a new poll, the module will not permit duplicate titles.
 			// If the presenter is editing an existing poll, the module will ignore duplicate titles long enough to save it again.
 			if (!editing){
-				for each (var s:String in invalidTitles){
-						if (StringUtil.trim(pollTitle.text.toUpperCase()) == StringUtil.trim(s.toUpperCase()))
+				LogUtil.debug(LOGNAME+"Editing is " + editing + ", proceeding as with a new poll (enforcing title rule)");
+				for (var i:int = 0; i < invalidTitles.length; i++){
+					if (invalidTitles[i] != null){
+						var checkTitle:String = invalidTitles[i];
+						if (StringUtil.trim(pollTitle.text.toUpperCase()) == StringUtil.trim(checkTitle.toUpperCase())){
+							LogUtil.debug(LOGNAME + "Title violates the rule, setting error message");
 							errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.duplicateTitle');
+							LogUtil.debug(LOGNAME + "Survived setting error message");
+						}
+					}
 				}
+				LogUtil.debug(LOGNAME + "Survived for-loop");
+			}else{
+				LogUtil.debug(LOGNAME+"Editing is " + editing + ", ignoring title rule");
 			}
 			
-			if (pollTitle.length == 0 )
+			if (pollTitle.length == 0 ){
 				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.noTitle');
-			else if (pollTitle.length > _MAX_TITLE_LENGTH )
+			}
+			else if (pollTitle.length > _MAX_TITLE_LENGTH ){
 				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.tooLongTitle')+" " +_MAX_TITLE_LENGTH;
-			else	
+			}
+			else{	
 				_title = StringUtil.trim(pollTitle.text);
+			}
+			
+			LogUtil.debug(LOGNAME + "In title validation, about to return errMsg");
 			return errMsg;
 		} // _TITLE VALIDATION
 		
@@ -341,7 +364,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		private function upperFirstLetter(str:String) : String {
 		return str.substr(0, 1).toUpperCase() + str.substr(1, str.length);
 		}
-		// function receives Array.length and ArrayCollection
+
+		// function receives Array.length and ArrayCollectionvar p:BBBUser;
 		private function createButtons(amount:uint, content:ArrayCollection):void{
 		var _cb:CheckBox;
 		var _rb:RadioButton;
@@ -379,12 +403,30 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		
 		
 		private function savePoll(callingFromPublish:Boolean = false):void {
-				LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
+			LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
+			participants = 0;
+			LogUtil.debug(LOGNAME + "Survived setting participants as 0");
+			var p:BBBUser;
+			LogUtil.debug(LOGNAME + "Survived setting p as a BBBUser");
+			conference = UserManager.getInstance().getConference();
+			LogUtil.debug(LOGNAME + "Conference.users.length is: " + conference.users.length);
+			for (var i:int = 0; i < conference.users.length; i++) {
+				LogUtil.debug(LOGNAME + "In for loop");
+				p = conference.users.getItemAt(i) as BBBUser;
+				if (p.role != Role.MODERATOR) {
+					participants++;
+				}
+			} 
+			LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators right before poll saves.");
+			
 			var savePollEvent: SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
-			savePollEvent.answers = _answersArray;
-			savePollEvent.question = _question;
-			savePollEvent.title = _title;
-			savePollEvent.isMultiple = _isMultiple;
+			savePollEvent.poll.answers = _answersArray;
+			savePollEvent.poll.question = _question;
+			savePollEvent.poll.title = _title;
+			savePollEvent.poll.isMultiple = _isMultiple;
+			savePollEvent.poll.didNotVote = participants;
+			savePollEvent.poll.status = !callingFromPublish;
+			LogUtil.debug(LOGNAME + " poll.didNotVote is " + savePollEvent.poll.didNotVote + " at the point of saving");
 			dispatchEvent(savePollEvent);
 			if(!callingFromPublish)
 				closeInstructionsWindow();

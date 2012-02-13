@@ -36,12 +36,14 @@
 			import mx.controls.Alert;
 			import org.bigbluebutton.common.LogUtil;	 
 			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-			import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 			import org.bigbluebutton.modules.polling.managers.PollingManager;
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
 			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 			import org.bigbluebutton.modules.polling.events.StopPollEvent;
+			
+			import org.bigbluebutton.modules.polling.model.PollObject;
+			
 			import org.bigbluebutton.core.managers.UserManager;
 			import org.bigbluebutton.main.model.users.Conference 
 			import org.bigbluebutton.main.model.users.BBBUser;
@@ -58,14 +60,14 @@
 
 
 		   	public static const LOGNAME:String = "[PollingStatsWindow] ";
-			
-			public var isMultiple:Boolean;
+
 			[Bindable] public var question:String;
 			[Bindable] public var answers:Array;
-			public var votes:Array;
-			public var time:String;
+ 			
+			public var trackingPoll:PollObject;
+			public var viewingClosedPoll:Boolean = false;
 			
-			[Bindable] public var participants:int;
+			//[Bindable] public var participants:int;
 			[Bindable] public var votesCast:int;
 			
 			public var moduleAttributes:Object;
@@ -83,7 +85,7 @@
 				//LogUtil.debug(LOGNAME + "Result of getMeetingInfo is " + getMeetingInfo());
 			
 				var e:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.GET);
-				e.title = title;
+				e.poll.title = trackingPoll.title;
 				dispatchEvent(e);
 			} // end of function refreshResults
 						
@@ -92,41 +94,49 @@
 				dispatchEvent(new PollingStatsWindowEvent(PollingStatsWindowEvent.CLOSE));
 			}
  
- 			public function refresh(newVotes:Array, _totalVotes:int):void{
- 				votes = newVotes;
- 				votesCast = _totalVotes;
- 				createResultsTable(answers.length, answers);
- 				//didNotVote();
+ 			public function refresh(newVotes:Array, totalVotes:int, noVoteYet:int):void{
+ 				trackingPoll.votes = newVotes;
+ 				trackingPoll.totalVotes = totalVotes;
+ 				trackingPoll.didNotVote = noVoteYet;
+ 				LogUtil.debug(LOGNAME + "After refresh event SHOULD have been triggered, checking trackingPoll");
+ 				trackingPoll.checkObject();
+ 				createResultsTable(trackingPoll.answers.length, trackingPoll.answers);
  				invalidateDisplayList();
 				validateNow();
  			}
  
 			private function onCreationComplete():void{
+				LogUtil.debug(LOGNAME + "Stats window has been built, trackingPoll is: ");
+				trackingPoll.checkObject();
 				conference = UserManager.getInstance().getConference();
 				votesCast = 0;
+				// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
+				// immediately appear with only the option to close the window. 
+				if(viewingClosedPoll)
+					stopPoll();
 				
-				var lines:int = (question.length / 28) + 1;;
+				answers = trackingPoll.answers;
+				question = trackingPoll.question;
+								
+				var lines:int = (question.length / 28) + 1;
+				LogUtil.debug(LOGNAME + "Stats window question is: " + question);
+				LogUtil.debug(LOGNAME + "Stats window answers are: " + answers);
+				LogUtil.debug(LOGNAME + "Stats window answers.length is: " + answers.length);
 				for(var s:String in answers){
-					lines = lines + ((s.length / 28) + 1);	
+					lines = lines + ((s.length / 28) + 1);
+					LogUtil.debug(LOGNAME + "Inside for-loop, lines is: " + lines);	
 				}				 	            	
 				height = height + ((lines+1) * 45);
+				LogUtil.debug(LOGNAME + "After for-loop, lines is: " + lines + " and height is " + height);
 				
-				var p:BBBUser;
-				for (var i:int = 0; i < conference.users.length; i++) {
-					p = conference.users.getItemAt(i) as BBBUser;
-					if (p.role != Role.MODERATOR) {
-						participants++;
-					}
-				} 
-								
-				LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators onCreationComplete.");
-				
+				LogUtil.debug(LOGNAME+"About to draw the results table");
 				createResultsTable(answers.length, answers);
 			}
 			
 			
 			// function receives Array.length and ArrayCollection
 			private function createResultsTable(amount:uint, content:Array):void{
+				LogUtil.debug(LOGNAME+"Entering createResultsTable");
 				var _tx: Text;
 				var _votes: Text;
 				var _percent: Text;
@@ -134,8 +144,8 @@
 				var _line: HRule;
 				
 				var totalVotes:int = 0;
-				for (var n:int = 0; n < votes.length; n++){
-					totalVotes+= int(votes[n]);
+				for (var n:int = 0; n < trackingPoll.votes.length; n++){
+					totalVotes+= int(trackingPoll.votes[n]);
 				}
 				
 				// delete existing rows
@@ -158,14 +168,14 @@
 										
 					_votes.name = "votes" +i;
 					_votes.width = 30;
-					_votes.text = votes[i];
+					_votes.text = trackingPoll.votes[i];
 					
 					_percent.name = "percent" +i;
 					_percent.width = 50;
 					
 					// Percentage is in terms of how many votes each option has in terms of total votes
 					if (totalVotes > 0){
-						_percent.text = Math.round(100*(votes[i]/totalVotes)) + "%";
+						_percent.text = Math.round(100*(trackingPoll.votes[i]/totalVotes)) + "%";
 					}else{
 						// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
 						_percent.text = " ";
@@ -178,25 +188,30 @@
 					
 					resultBox.addChild(_line);
 				} // end of loop
-								
+					
+				LogUtil.debug(LOGNAME+"About to enter didNotVote()");			
 				didNotVote();
+				LogUtil.debug(LOGNAME+"survived didNotVote()");
 				invalidateDisplayList();
 				resultBox.validateNow();	
 			} // end of function createResultsTable
 			
 			private function didNotVote():void{
+				LogUtil.debug(LOGNAME+"Entering didNotVote()");
 				var _tx:Text = new Text();
 				var _votes:Text= new Text;
 				var _hb:HBox = new HBox();
 				
 				_tx.name = "optionNull";
 				_tx.width = 200;
-				_tx.text ="Did Not Vote"; 
+				_tx.text = "Did Not Vote"; 
 										
 				_votes.name = "voteNull";
 				_votes.width = 30;
 				
-				_votes.text = (participants - votesCast).toString();
+				LogUtil.debug(LOGNAME+"TrackingPoll's didNotVote is: " + trackingPoll.didNotVote);
+				LogUtil.debug(LOGNAME+"votesCast is: " + votesCast);
+				_votes.text = (trackingPoll.didNotVote - votesCast).toString();
 								
 				resultBox.addChild(_hb);					
 				_hb.addChild(_tx);
@@ -211,11 +226,12 @@
 				
 				btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
 				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
-				
-				// Some method to stop the poll and close all Viewer windows
-					// Get to PollingWindowManager and engage handleClosePollingViewWindow
-					// Probably the same path you followed to update the votes.
-				stopViewersPolls();					
+
+				LogUtil.debug(LOGNAME+"Poll has been stopped; state of the poll object:");
+				trackingPoll.status = false;
+				trackingPoll.checkObject();
+				stopViewersPolls();
+								
 			}
 			
 			private function closeButtonClick(e:Event):void{
@@ -225,7 +241,7 @@
 			private function stopViewersPolls():void{
 				LogUtil.debug(LOGNAME + "inside stopViewersPolls()");
 				var stopPollEvent:StopPollEvent = new StopPollEvent(StopPollEvent.STOP_POLL);
-				stopPollEvent.title = title;
+				stopPollEvent.poll.title = title;
 				dispatchEvent(stopPollEvent);
 			}
 		]]>

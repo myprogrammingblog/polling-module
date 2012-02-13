@@ -43,6 +43,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
+	import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
 	
 	import org.bigbluebutton.modules.polling.model.PollObject;
 			
@@ -94,7 +95,7 @@ package org.bigbluebutton.modules.polling.managers
 				LogUtil.debug(LOGNAME + "Examining poll in instruction window");
 				instructionsWindow.incomingPoll.checkObject();
 			}else{
-				LogUtil.debug(LOGNAME + "Tried to a null poll object to Instruction window");
+				LogUtil.debug(LOGNAME + "Tried to pass a null poll object to Instruction window");
 			}
 			
 			openWindow(instructionsWindow);
@@ -103,7 +104,6 @@ package org.bigbluebutton.modules.polling.managers
 		public function handleClosePollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
 			LogUtil.debug(LOGNAME + " inside handleClosePollingInstructionsWindow");
 			closeWindow(instructionsWindow);
-			//service.setPolling(true);
 		}
 		
 		// Checking the polling status to prevent a presenter from publishing two polls at a time
@@ -159,26 +159,24 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		//#################################################################################
 
-		
+		import mx.collections.ArrayCollection;
 		// PollingViewWindow.mxml Window Handlers 
 		//#########################################################################
 		public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
 			LogUtil.debug(LOGNAME + "inside handleOpenPollingViewWindow");
-			LogUtil.debug(LOGNAME + "Event.title = " + e.title);
+			LogUtil.debug(LOGNAME + "Event.title = " + e.poll.title);
 			pollingWindow = new PollingViewWindow();
-			pollingWindow.title = e.title;
-			pollingWindow.question = e.question;
-			pollingWindow.isMultiple = e.isMultiple;
-			pollingWindow.answers = e.answers;
+			pollingWindow.title = e.poll.title;
+			pollingWindow.question = e.poll.question;
+			pollingWindow.isMultiple = e.poll.isMultiple;
+			pollingWindow.answers = e.poll.answers;
 			openWindow(pollingWindow);
-			//service.setPolling(true);
 		}
 		
 		public function handleClosePollingViewWindow(e:PollingViewWindowEvent):void{
 			LogUtil.debug(LOGNAME + " inside handleClosePollingViewWindow");
 			closeWindow(pollingWindow);
 			LogUtil.debug(LOGNAME + " After closeWindow");
-			//service.setPolling(false);
 		}
 		
 		public function handleStopPolling(e:StopPollEvent):void{
@@ -192,13 +190,13 @@ package org.bigbluebutton.modules.polling.managers
 		//#########################################################################
 		public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
 			LogUtil.debug(LOGNAME + "inside handleOpenPollingStatsWindow");
-			LogUtil.debug(LOGNAME + "Event.title = " + e.title);
+			LogUtil.debug(LOGNAME + "Event.title = " + e.poll.title);
 			statsWindow = new PollingStatsWindow();
-			statsWindow.title = e.title;
-			statsWindow.question = e.question;
-			statsWindow.isMultiple = e.isMultiple;
-			statsWindow.answers = e.answers;
-			statsWindow.votes = e.votes;
+			statsWindow.trackingPoll = e.poll;
+			//LogUtil.debug(LOGNAME + "Stats Window created, event poll is: ");
+			//e.poll.checkObject();
+			LogUtil.debug(LOGNAME + "Stats Window created, window's trackingPoll is: ");
+			statsWindow.trackingPoll.checkObject();
 			openWindow(statsWindow);
 			service.setPolling(true);
 		}
@@ -210,7 +208,18 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public function handleRefreshPollingStatsWindow(e:PollRefreshEvent):void{
 			LogUtil.debug(LOGNAME + " inside handleRefreshPollingStatsWindow");
-			statsWindow.refresh(e.votes, e.totalVotes);
+			statsWindow.refresh(e.poll.votes, e.poll.totalVotes, e.poll.didNotVote);
+		}
+		
+		public function handleReviewResultsEvent(e:ReviewResultsEvent):void{
+			LogUtil.debug(LOGNAME + " inside handleReviewResultsEvent (window manager)");
+			statsWindow = new PollingStatsWindow();
+				LogUtil.debug(LOGNAME + "Survived new statsWindow");
+			statsWindow.trackingPoll = e.poll;
+				LogUtil.debug(LOGNAME + "Survived setting poll");
+			statsWindow.viewingClosedPoll = true;
+				LogUtil.debug(LOGNAME + "Survived setting boolean");
+			openWindow(statsWindow);
 		}
 		//##########################################################################
 	}

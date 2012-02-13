@@ -109,9 +109,11 @@ public class PollRecorder {
 				jedis.hset(pollKey, "totalVotes", totalVotesStr);
 			}
 			jedis.hset(pollKey, "status", poll.status.toString());
+			
+			Integer dnv = poll.didNotVote;
+			String didNotVoteStr = dnv.toString();
+			jedis.hset(pollKey, "didNotVote", didNotVoteStr);
 			log.debug("[TEST] Poll " + pollKey + " saved!");
-
-			//redisPool.returnResource(jedis);
         }
         
         public void setStatus(String pollKey, Boolean status){

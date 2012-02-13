@@ -19,18 +19,18 @@
 package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
+	import org.bigbluebutton.modules.polling.model.PollObject;
 	
 	public class PollRefreshEvent extends Event
 	{
 		public static const REFRESH:String = "REFRESH";
 		public static const GET:String = "GET";
 		public var pollKey:String;
-		public var title:String;
-		public var votes:Array;
-		public var totalVotes:int;
+		public var poll:PollObject
 		
 		public function PollRefreshEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
+			poll = new PollObject();
 			super(type, bubbles, cancelable);
 		}
 		

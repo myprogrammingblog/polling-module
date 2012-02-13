@@ -113,7 +113,8 @@ public class PollApplication {
 	}
 	
 	public void savePoll(Poll poll) {
-		log.debug("[TEST] Step 4 inside  savePoll of PollApplication sending poll to roomsManager and saving data to PollRecorder");	
+		log.debug("[TEST] Step 4 inside  savePoll of PollApplication sending poll to roomsManager and saving data to PollRecorder:");
+		poll.checkObject();
         PollRecorder pollRecorder = new PollRecorder();
         pollRecorder.record(poll);
 	}
@@ -140,6 +141,7 @@ public class PollApplication {
 	    	poll.votes.set(index.intValue(), ++total);
 	    }
 	    ++poll.totalVotes;
+	    --poll.didNotVote;
 	    savePoll(poll);
 	}
 	

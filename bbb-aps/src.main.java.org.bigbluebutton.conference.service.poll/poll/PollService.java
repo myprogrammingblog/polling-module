@@ -23,7 +23,6 @@ import org.bigbluebutton.conference.service.poll.PollApplication;
 import org.bigbluebutton.conference.service.poll.Poll;
 import java.util.ArrayList;
 
-
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -43,6 +42,7 @@ public class PollService {
 	private String LOGNAME = "[PollService]";
 	private Poll poll;
 	
+	/*// Stable savePoll
 	// This method is called by the savePoll method in bbb-client PollingService.as
 	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple, String room, ArrayList votes, String time, int totalVotes, Boolean status ) {
 		log.debug(LOGNAME + "[TEST ]Step 1 : pollService received info: title:"+title+ " answers:"+ answers.toString()+   " Question: "+question+ " isMultiple ? " +isMultiple.toString());
@@ -51,7 +51,18 @@ public class PollService {
 	    poll = new Poll(title, question, answers, isMultiple, roomName, votes, pollTime, 0, status);
 	    log.debug(LOGNAME + "[TEST ] Step 3 :  Sending Poll object to PollApplication");
 		application.savePoll(poll);
+	}*/
+	
+	public void savePoll(ArrayList clientSidePoll){
+		log.debug(LOGNAME+"EXPERIMENTAL SAVEPOLL starting");
+	    String pollTime = DateFormatUtils.formatUTC(System.currentTimeMillis(), "MM/dd/yy HH:mm");
+	    clientSidePoll.set(6, pollTime);
+	    poll = new Poll(clientSidePoll);
+	    log.debug(LOGNAME+"Checking the experimental savePoll; Poll status is:");
+	    poll.checkObject();
+	    application.savePoll(poll);
 	}
+	
 	
 	public void setPollApplication(PollApplication a) {
 		log.debug(LOGNAME + "Setting Poll Applications");
@@ -74,6 +85,8 @@ public class PollService {
 		values.add(poll.time);	
 		values.add(poll.totalVotes);
 		values.add(poll.status);
+		values.add(poll.didNotVote);
+			log.debug(LOGNAME + "Adding value " + poll.didNotVote + " to array; value stored in array is now: " + values.get(9));
 		return values;
 	}
 	
