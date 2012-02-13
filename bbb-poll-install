@@ -1,0 +1,122 @@
+#!/bin/bash
+
+
+
+
+# BBB - CHANGE TO YOUR BIGBLUEBUTTON DIRECTORY
+BBB=/home/firstuser/dev/source/bigbluebutton
+
+
+
+if [ -d $BBB ]
+then
+echo "Copying polling recorder to bbb-aps ......"
+
+	mkdir -p $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/recorder/polling
+
+	if [ -d $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/recorder/polling ] #if polling directory exist copy files
+   	 then
+            	cp -R ./bbb-aps/src.main.java.bigbluebutton.conference.service.recorder  $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/recorder/polling
+	    	echo "                                                             [Done]"	
+    	else
+        	  echo "Error Copying Server Side components. make sure you use 'sudo ./bbb-poll-install '"
+        	  exit
+	fi   
+
+        echo "Copying  poll module  to bbb-aps ......"
+
+
+	mkdir -p $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/poll
+
+	if [ -d $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/poll ]
+  	 then
+         	cp -R  ./bbb-aps/src.main.java.org.bigbluebutton.conference.service.poll  $BBB/bigbluebutton-apps/src/main/java/org/bigbluebutton/conference/service/poll
+  	 	echo "                                                             [Done]"	
+          else
+          	   echo "Error Copying Server Side components. make sure you use 'sudo ./bbb-poll-install '"
+         	   exit
+	fi   
+
+
+	echo "Copying WEB-INF Dependencies...."
+	cp -R  ./bbb-aps/src.main.webapps.WEB-INF/bbb-aps.xml $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/bbb-apps.xml
+	cp -R  ./bbb-aps/src.main.webapps.WEB-INF/red5-web.xml  $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/red5-web.xml
+
+ 	if [ -f $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/bbb-apps.xml && -f  $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/red5-web.xml]
+         then
+ 		echo "                                                             [Done]"	
+       fi
+
+	echo "Copying Client Side ....."
+	mkdir -p $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling
+
+	if [ -d $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling ]
+ 	 then
+		cp -R    ./polling $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling 
+		cp -R    ./PollingModule.mxml $BBB/bigbluebutton-client/src/
+		echo "                                                             [Done]"	 
+  	  else
+        	echo "Error Copying Client side module.... "
+        	exit  
+	fi 
+
+	echo "Copying Client Side Dependencies ....."
+
+
+	if [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/common/assets/images/poll_icon.png ]
+ 	 then
+        	  cp -R   ./polling_icon_dependencies/common.assets.images/poll_icon.png $BBB/bigbluebutton-client/src/org/bigbluebutton/common/assets/images
+       		  cp -R   ./polling_icon_dependencies/common.events $BBB/bigbluebutton-client/src/org/bigbluebutton/common/events/
+          	  echo "                                                             [Done]"	 
+  	else
+           echo "Copying Client side Dependencies"
+	   exit
+ 	fi
+
+	echo "Copying Locales..."
+	cp -R   ./client.locale/  $BBB/bigbluebutton-client/client/locale
+ 	echo "                                                             [Done]"	
+
+
+  ## DOING ALL STEPS AT ONCE, COULD BE BAD IF ANY OF THE COMPILES FAILS!
+
+	#echo "Recompiling bbb-client"
+
+	#cd $BBB/bigbluebutton-client/
+	#ant
+
+	#echo "Compiling Polling Module"
+
+ 	#mxmlc  $BBB/bigbluebutton-client/src/PollingModule.mxml -sp $BBB/bigbluebutton-client/src  -l $BBB/bigbluebutton-client/libs -locale -accessible
+
+
+	#if [ -f $BBB/bigbluebutton-client/src/PollingModule.swf ]
+  	 #then
+         #	 mv $BBB/bigbluebutton/bigbluebutton-client/src/PollingModule.swf $BBB/bigbluebutton-client/bin
+         #       echo "                                                                [Done]"
+  	 #else
+         #	 echo "Polling Module is not compiled"
+         #	 exit
+	#fi
+
+	#echo "Recompiling locales"
+	#cd $BBB/bigbluebutton-client/
+	#ant locales
+
+	#echo "Stopping red5-server"
+	#sudo /etc/init.d/red5 stop
+
+	#echo "Recompiling bbb-aps"
+	#cd $BBB/bigbluebutton-apps; gradle war deploy
+
+	#echo "Starting red5-server"
+	#cd /usr/share/red5/ 
+	#sudo -u red5 ./red5.sh 
+
+	#echo "Polling Installation completed"
+else
+  echo "ERROR: Cannot find your bigbluebutton directory, if it is not in  $BBB , please change the path in bbb-poll-install file. "
+fi
+
+
+
