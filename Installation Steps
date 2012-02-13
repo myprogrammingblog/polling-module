@@ -1,7 +1,82 @@
 
 Before you can add Polling Module to your Big Blue Button you need to make sure that  your Big Blue Button development environment is properly installed, and you don't have any compilation errors for compiling bigbluebutton-client and bigbluebutton-apps.
 
- If your path to bigbluebutton is not: /home/firstuser/dev/source/bigbluebutton
 
-  Please go to bbb-poll-install file and change the BBB variable path to 
- the path of your 'bigbluebutton' folder, otherwise it won't work.
+
+
+ In this installation manual we assume that your bigbluebutton folder is located in the :  /home/firstuser/dev/source/bigbluebutton
+
+  If your path to bigbluebutton is not: /home/firstuser/dev/source/bigbluebutton
+
+  Please go to bbb-poll-install (in the same folder as this file)  and change the BBB variable path to the path of your 'bigbluebutton' folder, otherwise it won't work.
+  Also please do the same procedure but with scripts/bbb-poll.compile.sh and change the path as well 
+ 
+ We also assume that you have downloaded "polling-module" folder (where this manual is located to the ~/Desktop/)
+
+  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 
+ 1. Open Terminal, go to polling-module folder and run installation script:
+ 
+     cd ~/Desktop/polling-module
+
+     sudo ./bbb-poll-install
+
+   This step will copy all the necessary files and folders into your bigbluebutton environment.
+
+
+ 3. Go to your bigbluebutton folder and change config.xml (instead of 'vi' you can use whatever text editor you prefer e.g. gedit, nled) :
+
+      vi   /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client/src/conf/config.xml
+    
+         Put (changing YOURHOST to your Ip address):
+
+                   	<module name="PollingModule" url="PollingModule.swf?v=3809" 
+			uri="rtmp://YOURHOST/bigbluebutton" 
+			host="http://YOUHOST" 
+			dependsOn="ViewersModule"
+		       /> 
+
+    before </modules> line.
+
+ 4. Recompile your client and locales by going to the  bigbluebutton-client folder and using:
+     
+      cd /home/firstuser/dev/source/bigbluebutton/bigbluebutton-client
+      ant 
+
+      Wait for it finished (takes approximetly 2 minutes). If BUILD SUCCESFULL run :
+
+       ant locales
+
+         
+ 5.  If locales are build succesfull - run script in the scripts/polling-module folder that you have downloaded
+
+          cd ~/Desktop/polling-module/scripts  
+          sudo ./bbb-poll-compile.sh
+
+  It should say that PollingModule.swf  compiled and moved.
+
+ 6. Stop red5 server to compile bigbluebutton-aps
+
+       sudo /etc/init.d/red5 stop
+ 
+
+ 7. Recompile bigbluebutton-apps by going to the bigbluebutton-aps folder and using:
+
+         cd /home/firstuser/dev/source/bigbluebutton/bigbluebutton-apps
+
+          gradle war deploy
+
+ 8 Start red5 server
+
+   cd /usr/share/red5/ ;sudo -u red5 ./red5.sh
+
+  9. go to  http://yourBBBserverURL/demo/demo3.jsp login as Moderator (with prof123 in default version) and you should be able to see polling toolbar button in the toolbar.
+
+ Note: Actual polling won't work in demo's where, there is no division to moderators and viewers.
+
+  Enjoy our Polling Module!
+
+ CDOT team.
+
+ Manual created by Anatoly Spektor if you have any questions about it, please post it on bigbluebutton-dev google group.       
