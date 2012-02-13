@@ -1,26 +1,11 @@
 #!/bin/bash
-# Do we want to back it up to the firstuser Desktop, or to the desktop of the user who's running the script?
-# export USER=$(whoami)
+
+
+
 
 # BBB - CHANGE TO YOUR BIGBLUEBUTTON DIRECTORY
-
 BBB=/home/firstuser/dev/source/bigbluebutton
 
-
-
-# check if each directory is created
-# check if each file is copied
-# exit on any error  
-# make sure user used sudo before command
-# Also could be done :
-  #Ask user to enter BBB directory
-  # Make sure it exist
-  # Use this directory in Installation process
-# run ant locales
-# run ant
-# recompile bbb-aps
-# run compile-client-module Polling Module=
-# Validation - check if BBB directory exist
 
 
 if [ -d $BBB ]
@@ -93,42 +78,42 @@ echo "Copying polling recorder to bbb-aps ......"
  	echo "                                                             [Done]"	
 
 
+  ## DOING ALL STEPS AT ONCE, COULD BE BAD IF ANY OF THE COMPILES FAILS!
+
+	#echo "Recompiling bbb-client"
+
+	#cd $BBB/bigbluebutton-client/
+	#ant
+
+	#echo "Compiling Polling Module"
+
+ 	#mxmlc  $BBB/bigbluebutton-client/src/PollingModule.mxml -sp $BBB/bigbluebutton-client/src  -l $BBB/bigbluebutton-client/libs -locale -accessible
 
 
-	echo "Recompiling bbb-client"
+	#if [ -f $BBB/bigbluebutton-client/src/PollingModule.swf ]
+  	 #then
+         #	 mv $BBB/bigbluebutton/bigbluebutton-client/src/PollingModule.swf $BBB/bigbluebutton-client/bin
+         #       echo "                                                                [Done]"
+  	 #else
+         #	 echo "Polling Module is not compiled"
+         #	 exit
+	#fi
 
-	cd $BBB/bigbluebutton-client/
-	ant
+	#echo "Recompiling locales"
+	#cd $BBB/bigbluebutton-client/
+	#ant locales
 
-	echo "Compiling Polling Module"
+	#echo "Stopping red5-server"
+	#sudo /etc/init.d/red5 stop
 
- 	mxmlc  $BBB/bigbluebutton-client/src/PollingModule.mxml -sp $BBB/bigbluebutton-client/src  -l $BBB/bigbluebutton-client/libs -locale -accessible
+	#echo "Recompiling bbb-aps"
+	#cd $BBB/bigbluebutton-apps; gradle war deploy
 
+	#echo "Starting red5-server"
+	#cd /usr/share/red5/ 
+	#sudo -u red5 ./red5.sh 
 
-	if [ -f $BBB/bigbluebutton-client/src/PollingModule.swf ]
-  	 then
-         	 mv $BBB/bigbluebutton/bigbluebutton-client/src/PollingModule.swf $BBB/bigbluebutton-client/bin
-                 echo "                                                                [Done]"
-  	 else
-         	 echo "Polling Module is not compiled"
-         	 exit
-	fi
-
-	echo "Recompiling locales"
-	cd $BBB/bigbluebutton-client/
-	ant locales
-
-	echo "Stopping red5-server"
-	sudo /etc/init.d/red5 stop
-
-	echo "Recompiling bbb-aps"
-	cd $BBB/bigbluebutton-apps; gradle war deploy
-
-	echo "Starting red5-server"
-	cd /usr/share/red5/ 
-	sudo -u red5 ./red5.sh 
-
-	echo "Polling Installation completed"
+	#echo "Polling Installation completed"
 else
   echo "ERROR: Cannot find your bigbluebutton directory, if it is not in  $BBB , please change the path in bbb-poll-install file. "
 fi
