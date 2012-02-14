@@ -50,6 +50,7 @@
 			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
 			import org.bigbluebutton.modules.polling.model.ValueObject;
 			import org.bigbluebutton.modules.polling.model.PollObject;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
@@ -59,21 +60,12 @@
 			private var images:Images = new Images();
 			
 			[Bindable] public var pollIcon:Class = images.pollIcon;
-			[Bindable] public var OpenIcon:Class = images.pollIcon;
 			[Bindable] private var myMenuData:ArrayCollection = new ArrayCollection();
 			
-			/*
-			[Bindable] 
-			[Embed(source="/home/firstuser/dev/source/bigbluebutton/bigbluebutton-client/bin/org/bigbluebutton/common/assets/images/poll_icon.png")] 
-			public var openIcon:Class;
-			*/
-			
-			/*
 			[Bindable] 
 			[Embed(source="../../../common/assets/images/poll_icon.png")] 
 			public var OpenIcon:Class;			
-			*/
-			
+						
 			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
 			
 			[Bindable] public var roomID:String;
@@ -86,19 +78,20 @@
 				LogUtil.debug(LOGNAME +"Entering function init()");
 								
 				// Functional line:
-				myMenuData.addItem(new ValueObject("create", "Create New Poll"));
+				//myMenuData.addItem(new ValueObject("create", "Create New Poll"));
+				
+				// Most likely to work
+				myMenuData.addItem(new ValueObject("create", "Create New Poll (quotes)", "OpenIcon"));
 				
 				// Experiments:
 				// Syntax error: myMenuData.addItem(new ValueObject("create", "Create New Poll (straight)", OpenIcon));
 				// Syntax error: myMenuData.addItem(new ValueObject("create", "Create New Poll (braces)", {OpenIcon}));
 				// Syntax error: myMenuData.addItem(new ValueObject("create", "Create New Poll (at-sign)", @OpenIcon));
+											
+				//myMenuData.addItem(new ValueObject("create", "Create New Poll (toString)", OpenIcon.toString()));
+				//myMenuData.addItem(new ValueObject("create", "Create New Poll (braces, quotes)", "{OpenIcon}"));
+				//myMenuData.addItem(new ValueObject("create", "Create New Poll (at-sign, quotes)", "@OpenIcon"));
 				
-				/*
-				myMenuData.addItem(new ValueObject("create", "Create New Poll (toString)", OpenIcon.toString()));
-				myMenuData.addItem(new ValueObject("create", "Create New Poll (quotes)", "OpenIcon"));
-				myMenuData.addItem(new ValueObject("create", "Create New Poll (braces, quotes)", "{OpenIcon}"));
-				myMenuData.addItem(new ValueObject("create", "Create New Poll (at-sign, quotes)", "@OpenIcon"));
-				*/
 				
 				pollList = new ArrayCollection();         	
             }
@@ -109,7 +102,7 @@
 				listUpdate();
 				
 				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
-				myMenu.iconField="@icon";
+				myMenu.iconField="icon";
 				//myMenu.itemRenderer = new ClassFactory(ToolbarPollingRenderer);
             	myMenu.show(this.x + 10, this.y + this.height + 10);
             	
@@ -135,7 +128,7 @@
 					}
 					if (unique && (s != null)){
 						LogUtil.debug(LOGNAME +"Adding title: " + s)
-						myMenuData.addItem(new ValueObject(counter.toString(), s, "{pollIcon}"));
+						myMenuData.addItem(new ValueObject(counter.toString(), s));
 						LogUtil.debug(LOGNAME +"Status for poll: " + s + " is: " + statusList[counter-1].toString())
 					}
 				}
@@ -195,7 +188,7 @@
             	  	openPollingInstructions();
             	}else{
             		LogUtil.debug("Checking menu item at: " + event.index);
-            		//pollList[event.index-1].checkObject();
+            		pollList[event.index-1].checkObject();
             		
             		var poll:PollObject = pollList[event.index-1];
             		
