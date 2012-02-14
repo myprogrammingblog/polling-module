@@ -41,6 +41,7 @@
 			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 			import org.bigbluebutton.modules.polling.events.StopPollEvent;
+			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
 			
 			import org.bigbluebutton.modules.polling.model.PollObject;
 			
@@ -75,7 +76,33 @@
 			private var window:PollingStatsWindow;
 			private var conference:Conference;
 
-			
+			private function onCreationComplete():void{
+				LogUtil.debug(LOGNAME + "Stats window has been built, trackingPoll is: ");
+				trackingPoll.checkObject();
+				conference = UserManager.getInstance().getConference();
+				votesCast = 0;
+				// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
+				// immediately appear with only the option to close the window. 
+				if(viewingClosedPoll)
+					stopPoll();
+				
+				answers = trackingPoll.answers;
+				question = trackingPoll.question;
+								
+				var lines:int = (question.length / 28) + 1;
+				LogUtil.debug(LOGNAME + "Stats window question is: " + question);
+				LogUtil.debug(LOGNAME + "Stats window answers are: " + answers);
+				LogUtil.debug(LOGNAME + "Stats window answers.length is: " + answers.length);
+				for(var s:String in answers){
+					lines = lines + ((s.length / 28) + 1);
+					LogUtil.debug(LOGNAME + "Inside for-loop, lines is: " + lines);	
+				}				 	            	
+				height = height + ((lines+1) * 45);
+				LogUtil.debug(LOGNAME + "After for-loop, lines is: " + lines + " and height is " + height);
+				
+				LogUtil.debug(LOGNAME+"About to draw the results table");
+				createResultsTable(answers.length, answers);
+			}			
 
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
@@ -104,36 +131,43 @@
  				invalidateDisplayList();
 				validateNow();
  			}
- 
-			private function onCreationComplete():void{
-				LogUtil.debug(LOGNAME + "Stats window has been built, trackingPoll is: ");
+ 		
+ 			private function stopPoll():void{
+				refreshResults();
+				btnRefreshResults.label = "Repost";
+				btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshResults);
+				btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
+				
+				btnClosePoll.label = "Close";
+				btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
+				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
+
+				LogUtil.debug(LOGNAME+"Poll has been stopped; state of the poll object:");
+				trackingPoll.status = false;
 				trackingPoll.checkObject();
-				conference = UserManager.getInstance().getConference();
-				votesCast = 0;
-				// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
-				// immediately appear with only the option to close the window. 
-				if(viewingClosedPoll)
-					stopPoll();
-				
-				answers = trackingPoll.answers;
-				question = trackingPoll.question;
-								
-				var lines:int = (question.length / 28) + 1;
-				LogUtil.debug(LOGNAME + "Stats window question is: " + question);
-				LogUtil.debug(LOGNAME + "Stats window answers are: " + answers);
-				LogUtil.debug(LOGNAME + "Stats window answers.length is: " + answers.length);
-				for(var s:String in answers){
-					lines = lines + ((s.length / 28) + 1);
-					LogUtil.debug(LOGNAME + "Inside for-loop, lines is: " + lines);	
-				}				 	            	
-				height = height + ((lines+1) * 45);
-				LogUtil.debug(LOGNAME + "After for-loop, lines is: " + lines + " and height is " + height);
-				
-				LogUtil.debug(LOGNAME+"About to draw the results table");
-				createResultsTable(answers.length, answers);
+				stopViewersPolls();					
 			}
 			
+			private function publishPollAgain(e:Event):void{
+				LogUtil.debug(LOGNAME + "inside publishPollAgain()");
+				//trackingPoll.checkObject();
+				var event:PublishPollEvent = new PublishPollEvent(PublishPollEvent.REPOST);
+				event.poll = trackingPoll;
+				dispatchEvent(event);
+				closeWindow();
+			}
 			
+			private function closeButtonClick(e:Event):void{
+				closeWindow();
+			}
+			
+			private function stopViewersPolls():void{
+				LogUtil.debug(LOGNAME + "inside stopViewersPolls()");
+				var stopPollEvent:StopPollEvent = new StopPollEvent(StopPollEvent.STOP_POLL);
+				stopPollEvent.poll.title = title;
+				dispatchEvent(stopPollEvent);
+			}
+ 		
 			// function receives Array.length and ArrayCollection
 			private function createResultsTable(amount:uint, content:Array):void{
 				LogUtil.debug(LOGNAME+"Entering createResultsTable");
@@ -216,33 +250,6 @@
 				resultBox.addChild(_hb);					
 				_hb.addChild(_tx);
 				_hb.addChild(_votes);
-			}
-					
-					
-			private function stopPoll():void{
-				refreshResults();
-				btnRefreshResults.visible = false;
-				btnClosePoll.label = "Close";
-				
-				btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
-				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
-
-				LogUtil.debug(LOGNAME+"Poll has been stopped; state of the poll object:");
-				trackingPoll.status = false;
-				trackingPoll.checkObject();
-				stopViewersPolls();
-								
-			}
-			
-			private function closeButtonClick(e:Event):void{
-				closeWindow();
-			}
-			
-			private function stopViewersPolls():void{
-				LogUtil.debug(LOGNAME + "inside stopViewersPolls()");
-				var stopPollEvent:StopPollEvent = new StopPollEvent(StopPollEvent.STOP_POLL);
-				stopPollEvent.poll.title = title;
-				dispatchEvent(stopPollEvent);
 			}
 		]]>
 	</mx:Script>

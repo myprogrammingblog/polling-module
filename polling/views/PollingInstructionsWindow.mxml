@@ -436,7 +436,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			savePoll(true);
 			var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
 			// sending title
-			publishPollEvent.title = _title;
+			publishPollEvent.poll.title = _title;
 			dispatchEvent(publishPollEvent);
 			dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
 			closeInstructionsWindow();

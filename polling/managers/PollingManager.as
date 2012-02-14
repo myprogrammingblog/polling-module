@@ -15,6 +15,11 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.*;
 	
 	import org.bigbluebutton.modules.polling.service.PollingService;
+	
+	import org.bigbluebutton.core.managers.UserManager;
+	import org.bigbluebutton.main.model.users.Conference 
+	import org.bigbluebutton.main.model.users.BBBUser;
+	import org.bigbluebutton.common.Role;
 
 			
 	public class PollingManager
@@ -29,6 +34,8 @@ package org.bigbluebutton.modules.polling.managers
 		private var viewWindowManager:PollingWindowManager;
 		private var isPolling:Boolean = false;
 		public var pollKey:String;
+		public var participants:int;
+		private var conference:Conference;
 
 		
 		
@@ -115,8 +122,6 @@ package org.bigbluebutton.modules.polling.managers
 		      viewWindowManager.handleStopPolling(e);
 		      
 		      pollKey = module.getRoom() +"-"+ e.poll.title ;
-		      //e.status = false;
-		      //service.setStatus(pollKey, false);
 		      service.closeAllPollingWindows();
 		} 
 	//##################################################################################
@@ -142,24 +147,45 @@ package org.bigbluebutton.modules.polling.managers
 			pollKey = e.poll.room +"-"+ e.poll.title ;
 			LogUtil.debug(LOGNAME + " poll.didNotVote is " + e.poll.didNotVote + " in Manager.HandleSavePoll");
 			service.savePoll(e.poll);
-			//service.setStatus(pollKey, true);
 		}	
 		
 	
 		public function handlePublishPollEvent(e:PublishPollEvent):void
 		{
-			if (!service.getPollingStatus() && (e.title != null)){
+			if (!service.getPollingStatus() && (e.poll.title != null)){
 				LogUtil.debug(LOGNAME + " inside handlePublishPollEvent(), calling getPoll");
-				pollKey = module.getRoom() +"-"+ e.title ;
+				pollKey = module.getRoom() +"-"+ e.poll.title ;
 				service.getPoll(pollKey, "publish");
 			}else{
 				if (service.getPollingStatus())
 					LogUtil.debug(LOGNAME + "Publishing denied; poll is still open!");
-				if (e.title == null)
+				if (e.poll.title == null)
 					LogUtil.debug(LOGNAME + "Publishing denied; poll title is null");
 			}
 		}	
 		
+		public function handleRepostPollEvent(e:PublishPollEvent):void
+		{
+			for (var v:int = 0; v < e.poll.votes.length; v++){
+				e.poll.votes[v] = 0;
+			}
+			e.poll.totalVotes = 0;
+			participants = 0;
+			var p:BBBUser;
+			conference = UserManager.getInstance().getConference();
+			for (var i:int = 0; i < conference.users.length; i++) {
+				LogUtil.debug(LOGNAME + "In for loop");
+				p = conference.users.getItemAt(i) as BBBUser;
+				if (p.role != Role.MODERATOR) {
+					participants++;
+				}
+			} 
+			LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators right before poll reposts.");
+			e.poll.didNotVote = participants;
+			pollKey = module.getRoom() +"-"+ e.poll.title ;
+			service.savePoll(e.poll);
+			service.getPoll(pollKey, "publish");
+		}
 		
 		public function handleVoteEvent(e:VoteEvent):void
 		{			   

@@ -98,6 +98,10 @@
 		<MethodInvoker generator="{PollingManager}" method="handlePublishPollEvent" arguments="{event}"/>
 	</EventHandlers>
 	
+	 <EventHandlers type="{PublishPollEvent.REPOST}">
+		<MethodInvoker generator="{PollingManager}" method="handleRepostPollEvent" arguments="{event}"/>
+	</EventHandlers>
+	
 	<EventHandlers type="{VoteEvent.START}">
 		<MethodInvoker generator="{PollingManager}" method="handleVoteEvent" arguments="{event}"/>
 	</EventHandlers>	

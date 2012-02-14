@@ -19,15 +19,18 @@
 package org.bigbluebutton.modules.polling.events
 {
 	import flash.events.Event;
+	import org.bigbluebutton.modules.polling.model.PollObject;
 	
 	public class PublishPollEvent extends Event
 	{
 		public static const PUBLISH:String = "PUBLISH POLL";
+		public static const REPOST:String = "REPOST POLL";
 	
-		public var title :String;
+		public var poll:PollObject;
 		
 		public function PublishPollEvent(type: String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
+			poll = new PollObject();
 			super(type, bubbles, cancelable);
 		}
 	}
