@@ -65,16 +65,6 @@
 		<MethodInvoker generator="{PollingManager}"  method="handleClosePollingViewWindow" arguments="{event}"/>
 	 </EventHandlers>
 	
-	<!--PollingAcceptInstructionsWindow Events -->
-	 
-	 <EventHandlers type="{AcceptPollingInstructionsWindowEvent.OPEN}">
-		<MethodInvoker generator="{PollingManager}"  method="handleOpenAcceptPollingInstructionsWindow" arguments="{event.title}"/>
-	 </EventHandlers>
-	 
-	  <EventHandlers type="{AcceptPollingInstructionsWindowEvent.CLOSE}">
-		<MethodInvoker generator="{PollingManager}"  method="handleCloseAcceptPollingInstructionsWindow" arguments="{event}"/>
-	 </EventHandlers>
-	
 	 <!-- Start Polling Event - Sharing Polling View Window -->	  
 	 <EventHandlers type="{StartPollingEvent.START}">
 		<MethodInvoker generator="{PollingManager}"  method="handleStartPollingEvent" arguments="{event}"/>

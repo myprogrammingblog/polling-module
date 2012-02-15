@@ -32,11 +32,9 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 	import org.bigbluebutton.modules.polling.views.PollingStatsWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
-	import org.bigbluebutton.modules.polling.views.PollingAcceptWindow;
 	
 	import org.bigbluebutton.modules.polling.events.PollingViewWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
-	import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.StopPollEvent;
@@ -52,7 +50,6 @@ package org.bigbluebutton.modules.polling.managers
 		private var pollingWindow:PollingViewWindow;
 		private var statsWindow:PollingStatsWindow;
 		private var instructionsWindow:PollingInstructionsWindow;
-		private var acceptInstructionsWindow: PollingAcceptWindow;
 		private var service:PollingService;
 		private var isViewing:Boolean = false;
 		private var globalDispatcher:Dispatcher;
@@ -118,21 +115,6 @@ package org.bigbluebutton.modules.polling.managers
 			  LogUtil.debug(LOGNAME +" BINGO titles going into instructions: " + e.titleList);
 			  instructionsWindow.invalidTitles = e.titleList;
 		  }
-		//PollingAcceptWindow.mxml Window Event Handlers
-		//##########################################################################
-		public function handleOpenAcceptPollingInstructionsWindow(e:AcceptPollingInstructionsWindowEvent):void{
-			LogUtil.debug(LOGNAME + "inside handleOpenAcceptPollingInstructionsWindow");
-			acceptInstructionsWindow = new PollingAcceptWindow();
-			openWindow(acceptInstructionsWindow);
-			//service.setPolling(false);
-		}
-		
-		public function handleCloseAcceptPollingInstructionsWindow(e:AcceptPollingInstructionsWindowEvent):void{
-			LogUtil.debug(LOGNAME + " inside handleCloseAcceptPollingInstructionsWindow");
-			closeWindow(acceptInstructionsWindow);
-		}
-		
-		
 		//##########################################################################
 		
 		public function handleStartPollingEvent():void{

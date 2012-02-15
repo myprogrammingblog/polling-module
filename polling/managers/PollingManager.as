@@ -125,21 +125,6 @@ package org.bigbluebutton.modules.polling.managers
 		      service.closeAllPollingWindows();
 		} 
 	//##################################################################################
-		
-		  // Opening PollingAcceptInstructionsWindow
-	  public function handleOpenAcceptPollingInstructionsWindow(e:AcceptPollingInstructionsWindowEvent):void{
-		  	
-		      LogUtil.debug(LOGNAME +" inside handleOpenAcceptPollingInstructionsWindow ");
-		      viewWindowManager.handleOpenAcceptPollingInstructionsWindow(e);
-		      toolbarButtonManager.disableToolbarButton();
-		}  	
-	   // Closing PollingAcceptInstructionsWindow
-	   public function handleCloseAcceptPollingInstructionsWindow(e:AcceptPollingInstructionsWindowEvent):void{
-		      LogUtil.debug(LOGNAME +" handleCloseAcceptPollingInstructionsWindow ");
-		      viewWindowManager.handleCloseAcceptPollingInstructionsWindow(e);
-		      toolbarButtonManager.enableToolbarButton();
-		}  	
-		//##################################################################################
 	   public function handleSavePollEvent(e:SavePollEvent):void
 		{
 			LogUtil.debug(LOGNAME + " inside savePoll(), calling service...");
