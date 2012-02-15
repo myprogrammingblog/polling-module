@@ -224,30 +224,43 @@ package org.bigbluebutton.modules.polling.managers
 		//##################################################################################
 
 		  // Make a call to the service to update the list of titles and statuses for the Polling Menu
+		  public function handleInitializePollMenuEvent(e:PollGetTitlesEvent):void{
+			  LogUtil.debug(LOGNAME +" inside handleInitializePollMenuEvent ");
+			  toolbarButtonManager.button.roomID = module.getRoom();
+			  service.initializePollingMenu(module.getRoom());
+		  }
+		  
 		  public function handleUpdateTitlesEvent(e:PollGetTitlesEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleUpdateTitleEvent ");
 			  toolbarButtonManager.button.roomID = module.getRoom();
 			  service.updateTitles();
 		  }
+		  /*
 		  public function handleUpdateStatusEvent(e:PollGetStatusEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleUpdateStatusEvent ");
 			  service.updateStatus();
-		  }
+		  }*/
 		  
 		  public function handleReturnTitlesEvent(e:PollReturnTitlesEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleReturnTitleEvent ");
 			  toolbarButtonManager.button.titleList = e.titleList;
 			  LogUtil.debug(LOGNAME +" inside handleReturnTitleEvent Title List is " + toolbarButtonManager.button.titleList);
 		  }
+		  /*
 		  public function handleReturnStatusEvent(e:PollReturnStatusEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleReturnStatusEvent ");
 			  toolbarButtonManager.button.statusList = e.statusList;
 			  LogUtil.debug(LOGNAME +" inside handleReturnStatusEvent Status List is " + toolbarButtonManager.button.statusList);
-		  }
+		  }*/
 		  
 		  public function handleGetPollEvent(e:PollGetPollEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleGetPollEvent ");
 			  service.getPoll(e.pollKey, "menu");
+		  }
+		  
+		  public function handlePopulateMenuEvent(e:PollGetPollEvent):void{
+			  LogUtil.debug(LOGNAME +" inside handlePopulateMenuEvent ");
+			  toolbarButtonManager.button.pollList.addItem(e.poll);
 		  }
 		  
 		   public function handleReturnPollEvent(e:PollGetPollEvent):void{

@@ -304,6 +304,13 @@ package org.bigbluebutton.modules.polling.service
 				pollReturn.poll.checkObject();
 				dispatcher.dispatchEvent(pollReturn);
 		    }
+		    else if (option == "initialize"){
+		    	LogUtil.debug(LOGNAME+"Initializing the polling menu");
+		    	var pollInitialize:PollGetPollEvent = new PollGetPollEvent(PollGetPollEvent.INIT);
+		    	pollInitialize.poll = poll;
+		    	pollInitialize.pollKey = pollKey;
+		    	dispatcher.dispatchEvent(pollInitialize);
+		    }
 		 }
 		 
 		
@@ -354,6 +361,32 @@ package org.bigbluebutton.modules.polling.service
 		 	refreshEvent.poll.checkObject();
 		 	dispatcher.dispatchEvent(refreshEvent);
 		 } // _refreshResults
+		 
+		 // Initialize the Polling Menu on the toolbar button
+		 public function initializePollingMenu(roomID:String):void{
+		 	nc.call("poll.titleList", new Responder(titleSuccess, titleFailure));
+		 	LogUtil.debug(LOGNAME+"After nc.call in updateTitles");
+		 	//--------------------------------------//
+			
+			// Responder functions
+			function titleSuccess(obj:Object):void{
+				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
+				event.titleList = obj as Array;
+				// Append roomID to each item in titleList, call getPoll on that key, add the result to pollList back in ToolBarButton
+				for (var i:int = 0; i < event.titleList.length; i++){
+					var pollKey:String = roomID +"-"+ event.titleList[i];
+					getPoll(pollKey, "initialize");
+				}
+				// This dispatch populates the titleList back in the Menu; the pollList is populated one item at a time in the for-loop
+				dispatcher.dispatchEvent(event); 
+			}
+	
+			function titleFailure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure in UPDATE_TITLES NC.CALL");
+			}
+			
+			//--------------------------------------//
+		 }
 		 
 		 public function updateTitles():void{
 		 	nc.call("poll.titleList", new Responder(success, failure));

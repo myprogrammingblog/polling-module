@@ -133,6 +133,9 @@
 	 </EventHandlers>
 	 
 	 <!-- Events to update the list of poll titles and statuses to display in the Polling Menu -->
+	 <EventHandlers type="{PollGetTitlesEvent.INIT}">
+		<MethodInvoker generator="{PollingManager}"  method="handleInitializePollMenuEvent" arguments="{event}"/>
+	 </EventHandlers>
 	 <EventHandlers type="{PollGetTitlesEvent.UPDATE}">
 		<MethodInvoker generator="{PollingManager}"  method="handleUpdateTitlesEvent" arguments="{event}"/>
 	 </EventHandlers>
@@ -146,6 +149,9 @@
 		<MethodInvoker generator="{PollingManager}"  method="handleReturnStatusEvent" arguments="{event}"/>
 	 </EventHandlers>
 	 
+	 <EventHandlers type="{PollGetPollEvent.INIT}">
+		<MethodInvoker generator="{PollingManager}"  method="handlePopulateMenuEvent" arguments="{event}"/>
+	 </EventHandlers>
 	 <EventHandlers type="{PollGetPollEvent.GET}">
 		<MethodInvoker generator="{PollingManager}"  method="handleGetPollEvent" arguments="{event}"/>
 	 </EventHandlers>

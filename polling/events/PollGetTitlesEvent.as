@@ -22,11 +22,11 @@ package org.bigbluebutton.modules.polling.events
 
 	public class PollGetTitlesEvent extends Event
 	{
+		public static const INIT:String = "INIT";
 		public static const UPDATE:String = "UPDATE";
 		public static const CHECK:String = "CHECK";
 		public static const RETURN:String = "RETURN";
 		public var titleList:Array;
-		
 		
 		public function PollGetTitlesEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{

@@ -42,23 +42,12 @@ public class PollService {
 	private String LOGNAME = "[PollService]";
 	private Poll poll;
 	
-	/*// Stable savePoll
-	// This method is called by the savePoll method in bbb-client PollingService.as
-	public void savePoll(ArrayList answers, String question , String title , Boolean isMultiple, String room, ArrayList votes, String time, int totalVotes, Boolean status ) {
-		log.debug(LOGNAME + "[TEST ]Step 1 : pollService received info: title:"+title+ " answers:"+ answers.toString()+   " Question: "+question+ " isMultiple ? " +isMultiple.toString());
-	    String roomName = Red5.getConnectionLocal().getScope().getName();
-	    String pollTime = DateFormatUtils.formatUTC(System.currentTimeMillis(), "MM/dd/yy HH:mm");
-	    poll = new Poll(title, question, answers, isMultiple, roomName, votes, pollTime, 0, status);
-	    log.debug(LOGNAME + "[TEST ] Step 3 :  Sending Poll object to PollApplication");
-		application.savePoll(poll);
-	}*/
-	
 	public void savePoll(ArrayList clientSidePoll){
-		log.debug(LOGNAME+"EXPERIMENTAL SAVEPOLL starting");
+		log.debug(LOGNAME+"SAVEPOLL starting");
 	    String pollTime = DateFormatUtils.formatUTC(System.currentTimeMillis(), "MM/dd/yy HH:mm");
 	    clientSidePoll.set(6, pollTime);
 	    poll = new Poll(clientSidePoll);
-	    log.debug(LOGNAME+"Checking the experimental savePoll; Poll status is:");
+	    log.debug(LOGNAME+"Checking the savePoll; Poll status is:");
 	    poll.checkObject();
 	    application.savePoll(poll);
 	}

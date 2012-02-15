@@ -23,6 +23,7 @@ package org.bigbluebutton.modules.polling.events
 
 	public class PollGetPollEvent extends Event
 	{
+		public static const INIT:String = "INIT";
 		public static const GET:String = "GET";
 		public static const RETURN:String = "RETURN";
 		public var pollKey:String;
