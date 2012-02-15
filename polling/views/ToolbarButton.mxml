@@ -63,8 +63,10 @@
 			[Bindable] private var myMenuData:ArrayCollection = new ArrayCollection();
 			
 			[Bindable] 
-			[Embed(source="../../../common/assets/images/poll_icon.png")] 
+			[Embed(source="assets/images/poll_icon.png")] 
 			public var OpenIcon:Class;			
+			
+			//[Embed(source="../../../common/assets/images/poll_icon.png")] 
 						
 			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
 			
@@ -82,6 +84,7 @@
 				
 				// Most likely to work
 				myMenuData.addItem(new ValueObject("create", "Create New Poll (quotes)", "OpenIcon"));
+				
 				
 				// Experiments:
 				// Syntax error: myMenuData.addItem(new ValueObject("create", "Create New Poll (straight)", OpenIcon));
@@ -102,9 +105,9 @@
 				listUpdate();
 				
 				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
+				
 				myMenu.iconField="icon";
-				//myMenu.itemRenderer = new ClassFactory(ToolbarPollingRenderer);
-            	myMenu.show(this.x + 10, this.y + this.height + 10);
+				myMenu.show(this.x + 10, this.y + this.height + 10);
             	
             	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClick);    
         		LogUtil.debug(LOGNAME +"Survived CreateandShow");
@@ -128,7 +131,8 @@
 					}
 					if (unique && (s != null)){
 						LogUtil.debug(LOGNAME +"Adding title: " + s)
-						myMenuData.addItem(new ValueObject(counter.toString(), s));
+						var vo:ValueObject = new ValueObject(counter.toString(), s);
+						myMenuData.addItem(vo);
 						LogUtil.debug(LOGNAME +"Status for poll: " + s + " is: " + statusList[counter-1].toString())
 					}
 				}
