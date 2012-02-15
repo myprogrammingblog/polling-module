@@ -32,7 +32,7 @@ package org.bigbluebutton.modules.polling.model
 		public var status:Boolean;
 		public var didNotVote:int;
 		public var publishToWeb:Boolean;
-		public var webKey:String;
+		public var webKey:String = new String;
 		
 		// This just loops through the PollObject and does a bunch of LogUtil messages to verify the contents.
 		public function checkObject():void{
