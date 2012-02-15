@@ -42,7 +42,7 @@ echo "Copying polling recorder to bbb-aps ......"
 	cp -R  ./bbb-aps/src.main.webapps.WEB-INF/bbb-aps.xml $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/bbb-apps.xml
 	cp -R  ./bbb-aps/src.main.webapps.WEB-INF/red5-web.xml  $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/red5-web.xml
 
- 	if [ -f $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/bbb-apps.xml && -f  $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/red5-web.xml]
+ 	if [ -f $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/bbb-apps.xml ] &&  [ -f  $BBB/bigbluebutton-apps/src/main/webapp/WEB-INF/red5-web.xml ]
          then
  		echo "                                                             [Done]"	
        fi
