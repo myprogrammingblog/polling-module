@@ -69,7 +69,6 @@
 			public var viewingClosedPoll:Boolean = false;
 			
 			//[Bindable] public var participants:int;
-			[Bindable] public var votesCast:int;
 			
 			public var moduleAttributes:Object;
 			private var _userid:Number; 
@@ -80,7 +79,6 @@
 				LogUtil.debug(LOGNAME + "Stats window has been built, trackingPoll is: ");
 				trackingPoll.checkObject();
 				conference = UserManager.getInstance().getConference();
-				votesCast = 0;
 				// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
 				// immediately appear with only the option to close the window. 
 				if(viewingClosedPoll)
@@ -244,13 +242,13 @@
 				_votes.width = 30;
 				
 				LogUtil.debug(LOGNAME+"TrackingPoll's didNotVote is: " + trackingPoll.didNotVote);
-				LogUtil.debug(LOGNAME+"votesCast is: " + votesCast);
-				_votes.text = (trackingPoll.didNotVote - votesCast).toString();
+				_votes.text = trackingPoll.didNotVote.toString();
 								
 				resultBox.addChild(_hb);					
 				_hb.addChild(_tx);
 				_hb.addChild(_votes);
 			}
+			
 		]]>
 	</mx:Script>
 

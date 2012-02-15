@@ -20,7 +20,7 @@ Notes.mxml is the main view of the SharedNotes application
 -->
 <MDIWindow xmlns="flexlib.mdi.containers.*"
         xmlns:mx="http://www.adobe.com/2006/mxml"
-width="500" height="580"
+width="500" height="600"
 xmlns:mate="http://mate.asfusion.com/"
 implements="org.bigbluebutton.common.IBbbModuleWindow"
 creationComplete="onCreationComplete()"
@@ -50,6 +50,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import org.bigbluebutton.modules.polling.events.StartPollingEvent;
 		import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 		import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
+		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+		
 		import org.bigbluebutton.modules.polling.model.PollObject;
 		
 		import org.bigbluebutton.core.managers.UserManager;
@@ -76,6 +78,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		[Bindable]private var _question:String;
 		[Bindable]private var _answers:ArrayCollection;
 		[Bindable]private var _isMultiple:Boolean =false;
+		[Bindable] public var _publishToWeb:Boolean;
 		private var _answersArray:Array;
 		public var publishingAllowed:Boolean = true;
 		private var manager:PollingManager = new PollingManager();
@@ -110,6 +113,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 					}
 				}  
 				multiple_response.selected = incomingPoll.isMultiple;
+				publishToWeb_response.selected = incomingPoll.publishToWeb;
+				isMultiple();
+				publishToWeb();
 			}else{
 				editing = false;
 				LogUtil.debug(LOGNAME + "NULL OBJECT: incomingPoll; editing is " + editing);
@@ -133,10 +139,17 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		// function invoked when checkbox is checked
 		
 		private function isMultiple():void{
-		if(multiple_response.selected == true)
-		_isMultiple= true;
-		else
-		_isMultiple= false;
+			if(multiple_response.selected == true)
+				_isMultiple= true;
+			else
+				_isMultiple= false;
+		}
+		
+		private function publishToWeb():void{
+			if(publishToWeb_response.selected == true)
+				_publishToWeb= true;
+			else
+				_publishToWeb= false;
 		}
 		
 		//TESTING
@@ -243,51 +256,47 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		// ANSWER VALIDATION
 		
 		private function answerError():String{
-		var errMsg:String = "VALID";
-		// var startWithStar:RegExp = /^[*]/; // should start with *
-		var answersArray:Array;
-		var valid:Boolean=true;
-		answersArray = pollAnswers.text.split("\r"); // splitting by '*' and new line, thus user can type '*' anywhere except the newline
-		//answersArray[0] = answersArray[0].split('*').join(''); // As after split '*' is not displayed we need to take off from first element which is not splitted
-		answersArray = makeAnswersPretty(answersArray);
-		// ALL THE MESSAGES NEED TO BE LOCALISED!!!!!
-		if (pollAnswers.length == 0 )
-		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.atLeast2Answers');
-		// else if(!allowedChars.test(pollAnswers.text))
-		// errMsg = "Answer field has forbidden characters";
-		// else if (!startWithStar.test(pollAnswers.text))
-		// errMsg = "Every answer should start with a new line and '*' (e.g *Seneca)";
-		else if (isDuplicateAnswers(answersArray))
-		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.answerUnique');
-		else if(answersArray.length < 2)
-		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.eachNewLine');
-		else if(answersArray.length > _MAX_ANSWERS_AMOUNT)
-		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toomuchAnswers') +" "+_MAX_ANSWERS_AMOUNT;
-		else {
-		// If user just put '*' without any answer we need to remove this element from array
-		for (var i:int=0; i< answersArray.length; i++){
-		// LogUtil.debug("inside array element [" +i+"] is " +answersArray[i]);
-		if(i != 0 && (answersArray[i] == null || answersArray[i] == "")){
-		answersArray.splice(i,1);
-		// LogUtil.debug("deleting element " + i + "because it is empty");
-		}else if(answersArray[i].length > _MAX_ANSWER_LENGTH){
-		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongAnswer') +" "+_MAX_ANSWER_LENGTH;
-		valid=false;
-		}
-		// if last character of the array element is return (new line) or space, we it to have accurate string and than checking for duplicates again
-		// LogUtil.debug("answers array elementr:" + answersArray[i].substring(0,answersArray[i].length-1))
+			var errMsg:String = "VALID";
+			// var startWithStar:RegExp = /^[*]/; // should start with *
+			var answersArray:Array;
+			var valid:Boolean=true;
+			answersArray = pollAnswers.text.split("\r"); // splitting by '*' and new line, thus user can type '*' anywhere except the newline
+			//answersArray[0] = answersArray[0].split('*').join(''); // As after split '*' is not displayed we need to take off from first element which is not splitted
+			answersArray = makeAnswersPretty(answersArray);
+			// ALL THE MESSAGES NEED TO BE LOCALISED!!!!!
+			if (pollAnswers.length == 0 )
+				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.atLeast2Answers');
+			else if (isDuplicateAnswers(answersArray))
+				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.answerUnique');
+			else if(answersArray.length < 2)
+				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.eachNewLine');
+			else if(answersArray.length > _MAX_ANSWERS_AMOUNT)
+				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toomuchAnswers') +" "+_MAX_ANSWERS_AMOUNT;
+			else {
+				// If user just put '*' without any answer we need to remove this element from array
+				for (var i:int=0; i< answersArray.length; i++){
+					// LogUtil.debug("inside array element [" +i+"] is " +answersArray[i]);
+					if(i != 0 && (answersArray[i] == null || answersArray[i] == "")){
+						answersArray.splice(i,1);
+						// LogUtil.debug("deleting element " + i + "because it is empty");
+					}else if(answersArray[i].length > _MAX_ANSWER_LENGTH){
+						errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongAnswer') +" "+_MAX_ANSWER_LENGTH;
+						valid=false;
+					}
+					// if last character of the array element is return (new line) or space, we it to have accurate string and than checking for duplicates again
+					// LogUtil.debug("answers array elementr:" + answersArray[i].substring(0,answersArray[i].length-1))
 		
-		if(valid && !isDuplicateAnswers(answersArray)){
-		_answers = new ArrayCollection(answersArray); // This will be displayed in Preview
-		_answersArray= answersArray; // this will be sent to server
-		}
-		//TESTING TO BE DELETED WHEN WORKS
-		for (var b:int=0; b< _answers.length; b++){
-		//LogUtil.debug("global element [" +b+"] is " + _answers.getItemAt(b));
-		}
-		}
-		}
-		return errMsg;
+					if(valid && !isDuplicateAnswers(answersArray)){
+						_answers = new ArrayCollection(answersArray); // This will be displayed in Preview
+						_answersArray= answersArray; // this will be sent to server
+					}
+					//TESTING TO BE DELETED WHEN WORKS
+					for (var b:int=0; b< _answers.length; b++){
+						//LogUtil.debug("global element [" +b+"] is " + _answers.getItemAt(b));
+					}
+				}
+			}
+			return errMsg;
 		}
 		
 		//#####################################################################################################
@@ -411,6 +420,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			savePollEvent.poll.isMultiple = _isMultiple;
 			savePollEvent.poll.didNotVote = participants;
 			savePollEvent.poll.status = !callingFromPublish;
+			savePollEvent.poll.publishToWeb = _publishToWeb;
 			LogUtil.debug(LOGNAME + " poll.didNotVote is " + savePollEvent.poll.didNotVote + " at the point of saving");
 			dispatchEvent(savePollEvent);
 			if(!callingFromPublish)
@@ -420,11 +430,15 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		private function publish():void {
 			savePoll(true);
 			var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
-			// sending title
 			publishPollEvent.poll.title = _title;
 			dispatchEvent(publishPollEvent);
 			dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
 			closeInstructionsWindow();
+			if (_publishToWeb){
+				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
+				generate.poll = publishPollEvent.poll;
+				dispatchEvent(generate);
+			}
 		}
 		
 		private function allowPublishing():void {
@@ -467,8 +481,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 <mx:Label id="aErrMsg" text="" visible="false" width="100%" color="red" fontSize="9" fontWeight="normal" />
 </mx:FormItem>
 
-<mx:FormItem paddingLeft="10" paddingTop="20" >
+<mx:FormItem paddingLeft="10" paddingTop="5" >
 <mx:CheckBox id="multiple_response" label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.moreThanOneResponse')}" click="isMultiple()" />
+<mx:CheckBox id="publishToWeb_response" label="{ResourceUtil.getInstance().getString('bbb.polling.createPoll.publishToWeb')}" click="publishToWeb()" />
 </mx:FormItem>
 
 </mx:Form>
@@ -480,7 +495,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 <mx:Canvas id="review">
            <mx:VBox width="90%" height="90%" paddingLeft="40">
           
-           <mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}" fontSize="11" fontWeight="bold" width ="100%" paddingTop="60" paddingLeft="20" paddingBottom="20"/>
+           <mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.hereIsYourPoll')}" fontSize="11" fontWeight="bold" width ="100%" paddingTop="30" paddingLeft="20" paddingBottom="5"/>
+           <mx:Label text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.pollWillPublishOnline')}" fontSize="11" fontWeight="bold" width ="100%" color="red" paddingTop="10" paddingLeft="20" paddingBottom="15" visible="{_publishToWeb}"/>
+           
            <mx:Panel id="titleShow" title="{_title}" width="90%" >
           
           

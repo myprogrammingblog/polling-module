@@ -159,4 +159,8 @@
 	 <EventHandlers type="{ReviewResultsEvent.REVIEW}">
 		<MethodInvoker generator="{PollingManager}"  method="handleReviewResultsEvent" arguments="{event}"/>
 	 </EventHandlers>
+	 
+	 <EventHandlers type="{GenerateWebKeyEvent.GENERATE}">
+		<MethodInvoker generator="{PollingManager}"  method="handleGenerateWebKeyEvent" arguments="{event}"/>
+	 </EventHandlers>
 </EventMap>

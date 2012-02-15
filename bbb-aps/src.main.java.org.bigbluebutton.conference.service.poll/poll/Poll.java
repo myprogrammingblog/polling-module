@@ -33,40 +33,50 @@ import java.util.HashMap;
 
 @ThreadSafe
 public class Poll{
-
+	
+	/* KEY PLACES TO UPDATE, WHEN ADDING NEW FIELDS TO THE HASH:
+	 * PollService.java, getPoll()
+	 * PollInvoker.java, invoke()
+	 * PollRecorder.java, record()
+	 * Don't forget the client side as well (key locations found in PollObject.as)
+	 */
+	
 	private static Logger log = Red5LoggerFactory.getLogger( Poll.class, "bigbluebutton" );
 	
 	private String LOGNAME = "[Poll]";
 	
 	// IMPORTANT: For every field you add to the hash, add one to the value of otherFields.
 	// The value MUST always reflect how many fields are in the hash, except for answers and votes.
-	// Again, the variable otherFields in PollInvoker.invoke MUST be set to the number of fields in our Poll, minus two.
 	
-	private static int otherFields = 8;
+	private static int otherFields = 10;
 	
-	public final String title;			// 1
-	public final String room;			// 2
-	public final Boolean isMultiple;	// 3
-	public final String question;		// 4
-	public ArrayList <String> answers;	// -
-	public ArrayList <Integer> votes;	// -
-	public String time;					// 5
-	public int totalVotes;				// 6
-	public Boolean status;				// 7
-	public int didNotVote;				// 8
+	public final String title;			//  1
+	public final String room;			//  2
+	public final Boolean isMultiple;	//  3
+	public final String question;		//  4
+	public ArrayList <String> answers;	// --
+	public ArrayList <Integer> votes;	// --
+	public String time;					//  5
+	public int totalVotes;				//  6
+	public Boolean status;				//  7
+	public int didNotVote;				//  8
+	public Boolean publishToWeb;		//  9
+	public String webKey;				// 10
 	
 	@SuppressWarnings("unchecked")
 	public Poll (ArrayList otherPoll){
-		 title 		= otherPoll.get(0).toString();
-		 room 		= otherPoll.get(1).toString();
-		 isMultiple = (Boolean)otherPoll.get(2);
-		 question 	= otherPoll.get(3).toString();
-		 answers 	= (ArrayList)otherPoll.get(4);
-		 votes 		= (ArrayList)otherPoll.get(5);
-		 time 		= otherPoll.get(6).toString();
-		 totalVotes = Integer.parseInt(otherPoll.get(7).toString());
-		 status 	= (Boolean)otherPoll.get(8);
-		 didNotVote = Integer.parseInt(otherPoll.get(9).toString());
+		 title 			= otherPoll.get(0).toString();
+		 room 			= otherPoll.get(1).toString();
+		 isMultiple 	= (Boolean)otherPoll.get(2);
+		 question 		= otherPoll.get(3).toString();
+		 answers 		= (ArrayList)otherPoll.get(4);
+		 votes 			= (ArrayList)otherPoll.get(5);
+		 time 			= otherPoll.get(6).toString();
+		 totalVotes 	= Integer.parseInt(otherPoll.get(7).toString());
+		 status 		= (Boolean)otherPoll.get(8);
+		 didNotVote 	= Integer.parseInt(otherPoll.get(9).toString());
+		 publishToWeb 	= (Boolean)otherPoll.get(10);
+		 webKey 		= otherPoll.get(11).toString();
 	}
 
 	public String getRoom() {
@@ -86,6 +96,8 @@ public class Poll{
 			log.debug(LOGNAME + "TotalVotes is: " + totalVotes);
 			log.debug(LOGNAME + "Status is: " + status.toString());
 			log.debug(LOGNAME + "DidNotVote is: " + didNotVote);
+			log.debug(LOGNAME + "PublishToWeb is: " + publishToWeb.toString());
+			log.debug(LOGNAME + "WebKey is: " + webKey);
 		}else{
 			log.debug(LOGNAME + "This Poll is NULL.");
 		}

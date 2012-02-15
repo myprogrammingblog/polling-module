@@ -52,6 +52,9 @@ public class PollService {
 	    application.savePoll(poll);
 	}
 	
+	public void saveWebKey(String pollKey, String webKey){
+		// Logic to save a webkey to the hash
+	}
 	
 	public void setPollApplication(PollApplication a) {
 		log.debug(LOGNAME + "Setting Poll Applications");
@@ -75,14 +78,15 @@ public class PollService {
 		values.add(poll.totalVotes);
 		values.add(poll.status);
 		values.add(poll.didNotVote);
-			log.debug(LOGNAME + "Adding value " + poll.didNotVote + " to array; value stored in array is now: " + values.get(9));
+		values.add(poll.publishToWeb);
+		values.add(poll.webKey);
 		return values;
 	}
 	
-	public void vote(String pollKey, ArrayList answerIDs)
+	public void vote(String pollKey, ArrayList answerIDs, Boolean webVote)
 	{
 		log.debug(LOGNAME + "JAVA-SIDE VOTING START; pollkey is : " + pollKey + " submitted answers are: " + answerIDs);
-		application.vote(pollKey, answerIDs.toArray());
+		application.vote(pollKey, answerIDs.toArray(), webVote);
 		log.debug(LOGNAME + "JAVA-SIDE VOTING FINISHED");
 	}
 	
@@ -94,5 +98,12 @@ public class PollService {
 	
 	public void setStatus(String pollKey, Boolean status){
 		application.setStatus(pollKey, status);
+	}
+	
+	public String generate(String pollKey){
+		String webKey;
+		webKey = application.generate(pollKey);
+		saveWebKey(pollKey, webKey);
+		return webKey;
 	}
 }

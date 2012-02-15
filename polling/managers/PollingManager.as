@@ -175,10 +175,17 @@ package org.bigbluebutton.modules.polling.managers
 		public function handleVoteEvent(e:VoteEvent):void
 		{			   
 			LogUtil.debug(LOGNAME + " inside handleVoteEvent()");
-			e.pollKey = module.getRoom() +"-"+ e.title ;
+			e.pollKey = module.getRoom() +"-"+ e.title;
 			service.vote(e.pollKey, e.answerID);
 		}
 		
+		public function handleGenerateWebKeyEvent(e:GenerateWebKeyEvent):void
+		{
+			LogUtil.debug(LOGNAME + " inside handleGenerateWebKeyEvent()");
+			e.poll.room = module.getRoom();
+			e.pollKey = e.poll.room +"-"+ e.poll.title;
+			service.generate(e);
+		}
 		//##################################################################################	
 		
 		  // Opening PollingStatsWindow

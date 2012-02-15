@@ -43,6 +43,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.PollReturnStatusEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
+	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 	
 	import org.bigbluebutton.modules.polling.views.PollingViewWindow;
 	import org.bigbluebutton.modules.polling.views.PollingInstructionsWindow;
@@ -125,12 +126,12 @@ package org.bigbluebutton.modules.polling.service
          	if (isConnected = true ) {
          			poll.checkObject();
            			//LogUtil.debug(LOGNAME + "Going into shared object send NOW");
-         			pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.didNotVote);
+         			pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.didNotVote, poll.publishToWeb, poll.webKey);
          			LogUtil.debug(LOGNAME+"Survived sharing object");
          	}
          }
                   
-         public function openPollingWindow(title:String, question:String, isMultiple:Boolean, answers:Array, votes:Array, time:String, totalVotes:int, didNotVote:int):void{
+         public function openPollingWindow(title:String, question:String, isMultiple:Boolean, answers:Array, votes:Array, time:String, totalVotes:int, didNotVote:int, publishToWeb:Boolean, webKey:String):void{
          		var username:String = module.username;
          		var poll:PollObject = new PollObject();
          		poll.title = title;
@@ -141,6 +142,8 @@ package org.bigbluebutton.modules.polling.service
          		poll.time = time;
          		poll.totalVotes = totalVotes;
          		poll.didNotVote = didNotVote;
+         		poll.publishToWeb = publishToWeb;
+         		poll.webKey = webKey;
           		//LogUtil.debug(LOGNAME + "Opening window: Answers are : " + answers);
           		//LogUtil.debug(LOGNAME + "Opening window: Poll title is: " + title);
           		if (!UserManager.getInstance().getConference().amIModerator()){
@@ -221,18 +224,18 @@ package org.bigbluebutton.modules.polling.service
 			LogUtil.debug(LOGNAME+"Shared object is connected");	
 		}
 		
-		// Streamlined, experimental SavePoll
+		
 		public function savePoll(poll:PollObject):void
 		{
-			var serverPoll:Array = new Array(poll.title, poll.room, poll.isMultiple, poll.question, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.status, poll.didNotVote);
+			var serverPoll:Array = new Array(poll.title, poll.room, poll.isMultiple, poll.question, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.status, poll.didNotVote, poll.publishToWeb, poll.webKey);
 			LogUtil.debug(LOGNAME + " poll.didNotVote is " + serverPoll[9] + " right before nc.call");
 			nc.call("poll.savePoll",
 				new Responder(
 					function(result:Object):void { 
-						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server with [experimental] savePoll"); 
+						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server with savePoll"); 
 					},	
 					function(status:Object):void { 
-						LogUtil.error(LOGNAME + "Error occurred sending info to server in [experimental] SAVEPOLL NC.CALL"); 
+						LogUtil.error(LOGNAME + "Error occurred sending info to server in SAVEPOLL NC.CALL"); 
 						for (var x:Object in status) { 
 							LogUtil.error(x + " : " + status[x]); 
 						} 
@@ -272,16 +275,18 @@ package org.bigbluebutton.modules.polling.service
 		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
 		    var poll:PollObject = new PollObject();
 		    		    
-		    poll.title 		= values[0] as String;
-		    poll.room 		= values[1] as String;
-		    poll.isMultiple = values[2] as Boolean;
-		    poll.question 	= values[3] as String;
-		    poll.answers 	= values[4] as Array;
-		    poll.votes 		= values[5] as Array;	    
-		    poll.time 		= values[6] as String;		    
-		    poll.totalVotes = values[7] as int;
-		    poll.status 	= values[8] as Boolean;
-		    poll.didNotVote = values[9] as int;
+		    poll.title 			= values[0] as String;
+		    poll.room 			= values[1] as String;
+		    poll.isMultiple 	= values[2] as Boolean;
+		    poll.question 		= values[3] as String;
+		    poll.answers 		= values[4] as Array;
+		    poll.votes 			= values[5] as Array;	    
+		    poll.time 			= values[6] as String;		    
+		    poll.totalVotes 	= values[7] as int;
+		    poll.status 		= values[8] as Boolean;
+		    poll.didNotVote 	= values[9] as int;
+		    poll.publishToWeb 	= values[10] as Boolean;
+		    poll.webKey			= values[11] as String;
 		    
 		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
 		    if (option == "publish"){
@@ -331,7 +336,7 @@ package org.bigbluebutton.modules.polling.service
 	   	
 	   	
 		 
-		 public function vote(pollKey:String, answerIDs:Array):void{
+		 public function vote(pollKey:String, answerIDs:Array, webVote:Boolean = false):void{
 		 	// answerIDs will indicate by integer which option(s) the user voted for
 		 	// i.e., they voted for 3 and 5 on multiple choice, answerIDs will hold [0] = 3, [1] = 5
 		 	// It works the same regardless of if AnswerIDs holds {3,5} or {5,3} 
@@ -350,7 +355,7 @@ package org.bigbluebutton.modules.polling.service
 						} 
 					}
 				),
-				pollKey, answerIDs
+				pollKey, answerIDs, webVote
 			);
 		 } // _vote
 		 
@@ -459,6 +464,24 @@ package org.bigbluebutton.modules.polling.service
 	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in CLOSEPOLL NC.CALL");
+			}
+			
+			//--------------------------------------//
+		 }
+		 
+		 public function generate(e:GenerateWebKeyEvent):void{
+		 	nc.call("poll.generate", new Responder(success, failure), e.pollKey);
+		 	
+		 	//--------------------------------------//
+			
+			// Responder functions
+			function success(obj:Object):void{
+				var webKey:String = obj as String;
+				LogUtil.debug(LOGNAME+"Responder object success! Webkey is generated");
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME+"Responder object failure in GENERATE NC.CALL");
 			}
 			
 			//--------------------------------------//

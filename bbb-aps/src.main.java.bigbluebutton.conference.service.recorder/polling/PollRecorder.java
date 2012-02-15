@@ -113,6 +113,8 @@ public class PollRecorder {
 			Integer dnv = poll.didNotVote;
 			String didNotVoteStr = dnv.toString();
 			jedis.hset(pollKey, "didNotVote", didNotVoteStr);
+			jedis.hset(pollKey, "publishToWeb", poll.publishToWeb.toString());
+			jedis.hset(pollKey, "webKey", poll.webKey);
 			log.debug("[TEST] Poll " + pollKey + " saved!");
         }
         

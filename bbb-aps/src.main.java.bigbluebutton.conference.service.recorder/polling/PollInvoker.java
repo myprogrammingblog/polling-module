@@ -86,10 +86,13 @@ public class PollInvoker {
     	   // Get Boolean values from string-based Redis hash
     	   boolean pMultiple = false;
     	   boolean pStatus = false;
+    	   boolean pWebPublish = false;
     	   if (jedis.hget(pollKey, "multiple").compareTo("true") == 0)
     		   pMultiple = true;
     	   if (jedis.hget(pollKey, "status").compareTo("true") == 0) 
     		   pStatus = true;
+    	   if (jedis.hget(pollKey, "publishToWeb").compareTo("true") == 0) 
+    		   pWebPublish = true;
 		
     	   // ANSWER EXTRACTION
     	   long pollSize = jedis.hlen(pollKey);
@@ -117,6 +120,8 @@ public class PollInvoker {
     	   retrievedPoll.add(jedis.hget(pollKey, "totalVotes"));
     	   retrievedPoll.add(pStatus);
 		   retrievedPoll.add(jedis.hget(pollKey, "didNotVote"));    	   
+		   retrievedPoll.add(pWebPublish);
+		   retrievedPoll.add(jedis.hget(pollKey, "webKey"));
     	   
 		   Poll poll = new Poll(retrievedPoll);
     	   return poll;
