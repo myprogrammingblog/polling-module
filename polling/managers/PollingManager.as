@@ -235,24 +235,13 @@ package org.bigbluebutton.modules.polling.managers
 			  toolbarButtonManager.button.roomID = module.getRoom();
 			  service.updateTitles();
 		  }
-		  /*
-		  public function handleUpdateStatusEvent(e:PollGetStatusEvent):void{
-			  LogUtil.debug(LOGNAME +" inside handleUpdateStatusEvent ");
-			  service.updateStatus();
-		  }*/
-		  
+
 		  public function handleReturnTitlesEvent(e:PollReturnTitlesEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleReturnTitleEvent ");
 			  toolbarButtonManager.button.titleList = e.titleList;
 			  LogUtil.debug(LOGNAME +" inside handleReturnTitleEvent Title List is " + toolbarButtonManager.button.titleList);
 		  }
-		  /*
-		  public function handleReturnStatusEvent(e:PollReturnStatusEvent):void{
-			  LogUtil.debug(LOGNAME +" inside handleReturnStatusEvent ");
-			  toolbarButtonManager.button.statusList = e.statusList;
-			  LogUtil.debug(LOGNAME +" inside handleReturnStatusEvent Status List is " + toolbarButtonManager.button.statusList);
-		  }*/
-		  
+
 		  public function handleGetPollEvent(e:PollGetPollEvent):void{
 			  LogUtil.debug(LOGNAME +" inside handleGetPollEvent ");
 			  service.getPoll(e.pollKey, "menu");

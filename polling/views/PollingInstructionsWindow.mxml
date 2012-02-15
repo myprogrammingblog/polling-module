@@ -48,7 +48,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		import org.bigbluebutton.modules.polling.managers.PollingManager;
 		import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 		import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-		import org.bigbluebutton.modules.polling.events.AcceptPollingInstructionsWindowEvent;
 		import org.bigbluebutton.modules.polling.events.PollingStatusCheckEvent;
 		import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 		import org.bigbluebutton.modules.polling.model.PollObject;
@@ -140,28 +139,14 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		_isMultiple= false;
 		}
 		
-		private function openAcceptInstructions():void {
-		//LogUtil.debug(LOGNAME + "inside acceptInstructions");
-		dispatchEvent(new AcceptPollingInstructionsWindowEvent(AcceptPollingInstructionsWindowEvent.OPEN));
-		closeInstructionsWindow()
-		titleErrMsg.text="";
-		}
-		
-		/*private function StartPolling():void {
-		LogUtil.debug(LOGNAME + "inside StartPolling calling StartPollingEvent ");
-		dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
-		closeInstructionsWindow();
-		}*/
-		
 		//TESTING
 		
 		private function reviewChanges():void{
-		LogUtil.debug(LOGNAME + "WHAT WE HAVE:");
-		LogUtil.debug(LOGNAME + "Title: "+_title);
-		LogUtil.debug(LOGNAME + "Question: "+_question);
-		LogUtil.debug(LOGNAME + "Answers: "+_answers);
-		if(_isMultiple) LogUtil.debug(LOGNAME + "Multiple answers allowed");
-		//dispatchEvent(new AcceptPollingInstructionsWindowEvent(AcceptPollingInstructionsWindowEvent.OPEN));
+			LogUtil.debug(LOGNAME + "WHAT WE HAVE:");
+			LogUtil.debug(LOGNAME + "Title: "+_title);
+			LogUtil.debug(LOGNAME + "Question: "+_question);
+			LogUtil.debug(LOGNAME + "Answers: "+_answers);
+			if(_isMultiple) LogUtil.debug(LOGNAME + "Multiple answers allowed");
 		}
 		// END TESTING
 		// DATA VALIDATION

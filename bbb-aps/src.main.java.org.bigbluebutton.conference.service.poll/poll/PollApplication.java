@@ -154,15 +154,6 @@ public class PollApplication {
 		return titles;
 	}
 	
-	public ArrayList statusList()
-	{
-		log.debug("Entering PollInvoker titleList");
-		PollInvoker pollInvoker = new PollInvoker();
-		ArrayList status = pollInvoker.statusList();
-		log.debug("Leaving PollApplication statusList");
-		return status;
-	}
-	
 	public void setStatus(String pollKey, Boolean status){
 		log.debug("[TEST] In pollApplication, setting status of " + pollKey + " to " + status);	
         PollRecorder pollRecorder = new PollRecorder();

@@ -409,26 +409,6 @@ package org.bigbluebutton.modules.polling.service
 			//--------------------------------------//
 		 } // _updateTitles
 		 
-		 public function updateStatus():void{
-		 	nc.call("poll.statusList", new Responder(success, failure));
-		 	
-		 	//--------------------------------------//
-			
-			// Responder functions
-			function success(obj:Object):void{
-				LogUtil.debug(LOGNAME + "STEP 2 DISPATCH STATUS");
-				var event:PollReturnStatusEvent = new PollReturnStatusEvent(PollReturnStatusEvent.UPDATE);
-				event.statusList = obj as Array;
-				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);
-				dispatcher.dispatchEvent(event);
-			}
-	
-			function failure(obj:Object):void{
-				LogUtil.error(LOGNAME+"Responder object failure in UPDATE_STATUS NC.CALL");
-			}
-			
-			//--------------------------------------//
-		 } // _updateStatus
 		 
 		 public function checkTitles():void{
 		 	nc.call("poll.titleList", new Responder(success, failure));

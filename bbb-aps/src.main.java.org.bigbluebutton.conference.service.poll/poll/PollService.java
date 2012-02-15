@@ -92,12 +92,6 @@ public class PollService {
 		return application.titleList();
 	}
 	
-	public ArrayList statusList()
-	{
-		log.debug("In PollService statusList()");
-		return application.statusList();
-	}
-	
 	public void setStatus(String pollKey, Boolean status){
 		application.setStatus(pollKey, status);
 	}

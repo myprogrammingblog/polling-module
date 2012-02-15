@@ -111,9 +111,7 @@ public class PollInvoker {
     	   retrievedPoll.add(jedis.hget(pollKey, "room"));
     	   retrievedPoll.add(pMultiple);
     	   retrievedPoll.add(jedis.hget(pollKey, "question"));
-    	   // answers
 		   retrievedPoll.add(pAnswers);
-    	   // votes
 		   retrievedPoll.add(pVotes);
     	   retrievedPoll.add(jedis.hget(pollKey, "time"));
     	   retrievedPoll.add(jedis.hget(pollKey, "totalVotes"));
@@ -124,7 +122,6 @@ public class PollInvoker {
     	   return poll;
        }
        log.error("[ERROR] A poll is being invoked that does not exist. Null exception will be thrown.");
-       //redisPool.returnResource(jedis);
        return null;
    }
    
@@ -144,22 +141,5 @@ public class PollInvoker {
        log.debug("[TEST] titleList is " + pollTitleList);
        log.debug("Leaving PollInvoker titleList");
 	   return pollTitleList;
-   }
-   
-   public ArrayList <String> statusList()
-   { 
-	   log.debug("Entering PollInvoker statusList");
-	   Jedis jedis = dbConnect();
-       String roomName = Red5.getConnectionLocal().getScope().getName();
-	   ArrayList <String> pollStatusList = new ArrayList <String>(); 
-       for (String s : jedis.keys(roomName+"*"))
-       {
-    	   log.debug("[TEST] Getting status, key is " + s);
-    	   pollStatusList.add(jedis.hget(s, "status"));
-    	   log.debug("[TEST] Getting status, status is " + jedis.hget(s, "status"));
-       }
-       log.debug("[TEST] statusList is " + pollStatusList);
-       log.debug("Leaving PollInvoker statusList");
-       return pollStatusList;
    }
 }
