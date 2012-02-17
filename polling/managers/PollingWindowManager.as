@@ -128,6 +128,7 @@ package org.bigbluebutton.modules.polling.managers
 				  LogUtil.debug(LOGNAME + " Returning webkey to stats window: " + statsWindow.trackingPoll.webKey);
 			  }
 		  }
+
 		//##########################################################################
 		
 		public function handleStartPollingEvent():void{
@@ -214,6 +215,7 @@ package org.bigbluebutton.modules.polling.managers
 				LogUtil.debug(LOGNAME + "Survived setting poll");
 			statsWindow.viewingClosedPoll = true;
 				LogUtil.debug(LOGNAME + "Survived setting boolean");
+			statsWindow.reviewing = true;
 			openWindow(statsWindow);
 		}
 		//##########################################################################

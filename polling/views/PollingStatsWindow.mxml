@@ -23,10 +23,11 @@
 <MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
 	width="380" height="150" 
 	xmlns:mate="http://mate.asfusion.com/" 
-	implements="org.bigbluebutton.common.IBbbModuleWindow" 
+	implements="org.bigbluebutton.common.IBbbModuleWindow"
+	initialize="init();"
 	creationComplete="onCreationComplete()"
 	label="Polling" layout="absolute" 
-	title="{ResourceUtil.getInstance().getString('bbb.polling.stats.title')}">
+	title="Polling">
 
 	<mx:Script>
 		<![CDATA[
@@ -64,7 +65,6 @@
 		    import mx.controls.*;
 
 
-			import org.bigbluebutton.util.i18n.ResourceUtil;
 		   	public static const LOGNAME:String = "[PollingStatsWindow] ";
 
 			[Bindable] public var question:String;
@@ -73,15 +73,29 @@
 			[Bindable] public var trackingPoll:PollObject;
 			public var viewingClosedPoll:Boolean = false;
 			
-			//[Bindable] public var participants:int;
 			
 			public var moduleAttributes:Object;
 			private var _userid:Number; 
 			private var window:PollingStatsWindow;
 			private var conference:Conference;
+			
+			public var reviewing:Boolean = false;
+
+			private function init():void{
+				webPollBox.visible = (!reviewing && trackingPoll.publishToWeb);
+				if (!reviewing && trackingPoll.publishToWeb){
+					LogUtil.debug(LOGNAME + "About to generate web key");
+					var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
+					LogUtil.debug(LOGNAME + "Survived making new event");
+					generate.poll = trackingPoll;
+					LogUtil.debug(LOGNAME + "Survived adding poll to event, preparing to dispatch");
+					dispatchEvent(generate);
+					LogUtil.debug(LOGNAME + "Survived dispatching event");
+				}
+			}
 
 			private function onCreationComplete():void{
-				//LogUtil.debug(LOGNAME + "Stats window has been built, trackingPoll is: ");
+				LogUtil.debug(LOGNAME + "Stats window has been built, trackingPoll is: ");
 				trackingPoll.checkObject();
 				conference = UserManager.getInstance().getConference();
 				// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
@@ -90,7 +104,7 @@
 					stopPoll();
 				
 				if (trackingPoll.publishToWeb){
-					//LogUtil.debug("About to try and use webKey, value is: " + trackingPoll.webKey);
+					LogUtil.debug("About to try and use webKey, value is: " + trackingPoll.webKey);
 					webPollURLBox.text = trackingPoll.webKey;
 				}
 				
@@ -98,17 +112,17 @@
 				question = trackingPoll.question;
 								
 				var lines:int = (question.length / 28) + 1;
-			//	LogUtil.debug(LOGNAME + "Stats window question is: " + question);
-			//	LogUtil.debug(LOGNAME + "Stats window answers are: " + answers);
-			//	LogUtil.debug(LOGNAME + "Stats window answers.length is: " + answers.length);
+				LogUtil.debug(LOGNAME + "Stats window question is: " + question);
+				LogUtil.debug(LOGNAME + "Stats window answers are: " + answers);
+				LogUtil.debug(LOGNAME + "Stats window answers.length is: " + answers.length);
 				for(var s:String in answers){
 					lines = lines + ((s.length / 28) + 1);
-				//	LogUtil.debug(LOGNAME + "Inside for-loop, lines is: " + lines);	
+					LogUtil.debug(LOGNAME + "Inside for-loop, lines is: " + lines);	
 				}				 	            	
 				height = height + ((lines+1) * 45);
-			//	LogUtil.debug(LOGNAME + "After for-loop, lines is: " + lines + " and height is " + height);
+				LogUtil.debug(LOGNAME + "After for-loop, lines is: " + lines + " and height is " + height);
 				
-			//	LogUtil.debug(LOGNAME+"About to draw the results table");
+				LogUtil.debug(LOGNAME+"About to draw the results table");
 				createResultsTable(answers.length, answers);
 			}			
 
@@ -125,7 +139,7 @@
 			} // end of function refreshResults
 						
 			private function closeWindow():void{
-			//	LogUtil.debug(LOGNAME + "inside closeWindow()");
+				LogUtil.debug(LOGNAME + "inside closeWindow()");
 				dispatchEvent(new PollingStatsWindowEvent(PollingStatsWindowEvent.CLOSE));
 			}
  
@@ -133,7 +147,7 @@
  				trackingPoll.votes = newVotes;
  				trackingPoll.totalVotes = totalVotes;
  				trackingPoll.didNotVote = noVoteYet;
- 				//LogUtil.debug(LOGNAME + "After refresh event SHOULD have been triggered, checking trackingPoll");
+ 				LogUtil.debug(LOGNAME + "After refresh event SHOULD have been triggered, checking trackingPoll");
  				trackingPoll.checkObject();
  				createResultsTable(trackingPoll.answers.length, trackingPoll.answers);
  				invalidateDisplayList();
@@ -141,32 +155,26 @@
  			}
  		
  			private function stopPoll():void{
-<<<<<<< HEAD
  				refreshPoll()
 				//refreshWindow(trackingPoll.votes, trackingPoll.totalVotes, trackingPoll.didNotVote);
 				btnRefreshResults.label = "Repost";
 				btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
 				//btnRefreshResults.removeEventListener(MouseEvent.MOUSE_OVER, refreshPoll);
-=======
-				refreshResults();
-				btnRefreshResults.label = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
-				btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshResults);
->>>>>>> 0d118b0b4829bc97c7104eeb847309920d5a8f86
 				btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
-				btnRefreshResults.addEventListener(MouseEvent.MOUSE_OVER, generateWebKey);
+				//btnRefreshResults.addEventListener(MouseEvent.MOUSE_OVER, generateWebKey);
 				
-				btnClosePoll.label = ResourceUtil.getInstance().getString('bbb.polling.stats.close');
+				btnClosePoll.label = "Close";
 				btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
 				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
 
-				//LogUtil.debug(LOGNAME+"Poll has been stopped; state of the poll object:");
+				LogUtil.debug(LOGNAME+"Poll has been stopped; state of the poll object:");
 				trackingPoll.status = false;
 				trackingPoll.checkObject();
 				stopViewersPolls();					
 			}
 			
 			private function publishPollAgain(e:Event):void{
-				//LogUtil.debug(LOGNAME + "inside publishPollAgain()");
+				LogUtil.debug(LOGNAME + "inside publishPollAgain()");
 				//trackingPoll.checkObject();
 				var event:PublishPollEvent = new PublishPollEvent(PublishPollEvent.REPOST);
 				event.poll = trackingPoll;
@@ -174,28 +182,9 @@
 				closeWindow();
 			}
 			
-			private function generateWebKey():void{
-				if (trackingPoll.publishToWeb){
-					LogUtil.debug(LOGNAME + "About to generate web key");
-					var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
-					LogUtil.debug(LOGNAME + "Survived making new event");
-					generate.poll = trackingPoll;
-					generate.repost = true;
-					LogUtil.debug(LOGNAME + "Survived adding poll to event, preparing to dispatch");
-					dispatchEvent(generate);
-					LogUtil.debug(LOGNAME + "Survived dispatching event");
-				}
-			}
-			
 			private function closeButtonClick(e:Event):void{
 				LogUtil.debug(LOGNAME + "inside closeButtonClick, checking trackingPoll");
 				trackingPoll.checkObject();
-				// The poll still has the proper webKey here, try and run a save
-				/*
-				var event:SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
-				event.poll = trackingPoll;
-				dispatchEvent(event);
-				*/
 				closeWindow();
 			}
 			
@@ -276,7 +265,7 @@
 				
 				_tx.name = "optionNull";
 				_tx.width = 200;
-				_tx.text = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 
+				_tx.text = "Did Not Vote"; 
 										
 				_votes.name = "voteNull";
 				_votes.width = 30;
@@ -299,7 +288,7 @@
         <mx:VBox width="100%" height="75%" horizontalAlign="center" paddingLeft="10" paddingRight="10">
 				
 				
-				<mx:HBox id="webPollBox" width="90%" height="35" paddingTop="10" visible="{trackingPoll.publishToWeb}">
+				<mx:HBox id="webPollBox" width="90%" height="35" paddingTop="10">
 					<mx:Text text="{ResourceUtil.getInstance().getString('bbb.polling.pollStats.webPollURL')}"
 						width="180"/>
 					<mx:TextArea id="webPollURLBox" 
@@ -323,13 +312,8 @@
           		
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
-<<<<<<< HEAD
        <mx:Button id="btnRefreshResults" label="Refresh" click="refreshPoll()" width="100" height="30"/>
        <mx:Button id="btnClosePoll" label="Stop Poll" click="stopPoll()" width="100" height="30"/>
-=======
-       <mx:Button id="btnRefreshResults" label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" click="refreshResults()"  width="100" height="30"/>
-       <mx:Button id="btnClosePoll" label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" click="stopPoll()"  width="100" height="30"/>
->>>>>>> 0d118b0b4829bc97c7104eeb847309920d5a8f86
        </mx:ControlBar> 	 
 
 

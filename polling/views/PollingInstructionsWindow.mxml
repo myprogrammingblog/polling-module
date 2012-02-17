@@ -66,6 +66,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		private var userName:String;
 		private var module:PollingModule;
 		
+		private var published:Boolean;
+		
 		[Bindable] public var participants:int;
 		
 		
@@ -86,7 +88,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		[Bindable] public var invalidTitles:Array;
 		[Bindable] public var incomingPoll:PollObject;
 		[Bindable] public var editing:Boolean;
-		
 		// LENGTH CONSTRAINTS ( CHANGE IF YOU NEED)
 		//################################################
 		[Bindable]private var _MAX_QUESTION_LENGTH:uint = 200;
@@ -100,11 +101,12 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function onCreationComplete():void{
-		//	LogUtil.debug(LOGNAME + "Instructions Window is Created");
-		//	LogUtil.debug(LOGNAME + "About to check incomingPoll");
+			LogUtil.debug(LOGNAME + "Instructions Window is Created");
+			LogUtil.debug(LOGNAME + "About to check incomingPoll");
+			published = false;
 			if (incomingPoll != null){
 				//incomingPoll.checkObject();
-			//	LogUtil.debug(LOGNAME + "Editing is: " + editing);
+				LogUtil.debug(LOGNAME + "Editing is: " + editing);
 				pollTitle.text = incomingPoll.title;
 				pollQuestion.text = incomingPoll.question;		
 				for (var i:int = 0; i < incomingPoll.answers.length; i++){
@@ -128,12 +130,11 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		// Overwritting close to use custom function
 		
 		override public function close(event:MouseEvent = null):void {
-		closeInstructionsWindow();
+			closeInstructionsWindow();
 		}
 		// function invoked when close window
 		
 		private function closeInstructionsWindow():void {
-			//LogUtil.debug(LOGNAME + "inside closeinstructionsWindow");
 			dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.CLOSE));
 		}
 		
@@ -161,6 +162,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			LogUtil.debug(LOGNAME + "Answers: "+_answers);
 			if(_isMultiple) LogUtil.debug(LOGNAME + "Multiple answers allowed");
 		}
+		
 		// END TESTING
 		// DATA VALIDATION
 		//##################################################################################
@@ -220,9 +222,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						}
 					}
 				}
-				//LogUtil.debug(LOGNAME + "Survived for-loop");
+				LogUtil.debug(LOGNAME + "Survived for-loop");
 			}else{
-				//LogUtil.debug(LOGNAME+"Editing is " + editing + ", ignoring title rule");
+				LogUtil.debug(LOGNAME+"Editing is " + editing + ", ignoring title rule");
 			}
 			
 			if (pollTitle.length == 0 ){
@@ -242,16 +244,14 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		//QUESTION VALIDATION
 		
 		private function questionError():String{
-		var errMsg:String = "VALID";
-		if (pollQuestion.length == 0 )
-		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.noQuestion');
-		else if (pollQuestion.length > _MAX_QUESTION_LENGTH )
-		errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongQuestion') + " "+ _MAX_QUESTION_LENGTH;
-		// else if(!allowedChars.test(pollQuestion.text))
-		//errMsg = "Question field has forbidden characters";
-		else
-		_question=pollQuestion.text;
-		return errMsg;
+			var errMsg:String = "VALID";
+			if (pollQuestion.length == 0 )
+				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.noQuestion');
+			else if (pollQuestion.length > _MAX_QUESTION_LENGTH )
+				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongQuestion') + " "+ _MAX_QUESTION_LENGTH;
+			else
+				_question=pollQuestion.text;
+			return errMsg;
 		}
 		// ANSWER VALIDATION
 		
@@ -302,57 +302,57 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		//#####################################################################################################
 		
 		public function goBack():void{
-		// _poll = ResourceUtil.getInstance().getString('bbb.polling.createPoll');
-		back.visible=false;
-		publishButton.visible=false;
-		options.removeAllChildren();
+			back.visible=false;
+			publishButton.visible=false;
+			options.removeAllChildren();
+		}
 		
-		}
 		private function isDuplicateAnswers(arr:Array):Boolean{
-		var x:uint;
-		var y:uint;
-		for (x = 0; x < arr.length ; x++){
-		for (y = x + 1; y < arr.length; y++){
-		if (arr[x] === arr[y]){
-		return true;
+			var x:uint;
+			var y:uint;
+			for (x = 0; x < arr.length ; x++){
+				for (y = x + 1; y < arr.length; y++){
+					if (arr[x] === arr[y]){
+						return true;
+					}
+				}
+			}
+			return false;
 		}
-		}
-		}
-		return false;
-		}
+		
 		//trimming return and whitespaces at the end of each array element
 		private function makeAnswersPretty(arr:Array):Array{
-		var i:uint;
-		var trim:RegExp = /^\s+|\s+$/g;
-		for (i = 0; i < arr.length; i++){
-		//LogUtil.debug("BEFORE REPLACE: " + arr[i]);
-		arr[i] = arr[i].replace(trim, "");
-		if(!arr[i]) //if user puts just return or space and return - this array elements will be deleted
-		arr.splice(i,1);
+			var i:uint;
+			var trim:RegExp = /^\s+|\s+$/g;
+			for (i = 0; i < arr.length; i++){
+				//LogUtil.debug("BEFORE REPLACE: " + arr[i]);
+				arr[i] = arr[i].replace(trim, "");
+				if(!arr[i]) //if user puts just return or space and return - this array elements will be deleted
+					arr.splice(i,1);
+				}
+			return arr;
 		}
-		return arr;
-		}
-		private function formatAndReview():void{
-		// Change maind window and buttons to Review
-		mainArea.selectedChild=review;
-		buttons.selectedChild=reviewButtons;
-		//REFRESHING CANVAS
-		invalidateDisplayList();
-		validateNow();
-		// Make Back button visible
-		back.visible=true;
-		publishButton.visible=true;
-		// if Multiple enabled than add check all that apply to string, or if it already added and user desided he don't want multiple than delete it
-		if(_isMultiple){
-		_question += "\n" + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll'); // NEED TO BE LOCALIZED
-		}
-		else if(( !_isMultiple && _question.substr(_question.length-28,_question.length) == "\n (check all that may apply)" )) // NEED TO BE LOZALIZED
-		_question.slice(0,_question.length-28);
-		// Make Title and Question string first letter Upper case
-		_title = upperFirstLetter(_title);
-		_question = upperFirstLetter(_question);
-		createButtons(_answers.length,_answers);
 		
+		private function formatAndReview():void{
+			// Change maind window and buttons to Review
+			mainArea.selectedChild=review;
+			buttons.selectedChild=reviewButtons;
+			//REFRESHING CANVAS
+			invalidateDisplayList();
+			validateNow();
+			// Make Back button visible
+			back.visible=true;
+			publishButton.visible=true;
+			// if Multiple enabled than add check all that apply to string, or if it already added and user desided he don't want multiple than delete it
+			if(_isMultiple){
+				_question += "\n" + ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll'); // NEED TO BE LOCALIZED
+			}
+			else if(( !_isMultiple && _question.substr(_question.length-28,_question.length) == "\n (check all that may apply)" )) // NEED TO BE LOZALIZED
+				_question.slice(0,_question.length-28);
+			// Make Title and Question string first letter Upper case
+			_title = upperFirstLetter(_title);
+			_question = upperFirstLetter(_question);
+			createButtons(_answers.length,_answers);
 		}
 		
 		private function upperFirstLetter(str:String) : String {
@@ -409,47 +409,35 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function savePoll(callingFromPublish:Boolean = false):void {
-			//LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
+			LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
 			participants = 0;
-			//LogUtil.debug(LOGNAME + "Survived setting participants as 0");
+			LogUtil.debug(LOGNAME + "Survived setting participants as 0");
 			var p:BBBUser;
 			LogUtil.debug(LOGNAME + "Survived setting p as a BBBUser");
 			conference = UserManager.getInstance().getConference();
-			//LogUtil.debug(LOGNAME + "Conference.users.length is: " + conference.users.length);
+			LogUtil.debug(LOGNAME + "Conference.users.length is: " + conference.users.length);
 			for (var i:int = 0; i < conference.users.length; i++) {
-				//LogUtil.debug(LOGNAME + "In for loop");
+				LogUtil.debug(LOGNAME + "In for loop");
 				p = conference.users.getItemAt(i) as BBBUser;
 				if (p.role != Role.MODERATOR) {
 					participants++;
 				}
 			} 
-			//LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators right before poll saves.");
+			LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators right before poll saves.");
 			
 			var savePollEvent: SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
 			savePollEvent.poll = buildPoll();
 			savePollEvent.poll.status = !callingFromPublish;
 			
-			//LogUtil.debug(LOGNAME + " poll.didNotVote is " + savePollEvent.poll.didNotVote + " at the point of saving");
+			LogUtil.debug(LOGNAME + " poll.didNotVote is " + savePollEvent.poll.didNotVote + " at the point of saving");
 			dispatchEvent(savePollEvent);
 			if(!callingFromPublish)
 				closeInstructionsWindow();
 		}
 		
-		private function generateWebKey():void{
-			if (_publishToWeb){
-				//LogUtil.debug(LOGNAME + "About to generate web key");
-				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
-				//LogUtil.debug(LOGNAME + "Survived making new event");
-				generate.poll = buildPoll();
-				//LogUtil.debug(LOGNAME + "Survived adding poll to event, preparing to dispatch");
-				dispatchEvent(generate);
-				//LogUtil.debug(LOGNAME + "Survived dispatching event");
-			}
-		}
-		
-		// About to rethink how publishing works, hang on to something
 		private function publish():void {
 			LogUtil.debug(LOGNAME+"Entering publish()");
+			published = true;
 			savePoll(true);
 			
 			var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
@@ -553,7 +541,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 
 <mx:Button 	id="publishButton" 
 			label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}" 
-			rollOver="generateWebKey();"
 			click="publish();" 
 			width="100" 
 			height="30" 

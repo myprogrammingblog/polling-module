@@ -133,25 +133,6 @@ public class PollApplication {
 	
 	// AnswerIDs comes in as an array of each answer the user voted for
 	// If they voted for answers 3 and 5, the array could be [0] = 3, [1] = 5 or the other way around, shouldn't matter
-	/*
-	public void vote(String pollKey, Object[] answerIDs, Boolean webVote){
-		log.debug("[TEST] Recording votes");
-	    // Retrieve the poll that corresponds to pollKey
-	    Poll poll = getPoll(pollKey);
-	    for (int i = 0; i < answerIDs.length; i++){
-	    		// Extract  the index value stored at element i of answerIDs
-	    	Integer index = Integer.parseInt(answerIDs[i].toString());
-	    		// Get the current value of votes for that index; remember that the answers are now zero-based like an array
-	    	Integer total = poll.votes.get(index.intValue());
-	    		// Increment the votes for answer
-	    	poll.votes.set(index.intValue(), ++total);
-	    }
-	    ++poll.totalVotes;
-	    if (!webVote)
-	    	--poll.didNotVote;
-	    savePoll(poll);
-	}*/
-	
 	public void vote(String pollKey, Object[] answerIDs, Boolean webVote){
 		log.debug("[TEST] Recording votes");
 	    // Retrieve the poll that corresponds to pollKey
