@@ -122,4 +122,21 @@ public class PollRecorder {
         	Jedis jedis = dbConnect();
         	jedis.hset(pollKey, "status", status.toString());
         }
+        
+        public void vote(String pollKey, Poll poll, Object[] answerIDs, Boolean webVote){
+        	Jedis jedis = dbConnect();
+        	for (int i = 0; i < answerIDs.length; i++){
+	    		// Extract  the index value stored at element i of answerIDs
+        		Integer index = Integer.parseInt(answerIDs[i].toString()) + 1;
+        		log.debug("RECORDING VOTES Value of index is: " + index);
+	    		// Increment the votes for answer
+	    		jedis.hincrBy(pollKey, "answer"+index, 1);
+	    		log.debug("RECORDING VOTES Incrementing answer"+index);
+        	}
+        	if (answerIDs.length > 0){
+        		if (!webVote)
+        			jedis.hincrBy(pollKey, "didNotVote", -1);
+        		jedis.hincrBy(pollKey, "totalVotes", 1);
+        	}
+        }
 }

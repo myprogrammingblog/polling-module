@@ -94,11 +94,12 @@ public class PollService {
 		return values;
 	}
 	
-	public void vote(String pollKey, ArrayList answerIDs, Boolean webVote)
+	public ArrayList vote(String pollKey, ArrayList answerIDs, Boolean webVote)
 	{
 		log.debug(LOGNAME + "JAVA-SIDE VOTING START; pollkey is : " + pollKey + " submitted answers are: " + answerIDs);
 		application.vote(pollKey, answerIDs.toArray(), webVote);
 		log.debug(LOGNAME + "JAVA-SIDE VOTING FINISHED");
+		return getPoll(pollKey);
 	}
 	
 	public ArrayList titleList()

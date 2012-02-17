@@ -203,7 +203,7 @@ package org.bigbluebutton.modules.polling.managers
 		
 		public function handleRefreshPollingStatsWindow(e:PollRefreshEvent):void{
 			LogUtil.debug(LOGNAME + " inside handleRefreshPollingStatsWindow");
-			statsWindow.refresh(e.poll.votes, e.poll.totalVotes, e.poll.didNotVote);
+			statsWindow.refreshWindow(e.poll.votes, e.poll.totalVotes, e.poll.didNotVote);
 		}
 		
 		public function handleReviewResultsEvent(e:ReviewResultsEvent):void{

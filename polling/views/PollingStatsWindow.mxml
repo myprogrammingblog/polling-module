@@ -115,7 +115,7 @@
 				return MainCanvas.POPUP;
 			}
 				
-			private function refreshResults():void{
+			private function refreshPoll():void{
 				//LogUtil.debug(LOGNAME + "Result of getMeetingInfo is " + getMeetingInfo());
 			
 				var e:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.GET);
@@ -128,7 +128,7 @@
 				dispatchEvent(new PollingStatsWindowEvent(PollingStatsWindowEvent.CLOSE));
 			}
  
- 			public function refresh(newVotes:Array, totalVotes:int, noVoteYet:int):void{
+ 			public function refreshWindow(newVotes:Array, totalVotes:int, noVoteYet:int):void{
  				trackingPoll.votes = newVotes;
  				trackingPoll.totalVotes = totalVotes;
  				trackingPoll.didNotVote = noVoteYet;
@@ -140,9 +140,11 @@
  			}
  		
  			private function stopPoll():void{
-				refreshResults();
+ 				refreshPoll()
+				//refreshWindow(trackingPoll.votes, trackingPoll.totalVotes, trackingPoll.didNotVote);
 				btnRefreshResults.label = "Repost";
-				btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshResults);
+				btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
+				//btnRefreshResults.removeEventListener(MouseEvent.MOUSE_OVER, refreshPoll);
 				btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
 				btnRefreshResults.addEventListener(MouseEvent.MOUSE_OVER, generateWebKey);
 				
@@ -314,8 +316,8 @@
           		
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
-       <mx:Button id="btnRefreshResults" label="Refresh" click="refreshResults()"  width="100" height="30"/>
-       <mx:Button id="btnClosePoll" label="Stop Poll" click="stopPoll()"  width="100" height="30"/>
+       <mx:Button id="btnRefreshResults" label="Refresh" click="refreshPoll()" width="100" height="30"/>
+       <mx:Button id="btnClosePoll" label="Stop Poll" click="stopPoll()" width="100" height="30"/>
        </mx:ControlBar> 	 
 
 

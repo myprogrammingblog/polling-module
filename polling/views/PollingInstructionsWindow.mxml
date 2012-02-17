@@ -450,7 +450,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		// About to rethink how publishing works, hang on to something
 		private function publish():void {
 			LogUtil.debug(LOGNAME+"Entering publish()");
-			//savePoll(true);
+			savePoll(true);
 			
 			var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
 			publishPollEvent.poll = buildPoll();
