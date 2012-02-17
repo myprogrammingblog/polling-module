@@ -78,17 +78,17 @@
 			
 			// #################################################################
 			public function init():void {
-				LogUtil.debug(LOGNAME +"Entering function init()");	
+				//LogUtil.debug(LOGNAME +"Entering function init()");	
 				myMenuData = new ArrayCollection();
 				pollList = new ArrayCollection();			
 				listInitialize();
 					LogUtil.debug(LOGNAME +"After list initializing");
 				renderMenu();
-					LogUtil.debug(LOGNAME +"After menu rendering");
+				//	LogUtil.debug(LOGNAME +"After menu rendering");
             }
 			
 			private function createAndShow():void{
-				LogUtil.debug(LOGNAME +"Toolbar Polling Button Clicked, titleList is: " + titleList);
+			//	LogUtil.debug(LOGNAME +"Toolbar Polling Button Clicked, titleList is: " + titleList);
 				renderMenu();
 				
 				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
@@ -98,7 +98,7 @@
             	
             	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClick);
             	  
-        		LogUtil.debug(LOGNAME +"Survived CreateandShow");
+
 			}
 			// #################################################################
 
@@ -110,14 +110,14 @@
 				dispatchEvent(new PollGetTitlesEvent(PollGetTitlesEvent.INIT));
 				// After this, we have the list of all titles (which should already be unique) which correspond to our room and pollList
 				// should have all of the available polls, which won't contain duplicates because Redis won't allow them
-				LogUtil.debug(LOGNAME +"Survived listInitialize, titleList is: " + titleList);
+				//LogUtil.debug(LOGNAME +"Survived listInitialize, titleList is: " + titleList);
 			}
 						
 			private function renderMenu():void{
-				LogUtil.debug(LOGNAME +"Entering RenderMenu, titleList is: " + titleList);
+				//LogUtil.debug(LOGNAME +"Entering RenderMenu, titleList is: " + titleList);
 				myMenuData.removeAll();
-				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.menu.createNewPoll')));
-					LogUtil.debug(LOGNAME +"After adding Create entry");
+				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
+					//LogUtil.debug(LOGNAME +"After adding Create entry");
 				
 				for (var i:int = 0; i < pollList.length; i++){
 					if (pollList[i] != null){
