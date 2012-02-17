@@ -20,7 +20,7 @@ Notes.mxml is the main view of the SharedNotes application
 -->
 <MDIWindow xmlns="flexlib.mdi.containers.*"
         xmlns:mx="http://www.adobe.com/2006/mxml"
-width="500" height="600"
+width="510" height="600"
 xmlns:mate="http://mate.asfusion.com/"
 implements="org.bigbluebutton.common.IBbbModuleWindow"
 creationComplete="onCreationComplete()"
@@ -79,6 +79,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		[Bindable]private var _answers:ArrayCollection;
 		[Bindable]private var _isMultiple:Boolean =false;
 		[Bindable] public var _publishToWeb:Boolean;
+		public var _webKey:String;
 		private var _answersArray:Array;
 		public var publishingAllowed:Boolean = true;
 		private var manager:PollingManager = new PollingManager();
@@ -132,12 +133,11 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		// function invoked when close window
 		
 		private function closeInstructionsWindow():void {
-		//LogUtil.debug(LOGNAME + "inside closeinstructionsWindow");
-		
-		dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.CLOSE));
+			//LogUtil.debug(LOGNAME + "inside closeinstructionsWindow");
+			dispatchEvent(new PollingInstructionsWindowEvent(PollingInstructionsWindowEvent.CLOSE));
 		}
-		// function invoked when checkbox is checked
 		
+		// function invoked when checkbox is checked
 		private function isMultiple():void{
 			if(multiple_response.selected == true)
 				_isMultiple= true;
@@ -229,7 +229,7 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.noTitle');
 			}
 			else if (pollTitle.length > _MAX_TITLE_LENGTH ){
-				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.tooLongTitle')+" " +_MAX_TITLE_LENGTH;
+				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongTitle')+" " +_MAX_TITLE_LENGTH;
 			}
 			else{	
 				_title = StringUtil.trim(pollTitle.text);
@@ -356,45 +356,57 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function upperFirstLetter(str:String) : String {
-		return str.substr(0, 1).toUpperCase() + str.substr(1, str.length);
+			return str.substr(0, 1).toUpperCase() + str.substr(1, str.length);
 		}
 
 		// function receives Array.length and ArrayCollectionvar p:BBBUser;
 		private function createButtons(amount:uint, content:ArrayCollection):void{
-		var _cb:CheckBox;
-		var _rb:RadioButton;
-		var _tx: Text;
-		var _hb: HBox;
-		// creating buttons one by one
-		for (var i:int = 0; i < amount; i++) {
-		_tx = new Text();
-		_hb = new HBox();
-		_tx.name = "option" +i;
-		_tx.width = 200;
-		// assigning array element to text field
-		_tx.text =content.getItemAt(i).toString();
-		options.addChild(_hb);
-		// if global var _isMultiple is true it means user wants checkboxes,
-		//otherwise radiobutton (if multiple choices are allowed)
-		if(_isMultiple){
-		_cb= new CheckBox();
-		// giving button a name of array elelment to process it easier later
-		_cb.name=content.getItemAt(i).toString();
-		// gap between the buttons
-		_cb.y=i*20;
-		// adding buttons to the Horizontal Box
-		_hb.addChild(_cb);
-		}else{
-		_rb = new RadioButton();
-		_rb.name = content.getItemAt(i).toString(); // giving button a name of array elelment to process it easier later
-		_rb.groupName = "answers";
-		_rb.label =" ";
-		_hb.addChild(_rb);
-		}
-		_hb.addChild(_tx); // adding text near button
-		} // end of loop
+			var _cb:CheckBox;
+			var _rb:RadioButton;
+			var _tx: Text;
+			var _hb: HBox;
+			// creating buttons one by one
+			for (var i:int = 0; i < amount; i++) {
+				_tx = new Text();
+				_hb = new HBox();
+				_tx.name = "option" +i;
+				_tx.width = 200;
+				// assigning array element to text field
+				_tx.text =content.getItemAt(i).toString();
+				options.addChild(_hb);
+				// if global var _isMultiple is true it means user wants checkboxes,
+				//otherwise radiobutton (if multiple choices are allowed)
+				if(_isMultiple){
+					_cb= new CheckBox();
+					// giving button a name of array elelment to process it easier later
+					_cb.name=content.getItemAt(i).toString();
+					// gap between the buttons
+					_cb.y=i*20;
+					// adding buttons to the Horizontal Box
+					_hb.addChild(_cb);
+				}else{
+					_rb = new RadioButton();
+					_rb.name = content.getItemAt(i).toString(); // giving button a name of array elelment to process it easier later
+					_rb.groupName = "answers";
+					_rb.label =" ";
+					_hb.addChild(_rb);
+				}
+			_hb.addChild(_tx); // adding text near button
+			} // end of loop
 		} // end of function
 		
+		private function buildPoll():PollObject{
+			var builtPoll:PollObject = new PollObject();
+			builtPoll.title = _title;
+			builtPoll.isMultiple = _isMultiple;
+			builtPoll.question = _question;
+			builtPoll.answers = _answersArray;
+			builtPoll.didNotVote = participants;
+			builtPoll.publishToWeb = _publishToWeb;
+			if (_publishToWeb && _webKey != null)
+				builtPoll.webKey = _webKey;
+			return builtPoll;
+		}
 		
 		private function savePoll(callingFromPublish:Boolean = false):void {
 			LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
@@ -414,31 +426,40 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators right before poll saves.");
 			
 			var savePollEvent: SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
-			savePollEvent.poll.answers = _answersArray;
-			savePollEvent.poll.question = _question;
-			savePollEvent.poll.title = _title;
-			savePollEvent.poll.isMultiple = _isMultiple;
-			savePollEvent.poll.didNotVote = participants;
+			savePollEvent.poll = buildPoll();
 			savePollEvent.poll.status = !callingFromPublish;
-			savePollEvent.poll.publishToWeb = _publishToWeb;
+			
 			LogUtil.debug(LOGNAME + " poll.didNotVote is " + savePollEvent.poll.didNotVote + " at the point of saving");
 			dispatchEvent(savePollEvent);
 			if(!callingFromPublish)
 				closeInstructionsWindow();
 		}
 		
+		private function generateWebKey():void{
+			if (_publishToWeb){
+				LogUtil.debug(LOGNAME + "About to generate web key");
+				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
+				LogUtil.debug(LOGNAME + "Survived making new event");
+				generate.poll = buildPoll();
+				LogUtil.debug(LOGNAME + "Survived adding poll to event, preparing to dispatch");
+				dispatchEvent(generate);
+				LogUtil.debug(LOGNAME + "Survived dispatching event");
+			}
+		}
+		
+		// About to rethink how publishing works, hang on to something
 		private function publish():void {
-			savePoll(true);
+			LogUtil.debug(LOGNAME+"Entering publish()");
+			//savePoll(true);
+			
 			var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
-			publishPollEvent.poll.title = _title;
+			publishPollEvent.poll = buildPoll();
+			publishPollEvent.poll.webKey = _webKey;
+			LogUtil.debug(LOGNAME + "publishPollEvent.poll.webKey: " + publishPollEvent.poll.webKey);
 			dispatchEvent(publishPollEvent);
+			
 			dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
 			closeInstructionsWindow();
-			if (_publishToWeb){
-				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
-				generate.poll = publishPollEvent.poll;
-				dispatchEvent(generate);
-			}
 		}
 		
 		private function allowPublishing():void {
@@ -530,7 +551,13 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 <!-- Back Button is not visible while instructions and visible while preView -->
 <mx:Button id="back" label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.modify')}" click="{mainArea.selectedChild=instrMain} {buttons.selectedChild=instrButtons} goBack()" width="100" height="30" visible="false"/>
 
-<mx:Button id="publishButton" label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}" click="publish()" width="100" height="30" visible="false"/>
+<mx:Button 	id="publishButton" 
+			label="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.publish')}" 
+			rollOver="generateWebKey();"
+			click="publish();" 
+			width="100" 
+			height="30" 
+			visible="false"/>
 <mx:ViewStack id="buttons">
 
 <!--buttons that appear when Instructions is displayed -->

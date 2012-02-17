@@ -24,7 +24,9 @@ package org.bigbluebutton.modules.polling.events
 	public class GenerateWebKeyEvent extends Event
 	{
 		public static const GENERATE:String = "GENERATE";
+		public static const RETURN:String = "RETURN TO INSTRUCTIONS WINDOW";
 		
+		public var repost:Boolean;
 		public var pollKey:String;
 		public var poll:PollObject;
 		

@@ -13,12 +13,17 @@ package org.bigbluebutton.modules.polling.model
 	{
 		public static const LOGNAME:String = "[PollingObject] ";
 		
-		/* KEY PLACES TO UPDATE, WHEN ADDING NEW FIELDS TO THE HASH:
-		 * PollingService.as, sharePollingWindow()
-		 * PollingService.as, openPollingWindow()
-		 * PollingService.as, savePoll()
-		 * PollingService.as, extractPoll()
-		 * Don't forget the server side as well (key locations found in Poll.java)
+		/* 
+		 ########################################################################################
+		 # KEY PLACES TO UPDATE, WHEN ADDING NEW FIELDS TO THE HASH:							#
+		 # PollingService.as, sharePollingWindow()												#
+		 # PollingService.as, openPollingWindow()												#
+		 # PollingService.as, buildServerPoll()														#
+		 # PollingService.as, extractPoll()														#
+		 # PollingInstructionsWindow.mxml, buildPoll()											#
+		 # - Only necessary when the new field is involved with poll creation					#
+		 # Don't forget to update the server side as well (key locations found in Poll.java)	#
+		 ########################################################################################
 		 */
 		
 		public var title:String;
@@ -34,7 +39,8 @@ package org.bigbluebutton.modules.polling.model
 		public var publishToWeb:Boolean;
 		public var webKey:String = new String;
 		
-		// This just loops through the PollObject and does a bunch of LogUtil messages to verify the contents.
+		// For developer use, this method outputs all fields of a poll into the debug log for examination.
+		// Please remember to add lines for any new fields that may be added.
 		public function checkObject():void{
 			if (this != null){
 				LogUtil.debug(LOGNAME + "Running CheckObject on the poll with title " + title);

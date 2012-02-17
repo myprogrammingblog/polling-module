@@ -44,12 +44,23 @@ public class PollService {
 	
 	public void savePoll(ArrayList clientSidePoll){
 		log.debug(LOGNAME+"SAVEPOLL starting");
+		/*
+		log.debug(LOGNAME + "State of the clientSidePoll array:");
+		for (int i = 0; i < clientSidePoll.size(); i++)
+			log.debug(LOGNAME + "clientSidePoll["+i+"]: " + clientSidePoll.get(i));
+		*/
 	    String pollTime = DateFormatUtils.formatUTC(System.currentTimeMillis(), "MM/dd/yy HH:mm");
 	    clientSidePoll.set(6, pollTime);
 	    poll = new Poll(clientSidePoll);
+	    log.debug(LOGNAME+"Survived instantiating a new Poll with the array from client-side");
 	    log.debug(LOGNAME+"Checking the savePoll; Poll status is:");
 	    poll.checkObject();
 	    application.savePoll(poll);
+	}
+	
+	public ArrayList publish(ArrayList clientSidePoll, String pollKey){
+		savePoll(clientSidePoll);
+		return getPoll(pollKey);
 	}
 	
 	public void saveWebKey(String pollKey, String webKey){
@@ -101,9 +112,11 @@ public class PollService {
 	}
 	
 	public String generate(String pollKey){
+		log.debug("In PollService generate()");
 		String webKey;
 		webKey = application.generate(pollKey);
 		saveWebKey(pollKey, webKey);
+		log.debug("WebKey " + webKey + " has been generated for poll " + pollKey);
 		return webKey;
 	}
 }

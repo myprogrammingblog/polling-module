@@ -65,18 +65,25 @@ public class Poll{
 	
 	@SuppressWarnings("unchecked")
 	public Poll (ArrayList otherPoll){
-		 title 			= otherPoll.get(0).toString();
-		 room 			= otherPoll.get(1).toString();
-		 isMultiple 	= (Boolean)otherPoll.get(2);
-		 question 		= otherPoll.get(3).toString();
-		 answers 		= (ArrayList)otherPoll.get(4);
-		 votes 			= (ArrayList)otherPoll.get(5);
-		 time 			= otherPoll.get(6).toString();
-		 totalVotes 	= Integer.parseInt(otherPoll.get(7).toString());
-		 status 		= (Boolean)otherPoll.get(8);
-		 didNotVote 	= Integer.parseInt(otherPoll.get(9).toString());
-		 publishToWeb 	= (Boolean)otherPoll.get(10);
-		 webKey 		= otherPoll.get(11).toString();
+		//log.debug(LOGNAME+"Entering poll constructor");
+		title 			= otherPoll.get(0).toString();
+		room 			= otherPoll.get(1).toString();
+		isMultiple 		= (Boolean)otherPoll.get(2);
+		question 		= otherPoll.get(3).toString();
+		answers 		= (ArrayList)otherPoll.get(4);
+		votes 			= (ArrayList)otherPoll.get(5);
+		time 			= otherPoll.get(6).toString();
+		totalVotes 		= Integer.parseInt(otherPoll.get(7).toString());
+		status 			= (Boolean)otherPoll.get(8);
+		didNotVote	 	= Integer.parseInt(otherPoll.get(9).toString());
+		publishToWeb 	= (Boolean)otherPoll.get(10);
+		if (publishToWeb && webKey != null){
+			webKey		= otherPoll.get(11).toString();
+		}
+		else{
+			webKey		= "";
+		}
+		//log.debug(LOGNAME+"Exiting constructor");
 	}
 
 	public String getRoom() {

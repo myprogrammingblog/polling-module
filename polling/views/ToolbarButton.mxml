@@ -51,6 +51,8 @@
 			import org.bigbluebutton.modules.polling.model.ValueObject;
 			import org.bigbluebutton.modules.polling.model.PollObject;
 			
+			import org.bigbluebutton.util.i18n.ResourceUtil;
+			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
 			import mx.events.MenuEvent;
@@ -114,7 +116,7 @@
 			private function renderMenu():void{
 				LogUtil.debug(LOGNAME +"Entering RenderMenu, titleList is: " + titleList);
 				myMenuData.removeAll();
-				myMenuData.addItem(new ValueObject("create", "Create New Poll"));
+				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.menu.createNewPoll')));
 					LogUtil.debug(LOGNAME +"After adding Create entry");
 				
 				for (var i:int = 0; i < pollList.length; i++){
@@ -123,7 +125,7 @@
 						var menuEntry:ValueObject = new ValueObject(keyString, pollList[i].title);
 						menuEntry.poll = pollList[i];
 						if (!pollList[i].status){
-							menuEntry.label = "X " + menuEntry.label;
+							menuEntry.label = "X-" + menuEntry.label;
 						}else{
 							menuEntry.icon = "OpenIcon";
 						}

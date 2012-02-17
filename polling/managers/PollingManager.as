@@ -139,8 +139,8 @@ package org.bigbluebutton.modules.polling.managers
 		{
 			if (!service.getPollingStatus() && (e.poll.title != null)){
 				LogUtil.debug(LOGNAME + " inside handlePublishPollEvent(), calling getPoll");
-				pollKey = module.getRoom() +"-"+ e.poll.title ;
-				service.getPoll(pollKey, "publish");
+				e.poll.room = module.getRoom();
+				service.publish(e.poll);
 			}else{
 				if (service.getPollingStatus())
 					LogUtil.debug(LOGNAME + "Publishing denied; poll is still open!");
@@ -167,9 +167,8 @@ package org.bigbluebutton.modules.polling.managers
 			} 
 			LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators right before poll reposts.");
 			e.poll.didNotVote = participants;
-			pollKey = module.getRoom() +"-"+ e.poll.title ;
-			service.savePoll(e.poll);
-			service.getPoll(pollKey, "publish");
+			e.poll.room = module.getRoom();
+			service.publish(e.poll);
 		}
 		
 		public function handleVoteEvent(e:VoteEvent):void
@@ -185,6 +184,12 @@ package org.bigbluebutton.modules.polling.managers
 			e.poll.room = module.getRoom();
 			e.pollKey = e.poll.room +"-"+ e.poll.title;
 			service.generate(e);
+		}
+		
+		public function handleReturnWebKeyEvent(e:GenerateWebKeyEvent):void
+		{
+			LogUtil.debug(LOGNAME + " inside handleReturnWebKeyEvent()");
+			viewWindowManager.handleReturnWebKeyEvent(e);
 		}
 		//##################################################################################	
 		

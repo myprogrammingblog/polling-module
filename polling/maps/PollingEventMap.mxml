@@ -163,4 +163,7 @@
 	 <EventHandlers type="{GenerateWebKeyEvent.GENERATE}">
 		<MethodInvoker generator="{PollingManager}"  method="handleGenerateWebKeyEvent" arguments="{event}"/>
 	 </EventHandlers>
+	 <EventHandlers type="{GenerateWebKeyEvent.RETURN}">
+		<MethodInvoker generator="{PollingManager}"  method="handleReturnWebKeyEvent" arguments="{event}"/>
+	 </EventHandlers>
 </EventMap>

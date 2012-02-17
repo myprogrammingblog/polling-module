@@ -42,6 +42,7 @@ package org.bigbluebutton.modules.polling.managers
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
 	import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 	import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
+	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 	
 	import org.bigbluebutton.modules.polling.model.PollObject;
 			
@@ -114,6 +115,18 @@ package org.bigbluebutton.modules.polling.managers
 			  LogUtil.debug(LOGNAME +" inside handleCheckTitlesInInstructions ");
 			  LogUtil.debug(LOGNAME +" BINGO titles going into instructions: " + e.titleList);
 			  instructionsWindow.invalidTitles = e.titleList;
+		  }
+		  
+		  public function handleReturnWebKeyEvent(e:GenerateWebKeyEvent):void
+		  {
+			  LogUtil.debug(LOGNAME + " inside handleReturnWebKeyEvent()");
+			  if (!e.repost){
+				  instructionsWindow._webKey = e.poll.webKey;
+				  LogUtil.debug(LOGNAME + " Returning webkey to instructions window: " + instructionsWindow._webKey);
+			  }else{
+				  statsWindow.trackingPoll.webKey = e.poll.webKey;
+				  LogUtil.debug(LOGNAME + " Returning webkey to stats window: " + statsWindow.trackingPoll.webKey);
+			  }
 		  }
 		//##########################################################################
 		

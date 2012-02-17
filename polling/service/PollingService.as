@@ -152,12 +152,14 @@ package org.bigbluebutton.modules.polling.service
 	        		e.poll = poll;
           			dispatcher.dispatchEvent(e);
           		}else{
-          			//LogUtil.debug(LOGNAME + "Checking the object for moderator polling view");
+          			LogUtil.debug(LOGNAME + "Checking the object for moderator polling view");
           			var stats:PollingStatsWindowEvent = new PollingStatsWindowEvent(PollingStatsWindowEvent.OPEN);
-          			//LogUtil.debug(LOGNAME + "Survived creating stats event");
+          			LogUtil.debug(LOGNAME + "Survived creating stats event");
           			stats.poll = poll;
+          			LogUtil.debug(LOGNAME + "Check webKey before stats window is dispatched");
+          			stats.poll.checkObject();
           			stats.poll.status = false;
-          			//LogUtil.debug(LOGNAME + "Survived populating stats event");
+          			LogUtil.debug(LOGNAME + "Survived populating stats event");
           			dispatcher.dispatchEvent(stats);
           		}
          }
@@ -227,32 +229,32 @@ package org.bigbluebutton.modules.polling.service
 		
 		public function savePoll(poll:PollObject):void
 		{
-			var serverPoll:Array = new Array(poll.title, poll.room, poll.isMultiple, poll.question, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.status, poll.didNotVote, poll.publishToWeb, poll.webKey);
-			LogUtil.debug(LOGNAME + " poll.didNotVote is " + serverPoll[9] + " right before nc.call");
-			nc.call("poll.savePoll",
-				new Responder(
-					function(result:Object):void { 
-						LogUtil.debug(LOGNAME+" succesfully connected  sent info to server with savePoll"); 
-					},	
-					function(status:Object):void { 
-						LogUtil.error(LOGNAME + "Error occurred sending info to server in SAVEPOLL NC.CALL"); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),
-				serverPoll
-			); 
-			//_netConnection.call
-			LogUtil.debug(LOGNAME + " After Connection");
+			var serverPoll:Array = buildServerPoll(poll);
+			LogUtil.debug(LOGNAME + "State of the serverPoll array:");
+			for (var i:int = 0; i < serverPoll.length; i++)
+				LogUtil.debug(LOGNAME + "serverPoll["+i+"]:" + serverPoll[i]);
+					
+			nc.call("poll.savePoll", new Responder(success, failure), serverPoll);
+						
+			//--------------------------------------//
+			
+			// Responder functions
+			function success(obj:Object):void{
+				LogUtil.debug(LOGNAME+" succesfully connected  sent info to server with savePoll"); 
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME + "Error occurred sending info to server in SAVEPOLL NC.CALL"); 
+			}
+			
+			//--------------------------------------//
 		}
 		//#################################################//
 				
 	   	public function  getPoll(pollKey:String, option:String):void{	   	
 			LogUtil.debug(LOGNAME + "inside getPoll making netconnection getting our poll back! key: " + pollKey);
-			// So, the data stays in poll until nc.call ends, and then disappears.			
+			
 			nc.call("poll.getPoll", new Responder(success, failure), pollKey);
-			// What happens in nc.call, stays in nc.call; data will have to reach the server to persist
 			
 			//--------------------------------------//
 			
@@ -271,6 +273,38 @@ package org.bigbluebutton.modules.polling.service
 			//--------------------------------------//
 	   } // _getPoll 
 	  
+	  	//#################################################//
+		 
+		 public function publish(poll:PollObject):void{
+		 	LogUtil.debug(LOGNAME + "inside service.publish to save and subsequently get the poll");
+			var pollKey:String = poll.room + "-" + poll.title;
+			var webKey:String = poll.webKey;
+			var serverPoll:Array = buildServerPoll(poll);
+			poll.checkObject();
+			LogUtil.debug("Just about to publish");
+			nc.call("poll.publish", new Responder(success, failure), serverPoll, pollKey);
+						
+			//--------------------------------------//
+			
+			// Responder functions
+			function success(obj:Object):void{
+				LogUtil.debug(LOGNAME+"SERVICE.PUBLISH: succesfully connected  sent info to server");
+				var itemArray:Array = obj as Array;
+				if (webKey != null){
+					itemArray[11] = webKey;
+				}
+				extractPoll(itemArray, pollKey, "publish");
+			}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME + "Error occurred sending info to server in PUBLISH NC.CALL"); 
+			}
+			
+			//--------------------------------------//
+		 }
+	  	
+	  	//#################################################//
+	    
 	     public function extractPoll(values:Array, pollKey:String, option:String):void {
 		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
 		    var poll:PollObject = new PollObject();
@@ -288,10 +322,10 @@ package org.bigbluebutton.modules.polling.service
 		    poll.publishToWeb 	= values[10] as Boolean;
 		    poll.webKey			= values[11] as String;
 		    
-		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
 		    if (option == "publish"){
 		    	LogUtil.debug(LOGNAME + "You hit option publish");
 		    	LogUtil.debug(LOGNAME + " poll.didNotVote is " + poll.didNotVote + " in extractPoll for publishing");
+		    	poll.checkObject();
 		    	sharePollingWindow(poll);
 		    }
 		    else if (option == "refresh"){
@@ -316,9 +350,14 @@ package org.bigbluebutton.modules.polling.service
 		    	pollInitialize.pollKey = pollKey;
 		    	dispatcher.dispatchEvent(pollInitialize);
 		    }
+		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
 		 }
 		 
-		
+		 //#################################################//
+		private function buildServerPoll(poll:PollObject):Array{
+			var builtPoll:Array = new Array(poll.title, poll.room, poll.isMultiple, poll.question, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.status, poll.didNotVote, poll.publishToWeb, poll.webKey);
+			return builtPoll;
+		}
 	   	
 	   	public function closeAllPollingWindows():void{
         	if (isConnected = true ) {
@@ -469,15 +508,22 @@ package org.bigbluebutton.modules.polling.service
 			//--------------------------------------//
 		 }
 		 
-		 public function generate(e:GenerateWebKeyEvent):void{
-		 	nc.call("poll.generate", new Responder(success, failure), e.pollKey);
+		 public function generate(generateEvent:GenerateWebKeyEvent):void{
+		 	LogUtil.debug("Entering generate for web key; incoming poll is:");
+		 	generateEvent.poll.checkObject();
+		 	nc.call("poll.generate", new Responder(success, failure), generateEvent.pollKey);
 		 	
 		 	//--------------------------------------//
 			
 			// Responder functions
 			function success(obj:Object):void{
 				var webKey:String = obj as String;
-				LogUtil.debug(LOGNAME+"Responder object success! Webkey is generated");
+				LogUtil.debug(LOGNAME+"Responder object success! Webkey is generated: " + webKey);
+				var webKeyReturnEvent:GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.RETURN);
+				webKeyReturnEvent.poll = generateEvent.poll
+				webKeyReturnEvent.poll.webKey = webKey;
+				LogUtil.debug(LOGNAME+"Webkey in RETURN event is: " + webKeyReturnEvent.poll.webKey);
+				dispatcher.dispatchEvent(webKeyReturnEvent);
 			}
 	
 			function failure(obj:Object):void{
