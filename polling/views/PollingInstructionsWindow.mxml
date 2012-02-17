@@ -100,11 +100,11 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function onCreationComplete():void{
-			LogUtil.debug(LOGNAME + "Instructions Window is Created");
-			LogUtil.debug(LOGNAME + "About to check incomingPoll");
+		//	LogUtil.debug(LOGNAME + "Instructions Window is Created");
+		//	LogUtil.debug(LOGNAME + "About to check incomingPoll");
 			if (incomingPoll != null){
 				//incomingPoll.checkObject();
-				LogUtil.debug(LOGNAME + "Editing is: " + editing);
+			//	LogUtil.debug(LOGNAME + "Editing is: " + editing);
 				pollTitle.text = incomingPoll.title;
 				pollQuestion.text = incomingPoll.question;		
 				for (var i:int = 0; i < incomingPoll.answers.length; i++){
@@ -220,9 +220,9 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 						}
 					}
 				}
-				LogUtil.debug(LOGNAME + "Survived for-loop");
+				//LogUtil.debug(LOGNAME + "Survived for-loop");
 			}else{
-				LogUtil.debug(LOGNAME+"Editing is " + editing + ", ignoring title rule");
+				//LogUtil.debug(LOGNAME+"Editing is " + editing + ", ignoring title rule");
 			}
 			
 			if (pollTitle.length == 0 ){
@@ -409,27 +409,27 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function savePoll(callingFromPublish:Boolean = false):void {
-			LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
+			//LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
 			participants = 0;
-			LogUtil.debug(LOGNAME + "Survived setting participants as 0");
+			//LogUtil.debug(LOGNAME + "Survived setting participants as 0");
 			var p:BBBUser;
 			LogUtil.debug(LOGNAME + "Survived setting p as a BBBUser");
 			conference = UserManager.getInstance().getConference();
-			LogUtil.debug(LOGNAME + "Conference.users.length is: " + conference.users.length);
+			//LogUtil.debug(LOGNAME + "Conference.users.length is: " + conference.users.length);
 			for (var i:int = 0; i < conference.users.length; i++) {
-				LogUtil.debug(LOGNAME + "In for loop");
+				//LogUtil.debug(LOGNAME + "In for loop");
 				p = conference.users.getItemAt(i) as BBBUser;
 				if (p.role != Role.MODERATOR) {
 					participants++;
 				}
 			} 
-			LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators right before poll saves.");
+			//LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators right before poll saves.");
 			
 			var savePollEvent: SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
 			savePollEvent.poll = buildPoll();
 			savePollEvent.poll.status = !callingFromPublish;
 			
-			LogUtil.debug(LOGNAME + " poll.didNotVote is " + savePollEvent.poll.didNotVote + " at the point of saving");
+			//LogUtil.debug(LOGNAME + " poll.didNotVote is " + savePollEvent.poll.didNotVote + " at the point of saving");
 			dispatchEvent(savePollEvent);
 			if(!callingFromPublish)
 				closeInstructionsWindow();
@@ -437,13 +437,13 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		
 		private function generateWebKey():void{
 			if (_publishToWeb){
-				LogUtil.debug(LOGNAME + "About to generate web key");
+				//LogUtil.debug(LOGNAME + "About to generate web key");
 				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
-				LogUtil.debug(LOGNAME + "Survived making new event");
+				//LogUtil.debug(LOGNAME + "Survived making new event");
 				generate.poll = buildPoll();
-				LogUtil.debug(LOGNAME + "Survived adding poll to event, preparing to dispatch");
+				//LogUtil.debug(LOGNAME + "Survived adding poll to event, preparing to dispatch");
 				dispatchEvent(generate);
-				LogUtil.debug(LOGNAME + "Survived dispatching event");
+				//LogUtil.debug(LOGNAME + "Survived dispatching event");
 			}
 		}
 		

@@ -124,8 +124,8 @@ echo "Copying polling recorder to bbb-aps ......"
 			cp     ./polling/events/SavePollEvent.as $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/SavePollEvent.as
 			cp     ./polling/events/StartPollingEvent.as $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/StartPollingEvent.as
 			cp     ./polling/events/StopPollEvent.as $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/StopPollEvent.as
-			cp     ./polling/events/ToolbarComboEvent.as $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/ToolbarComboEvent.as
 			cp     ./polling/events/VoteEvent.as $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/VoteEvent.as
+			cp     ./polling/events/GenerateWebKeyEvent.as $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/GenerateWebKeyEvent.as
 			
 
 			if [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/ModuleEvent.as ] &&
@@ -143,9 +143,9 @@ echo "Copying polling recorder to bbb-aps ......"
 		           [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/ReviewResultsEvent.as ] && 
 		           [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/StartPollingEvent.as ] && 
 		           [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/StopPollEvent.as ] && 
-		           [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/ToolbarComboEvent.as ] && 
 		           [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/VoteEvent.as ] && 
 		           [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/PublishPollEvent.as ] && 
+			   [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/GenerateWebKeyEvent.as ] && 	
 		           [ -f $BBB/bigbluebutton-client/src/org/bigbluebutton/modules/polling/events/SavePollEvent.as ]  
 			 	then 
 	    		           echo "                                                             [Done]"
