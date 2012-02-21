@@ -203,7 +203,7 @@ public class PollApplication {
 		Jedis jedis = dbConnect();
 		
 		if (!jedis.exists(CURRENTKEY)){
-			jedis.set(CURRENTKEY, "-1");
+			jedis.set(CURRENTKEY, "0");
 			log.debug("Success in resetting " + CURRENTKEY);
 		}
 		
@@ -224,8 +224,8 @@ public class PollApplication {
 			log.debug("Increasing index");
 			nextIndex = index.toString();
 		}else{
-			log.debug("Rolling index over to 0");
-			nextIndex = "0";
+			log.debug("Rolling index over to 1");
+			nextIndex = "1";
 		}
 		log.debug("Returning index: " + nextIndex);
 		return nextIndex;
