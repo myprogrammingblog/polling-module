@@ -45,7 +45,7 @@ public class PollApplication {
 	private static final String APP = "Poll";
 	private PollRoomsManager roomsManager;
 	private String CURRENTKEY = "bbb-polling-webID";
-	private int MAX_WEBKEYS	= 9;
+	private int MAX_WEBKEYS	= 9999;
 	
 	public PollHandler handler;
 	
@@ -85,15 +85,6 @@ public class PollApplication {
 		Jedis jedis = dbConnect();
 		log.debug("PollApplication.destroyPolls");
 		
-		/*/ For debugging purposes only, remove before release
-			log.debug("[TEST] Cleaning Redis store ");
-			for (String s : jedis.keys("*"))
-	    	{
-				jedis.del(s);
-	    	}
-		*/// DEBUG: Clean Redis Store
-		
-		//*
 		ArrayList polls = titleList();
 		
 	    int pollCounter = 0;
@@ -102,7 +93,6 @@ public class PollApplication {
 		for (int i = 0; i < polls.size(); i++){
 			String pollKey = name + "-" + polls.get(i).toString();
 			Poll doomedPoll = getPoll(pollKey);
-			//String webKey = null;
 			ArrayList <String> webKeys = new ArrayList <String>();
 			
 			
@@ -148,7 +138,7 @@ public class PollApplication {
 			}
 			log.debug(" Deleted " + pollCounter + " polls.");
 			log.debug(" Deleted " + webCounter + " webkeys.");
-		}//*/
+		}
 	}
 	
 	public boolean hasRoom(String name) {
@@ -212,34 +202,33 @@ public class PollApplication {
 		log.debug("Entering PollApplication.generate with pollKey " + pollKey);
 		Jedis jedis = dbConnect();
 		
-		if (!jedis.exists(CURRENTKEY) || Integer.parseInt(jedis.get(CURRENTKEY)) > MAX_WEBKEYS){
-			// If the bbb-polling-webID key doesn't exist, or has reached the limit set in MAX_WEBKEYS, start/restart it at "0"
-			// We don't need to worry about deleting keys when we loop around, because Redis will simply overwrite what's already there if it comes to that.
-			// With a high enough value in MAX_WEBKEYS, that won't be a problem to functionality.
-			if (!jedis.exists(CURRENTKEY))
-				log.debug("The " + CURRENTKEY + " pair doesn't exist, creating it again with zero.");
-			if (Integer.parseInt(jedis.get(CURRENTKEY)) > MAX_WEBKEYS)
-				log.debug("The " + CURRENTKEY + " pair exceeds the max, creating it again with zero.");
-			jedis.set(CURRENTKEY, "0");
-			log.debug("Success in setting/resetting " + CURRENTKEY);
+		if (!jedis.exists(CURRENTKEY)){
+			jedis.set(CURRENTKEY, "-1");
+			log.debug("Success in resetting " + CURRENTKEY);
 		}
 		
-		// The value stored in the bbb-polling-webID key represents the next available web-friendly poll ID 
-		String webKeyString = jedis.get(CURRENTKEY);
-		Integer webKeyInt = Integer.parseInt(webKeyString);
-		
-		// Increment the web poll ID until we find one that isn't being used
-		while (jedis.exists(webKeyString)){
-			log.debug("The pair with key " + webKeyString + " exists, incrementing and trying again.");
-			++webKeyInt;
-			webKeyString = webKeyInt.toString();
-			log.debug("WebKeyString is now " + webKeyString);
-		}
-		log.debug("Checking is done, setting a new pair with " + webKeyString + " and the pollKey for a value.");
-		jedis.set(webKeyString, pollKey);
+		// The value stored in the bbb-polling-webID key represents the next available web-friendly poll ID 		
+		String nextWebKey = webKeyIncrement(Integer.parseInt(jedis.get(CURRENTKEY)), jedis);
+		jedis.del(nextWebKey);
+		jedis.set(nextWebKey, pollKey);
+		log.debug("Checking is done, setting a new pair with " + nextWebKey + " and the pollKey for a value.");
 		// Replace the value stored in bbb-polling-webID
-		jedis.set(CURRENTKEY, webKeyString);
-		return webKeyString;
+		jedis.set(CURRENTKEY, nextWebKey);
+		return nextWebKey;
+	}
+	
+	private String webKeyIncrement(Integer index, Jedis jedis){
+		log.debug("Entering PollApplication.webKeyIncrement with index: " + index);
+		String nextIndex;
+		if (++index <= MAX_WEBKEYS){
+			log.debug("Increasing index");
+			nextIndex = index.toString();
+		}else{
+			log.debug("Rolling index over to 0");
+			nextIndex = "0";
+		}
+		log.debug("Returning index: " + nextIndex);
+		return nextIndex;
 	}
 }
 
