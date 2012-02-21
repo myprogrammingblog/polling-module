@@ -44,12 +44,20 @@ public class PollApplication {
 		
 	private static final String APP = "Poll";
 	private PollRoomsManager roomsManager;
-	private String WEBKEY = "bbb-polling-webID";
+	private String CURRENTKEY = "bbb-polling-webID";
+	private int MAX_WEBKEYS	= 9;
 	
 	public PollHandler handler;
 	
 	public boolean createRoom(String name) {
 		roomsManager.addRoom(new PollRoom(name));
+		return true;
+	}
+	
+	public boolean destroyRoom(String name) {
+		if (roomsManager.hasRoom(name))
+			roomsManager.removeRoom(name);
+		destroyPolls(name);
 		return true;
 	}
 	
@@ -72,39 +80,83 @@ public class PollApplication {
  	       return redisPool.getResource();
     }
 	
-	public boolean destroyRoom(String name) {
-		if (roomsManager.hasRoom(name)) {
-			roomsManager.removeRoom(name);
-			// Destroy polls that were created in the room
-			Jedis jedis = dbConnect();
-		    for (String s : jedis.keys(name+"*"))
-		    {
-		       try
-		       {
-		    	   jedis.del(jedis.hget(s, "webKey"));
-		    	   jedis.del(s);
-		    	   log.debug("[TEST] Deletion of key " + s + " successful!");
-		       } 
-		       catch (Exception e) 
-		       {
-		    	   log.debug("[TEST] Error in deleting key.");
-		       }
-		    }
-		    // _Poll destruction
-		}
-		return true;
+	public void destroyPolls(String name){
+		// Destroy polls that were created in the room
+		Jedis jedis = dbConnect();
+		log.debug("PollApplication.destroyPolls");
+		
+		/*/ For debugging purposes only, remove before release
+			log.debug("[TEST] Cleaning Redis store ");
+			for (String s : jedis.keys("*"))
+	    	{
+				jedis.del(s);
+	    	}
+		*/// DEBUG: Clean Redis Store
+		
+		//*
+		ArrayList polls = titleList();
+		
+	    int pollCounter = 0;
+	    int webCounter = 0;
+	    
+		for (int i = 0; i < polls.size(); i++){
+			String pollKey = name + "-" + polls.get(i).toString();
+			Poll doomedPoll = getPoll(pollKey);
+			//String webKey = null;
+			ArrayList <String> webKeys = new ArrayList <String>();
+			
+			
+			String webKeyString = jedis.get(CURRENTKEY);
+			Integer webKeyInt = Integer.parseInt(webKeyString);
+			log.debug("webKeyString is " + webKeyString + " and webKeyInt is " + webKeyInt);
+			
+			if (doomedPoll.publishToWeb){
+				log.debug("Poll is web-enabled, prepping for webkey deletion");
+				// Search through the available webkeys to find one that holds this poll
+				for (Integer index = 0; index <= webKeyInt; index++){
+					String indexStr = index.toString();
+					log.debug("indexStr is " + indexStr);
+					if (jedis.exists(indexStr)){
+						if (jedis.get(indexStr).equals(pollKey)){
+							log.debug("PollKey has been found at webKey " + indexStr);
+							webKeys.add(indexStr);
+						}
+					}
+				}
+
+				log.debug("The poll about to be deleted lives at webKey: " + webKeys);
+			}
+			try{
+				jedis.del(pollKey);
+				++pollCounter;
+				log.debug("[TEST] Poll deletion successful on title: " + polls.get(i).toString());
+				
+				for (String s : webKeys){
+					log.debug("Trying to delete webkey " + s);
+					try{
+						jedis.del(s);
+						log.debug("Webkey deletion successful!");
+						++webCounter;
+					}
+					catch (Exception e){
+						log.debug("[ERROR] Webkey deletion had a problem.");
+					}
+				}
+			}
+			catch (Exception e){
+				log.debug("[ERROR] Poll deletion had a problem.");
+			}
+			log.debug(" Deleted " + pollCounter + " polls.");
+			log.debug(" Deleted " + webCounter + " webkeys.");
+		}//*/
 	}
 	
 	public boolean hasRoom(String name) {
-	
-	
 		return roomsManager.hasRoom(name);
 	}
 	
 	public boolean addRoomListener(String room, IPollRoomListener listener) {
 		if (roomsManager.hasRoom(room)){
-		
-			
 			roomsManager.addRoomListener(room, listener);
 			return true;
 		}
@@ -157,20 +209,36 @@ public class PollApplication {
 	}
 	
 	public String generate(String pollKey){
+		log.debug("Entering PollApplication.generate with pollKey " + pollKey);
 		Jedis jedis = dbConnect();
-		if (!jedis.exists(WEBKEY)){
-			// If the bbb-polling-webID key doesn't exist, create it and start it at "0"
-			jedis.set(WEBKEY, "0");
+		
+		if (!jedis.exists(CURRENTKEY) || Integer.parseInt(jedis.get(CURRENTKEY)) > MAX_WEBKEYS){
+			// If the bbb-polling-webID key doesn't exist, or has reached the limit set in MAX_WEBKEYS, start/restart it at "0"
+			// We don't need to worry about deleting keys when we loop around, because Redis will simply overwrite what's already there if it comes to that.
+			// With a high enough value in MAX_WEBKEYS, that won't be a problem to functionality.
+			if (!jedis.exists(CURRENTKEY))
+				log.debug("The " + CURRENTKEY + " pair doesn't exist, creating it again with zero.");
+			if (Integer.parseInt(jedis.get(CURRENTKEY)) > MAX_WEBKEYS)
+				log.debug("The " + CURRENTKEY + " pair exceeds the max, creating it again with zero.");
+			jedis.set(CURRENTKEY, "0");
+			log.debug("Success in setting/resetting " + CURRENTKEY);
 		}
+		
 		// The value stored in the bbb-polling-webID key represents the next available web-friendly poll ID 
-		String webKeyString = jedis.get(WEBKEY);
+		String webKeyString = jedis.get(CURRENTKEY);
 		Integer webKeyInt = Integer.parseInt(webKeyString);
+		
 		// Increment the web poll ID until we find one that isn't being used
 		while (jedis.exists(webKeyString)){
+			log.debug("The pair with key " + webKeyString + " exists, incrementing and trying again.");
 			++webKeyInt;
 			webKeyString = webKeyInt.toString();
+			log.debug("WebKeyString is now " + webKeyString);
 		}
+		log.debug("Checking is done, setting a new pair with " + webKeyString + " and the pollKey for a value.");
 		jedis.set(webKeyString, pollKey);
+		// Replace the value stored in bbb-polling-webID
+		jedis.set(CURRENTKEY, webKeyString);
 		return webKeyString;
 	}
 }
