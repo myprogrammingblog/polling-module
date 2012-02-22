@@ -40,8 +40,6 @@ public class PollRecorder {
 
          public PollRecorder() {
         	 super();
-                  log.debug("[TEST] initializing PollRecorder");
-
          }
 
        public Jedis dbConnect(){
@@ -53,10 +51,10 @@ public class PollRecorder {
      	           // Get hostname
      	           String hostname = addr.getHostName();
      	           serverIP = hostname;
-     	       	log.debug("[TEST] IP capture successful, IP is " + serverIP);
-     	       } catch (Exception e)
+     	       } 
+     	       catch (Exception e)
      	       {
-     	       	log.debug("[TEST] IP capture failed...");
+     	    	   log.error("IP capture failed.");
      	       }
      	       
      	       JedisPool redisPool = new JedisPool(serverIP, 6379);
@@ -72,50 +70,40 @@ public class PollRecorder {
         }
         
         public void record(Poll poll) {
-            log.debug("[TEST] inside pollRecorder record");
             Jedis jedis = dbConnect();
             // Merges the poll title, room into a single string seperated by a hyphen
 			String pollKey = poll.room + "-" + poll.title;
-			log.debug("[TEST] Saving poll " + pollKey);
-			
 			// Saves all relevant information about the poll as fields in a hash
 			jedis.hset(pollKey, "title", poll.title);
 			jedis.hset(pollKey, "question", poll.question);
 			jedis.hset(pollKey, "multiple", poll.isMultiple.toString());
 			jedis.hset(pollKey, "room", poll.room);
 			jedis.hset(pollKey, "time", poll.time);
-				
 			// Dynamically creates enough fields in the hash to store all of the answers and their corresponding votes.
 			// If the poll is freshly created and has no votes yet, the votes are initialized at zero;
 			// otherwise it fetches the previous number of votes.
 			for (int i = 1; i <= poll.answers.size(); i++)
 			{
 				jedis.hset(pollKey, "answer"+i+"text", poll.answers.toArray()[i-1].toString());
-
 				if (poll.votes == null){
 					jedis.hset(pollKey, "answer"+i, "0");					
 				}else{
 					jedis.hset(pollKey, "answer"+i, poll.votes.toArray()[i-1].toString());
-					log.debug("[TEST] answer"+i+" votes: " + poll.votes.toArray()[i-1].toString());
 				}
 			}
-			
 			Integer tv = poll.totalVotes;
 			String totalVotesStr = tv.toString();
-			
+			Integer dnv = poll.didNotVote;
+			String didNotVoteStr = dnv.toString();
 			if (totalVotesStr == null){
 				jedis.hset(pollKey, "totalVotes", "0");
 			}else{
 				jedis.hset(pollKey, "totalVotes", totalVotesStr);
 			}
 			jedis.hset(pollKey, "status", poll.status.toString());
-			
-			Integer dnv = poll.didNotVote;
-			String didNotVoteStr = dnv.toString();
 			jedis.hset(pollKey, "didNotVote", didNotVoteStr);
 			jedis.hset(pollKey, "publishToWeb", poll.publishToWeb.toString());
 			jedis.hset(pollKey, "webKey", poll.webKey);
-			log.debug("[TEST] Poll " + pollKey + " saved!");
         }
         
         public void setStatus(String pollKey, Boolean status){
@@ -128,10 +116,8 @@ public class PollRecorder {
         	for (int i = 0; i < answerIDs.length; i++){
 	    		// Extract  the index value stored at element i of answerIDs
         		Integer index = Integer.parseInt(answerIDs[i].toString()) + 1;
-        		log.debug("RECORDING VOTES Value of index is: " + index);
 	    		// Increment the votes for answer
 	    		jedis.hincrBy(pollKey, "answer"+index, 1);
-	    		log.debug("RECORDING VOTES Incrementing answer"+index);
         	}
         	if (answerIDs.length > 0){
         		if (!webVote)

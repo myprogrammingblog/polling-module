@@ -71,9 +71,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		[Bindable] public var participants:int;
 		
 		
-		
-		// private var allowedChars:RegExp = /^[^;\\]*$/; // for security reasons some characters are not allowed
-		
 		// Bindable is set to allow data to change when You hit Back and change something, this change will appear in review
 		private var conference:Conference;
 		[Bindable]private var _title:String;
@@ -102,11 +99,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		
 		private function onCreationComplete():void{
 			LogUtil.debug(LOGNAME + "Instructions Window is Created");
-			LogUtil.debug(LOGNAME + "About to check incomingPoll");
 			published = false;
 			if (incomingPoll != null){
-				//incomingPoll.checkObject();
-				LogUtil.debug(LOGNAME + "Editing is: " + editing);
 				pollTitle.text = incomingPoll.title;
 				pollQuestion.text = incomingPoll.question;		
 				for (var i:int = 0; i < incomingPoll.answers.length; i++){
@@ -121,7 +115,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 				publishToWeb();
 			}else{
 				editing = false;
-				LogUtil.debug(LOGNAME + "NULL OBJECT: incomingPoll; editing is " + editing);
 			}
 			userName = moduleAttributes.username;
 			this.module = module;
@@ -170,11 +163,8 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			var valid:Boolean = true;
 			// Gathering Error Messages
 			titleErrMsg.text = titleError();
-				LogUtil.debug(LOGNAME + "Survived title validation");
 			qErrMsg.text = questionError();
-				LogUtil.debug(LOGNAME + "Survived question validation");
 			aErrMsg.text = answerError();
-				LogUtil.debug(LOGNAME + "Survived answer validation");
 			// Making Error messages Visible if there is an Error
 			if (titleErrMsg.text != "VALID"){ // checking if function returned any error string
 				titleErrMsg.visible=true;
@@ -192,13 +182,11 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			}else
 				aErrMsg.visible=false;
 			if(valid){
-				LogUtil.debug(LOGNAME + "Survived ALL validation");
 				formatAndReview();
 			}else{
-				LogUtil.debug(LOGNAME + "Something went wrong.....");
+				LogUtil.error(LOGNAME + "Error occurred in poll validation");
 			}
 			allowPublishing();
-			LogUtil.debug(LOGNAME + "Publishing is allowed? " + publishingAllowed);
 			publishButton.enabled = publishingAllowed;
 		}
 		// GENERATING ERROR MESSAGES
@@ -206,25 +194,17 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		//TITLE VALIDATION_cb.numChildren
 		private function titleError():String{
 			var errMsg:String = "VALID";
-			//LogUtil.debug(LOGNAME + "Checking the list of titles that have been used : " + invalidTitles);
-			
 			// If the presenter is creating a new poll, the module will not permit duplicate titles.
 			// If the presenter is editing an existing poll, the module will ignore duplicate titles long enough to save it again.
 			if (!editing){
-				LogUtil.debug(LOGNAME+"Editing is " + editing + ", proceeding as with a new poll (enforcing title rule)");
 				for (var i:int = 0; i < invalidTitles.length; i++){
 					if (invalidTitles[i] != null){
 						var checkTitle:String = invalidTitles[i];
 						if (StringUtil.trim(pollTitle.text.toUpperCase()) == StringUtil.trim(checkTitle.toUpperCase())){
-							LogUtil.debug(LOGNAME + "Title violates the rule, setting error message");
 							errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.duplicateTitle');
-							LogUtil.debug(LOGNAME + "Survived setting error message");
 						}
 					}
 				}
-				LogUtil.debug(LOGNAME + "Survived for-loop");
-			}else{
-				LogUtil.debug(LOGNAME+"Editing is " + editing + ", ignoring title rule");
 			}
 			
 			if (pollTitle.length == 0 ){
@@ -237,7 +217,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 				_title = StringUtil.trim(pollTitle.text);
 			}
 			
-			LogUtil.debug(LOGNAME + "In title validation, about to return errMsg");
 			return errMsg;
 		} // _TITLE VALIDATION
 		
@@ -257,7 +236,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		
 		private function answerError():String{
 			var errMsg:String = "VALID";
-			// var startWithStar:RegExp = /^[*]/; // should start with *
 			var answersArray:Array;
 			var valid:Boolean=true;
 			answersArray = pollAnswers.text.split("\r"); // splitting by '*' and new line, thus user can type '*' anywhere except the newline
@@ -273,26 +251,18 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			else if(answersArray.length > _MAX_ANSWERS_AMOUNT)
 				errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toomuchAnswers') +" "+_MAX_ANSWERS_AMOUNT;
 			else {
-				// If user just put '*' without any answer we need to remove this element from array
 				for (var i:int=0; i< answersArray.length; i++){
-					// LogUtil.debug("inside array element [" +i+"] is " +answersArray[i]);
 					if(i != 0 && (answersArray[i] == null || answersArray[i] == "")){
 						answersArray.splice(i,1);
-						// LogUtil.debug("deleting element " + i + "because it is empty");
 					}else if(answersArray[i].length > _MAX_ANSWER_LENGTH){
 						errMsg = ResourceUtil.getInstance().getString('bbb.polling.validation.toolongAnswer') +" "+_MAX_ANSWER_LENGTH;
 						valid=false;
 					}
 					// if last character of the array element is return (new line) or space, we it to have accurate string and than checking for duplicates again
-					// LogUtil.debug("answers array elementr:" + answersArray[i].substring(0,answersArray[i].length-1))
-		
+			
 					if(valid && !isDuplicateAnswers(answersArray)){
 						_answers = new ArrayCollection(answersArray); // This will be displayed in Preview
 						_answersArray= answersArray; // this will be sent to server
-					}
-					//TESTING TO BE DELETED WHEN WORKS
-					for (var b:int=0; b< _answers.length; b++){
-						//LogUtil.debug("global element [" +b+"] is " + _answers.getItemAt(b));
 					}
 				}
 			}
@@ -325,7 +295,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 			var i:uint;
 			var trim:RegExp = /^\s+|\s+$/g;
 			for (i = 0; i < arr.length; i++){
-				//LogUtil.debug("BEFORE REPLACE: " + arr[i]);
 				arr[i] = arr[i].replace(trim, "");
 				if(!arr[i]) //if user puts just return or space and return - this array elements will be deleted
 					arr.splice(i,1);
@@ -409,41 +378,32 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		}
 		
 		private function savePoll(callingFromPublish:Boolean = false):void {
-			LogUtil.debug(LOGNAME + "inside savePoll calling service method savePoll() ");
 			participants = 0;
-			LogUtil.debug(LOGNAME + "Survived setting participants as 0");
 			var p:BBBUser;
-			LogUtil.debug(LOGNAME + "Survived setting p as a BBBUser");
 			conference = UserManager.getInstance().getConference();
-			LogUtil.debug(LOGNAME + "Conference.users.length is: " + conference.users.length);
 			for (var i:int = 0; i < conference.users.length; i++) {
-				LogUtil.debug(LOGNAME + "In for loop");
 				p = conference.users.getItemAt(i) as BBBUser;
 				if (p.role != Role.MODERATOR) {
 					participants++;
 				}
 			} 
-			LogUtil.debug(LOGNAME + " This room has " + participants + " non-moderators right before poll saves.");
 			
 			var savePollEvent: SavePollEvent = new SavePollEvent(SavePollEvent.SAVE);
 			savePollEvent.poll = buildPoll();
 			savePollEvent.poll.status = !callingFromPublish;
 			
-			LogUtil.debug(LOGNAME + " poll.didNotVote is " + savePollEvent.poll.didNotVote + " at the point of saving");
 			dispatchEvent(savePollEvent);
 			if(!callingFromPublish)
 				closeInstructionsWindow();
 		}
 		
 		private function publish():void {
-			LogUtil.debug(LOGNAME+"Entering publish()");
 			published = true;
 			savePoll(true);
 			
 			var publishPollEvent: PublishPollEvent = new PublishPollEvent(PublishPollEvent.PUBLISH);
 			publishPollEvent.poll = buildPoll();
 			publishPollEvent.poll.webKey = _webKey;
-			LogUtil.debug(LOGNAME + "publishPollEvent.poll.webKey: " + publishPollEvent.poll.webKey);
 			dispatchEvent(publishPollEvent);
 			
 			dispatchEvent(new StartPollingEvent(StartPollingEvent.START));
@@ -452,7 +412,6 @@ title="{ResourceUtil.getInstance().getString('bbb.polling.createPoll')}">
 		
 		private function allowPublishing():void {
 			dispatchEvent(new PollingStatusCheckEvent(PollingStatusCheckEvent.CHECK));
-			LogUtil.debug(LOGNAME + "Survived status checking, status is " + publishingAllowed);
 		}
 		]]>
 	</mx:Script>

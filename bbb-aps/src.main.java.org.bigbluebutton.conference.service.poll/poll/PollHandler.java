@@ -82,14 +82,9 @@ public class PollHandler extends ApplicationAdapter implements IApplication{
 	@Override
 	public boolean roomConnect(IConnection connection, Object[] params) {
 		log.debug("roomConnect");
-		//ISharedObject so = getSharedObject(connection.getScope(), POLL_SO);
 		log.debug(APP + "Setting up recorder");
-		//ChatMessageSender messageSender = new ChatMessageSender(so);
-		//PollEventRecorder recorder = new PollEventRecorder(connection.getScope().getName(), recorderApplication);
 		log.debug(APP + "adding event recorder to " + connection.getScope().getName());
 		log.debug(APP + "Adding room listener");
-		//pollApplication.addRoomListener(connection.getScope().getName(), recorder);
-		//pollApplication.addRoomListener(connection.getScope().getName(), messageSender);
 		log.debug(APP + "Done setting up recorder and listener");
 		return true;
 	}
@@ -114,12 +109,6 @@ public class PollHandler extends ApplicationAdapter implements IApplication{
 	public boolean roomStart(IScope scope) {
 		log.debug(APP + " roomStart " + scope.getName());
 		pollApplication.createRoom(scope.getName());
-    	//if (!hasSharedObject(scope, CHAT_SO)) {
-    	//	if (createSharedObject(scope, CHAT_SO, false)) {    			
-    	//		return true; 			
-    	//	}    		
-    	//}  	
-		//log.error("Failed to start room " + scope.getName());
 		log.debug(APP + " inside roomStart startin room");
     	return true;
 	}
@@ -128,9 +117,7 @@ public class PollHandler extends ApplicationAdapter implements IApplication{
 	public void roomStop(IScope scope) {
 		log.debug(APP +"roomStop ", scope.getName());
 		pollApplication.destroyRoom(scope.getName());
-		//if (!hasSharedObject(scope, CHAT_SO)) {
-    		//clearSharedObjects(scope, CHAT_SO);
-    	}
+    }
 	
 	
 	public void setPollApplication(PollApplication a) {

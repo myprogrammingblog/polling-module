@@ -40,11 +40,7 @@ public class PollRoomsManager {
 	}
 	
 	public void addRoom(PollRoom room) {
-	 log.debug("[TEST] :: poll  :: inside addRoom called by PollApplication.java passed: " + room + "calling Map.put (Map<String, Pollroom>)");
-	
-		
 		rooms.put(room.getName(), room);
-		log.debug("[TEST ] In PollRoomsManager adding room " + room.getName());
 	}
 	
 	public void removeRoom(String name) {
@@ -61,29 +57,20 @@ public class PollRoomsManager {
 	 * Keeping getRoom private so that all access to PollRoom goes through here.
 	 */
 	private  PollRoom getRoom(String name) {
-	
-		log.debug("[TEST] Still Step 6 inside getRoom() passing  " + rooms.get(name));
 		return rooms.get(name);
 	}
 	
-
-	
 	public void savePoll(Poll poll) {
 		String room = poll.room;
-		log.debug("String room is " + room);
 		PollRoom r = getRoom(room);
-		log.debug("[TEST] Step 5 inside  savePoll of PollRM  room is not null ? room:" + poll.room + " object r is :" +r);	
 		if (r != null) {
-			log.debug("[TEST] Step 6 poll object to PollRoom");	
 			r.savePoll(poll);
 		} else {
-			log.debug("[TEST] smth went wrong in Step 6");	
 			log.warn("Sending message to a non-existing room " + poll.room);
 		}
 	} 
 	
 	public void addRoomListener(String roomName, IPollRoomListener listener) {
-
 		PollRoom r = getRoom(roomName);
 		if (r != null) {
 			r.addRoomListener(listener);
@@ -91,7 +78,4 @@ public class PollRoomsManager {
 		}
 		log.warn("Adding listener to a non-existing room " + roomName);
 	}
-	
-	
-	
 }

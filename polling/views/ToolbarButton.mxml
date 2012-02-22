@@ -25,7 +25,7 @@
 
 <mx:Button xmlns:mx="http://www.adobe.com/2006/mxml"
 	xmlns:mate="http://mate.asfusion.com/"	
-	toolTip="{ResourceUtil.getInstance().getString('bbb.toolbar.polling.toolTip')}"
+	toolTip="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
 	implements="org.bigbluebutton.common.IBbbToolbarComponent"
 	initialize="init();" 
 	click="createAndShow();"
@@ -34,7 +34,6 @@
 	>
 	<mx:Script>
 		<![CDATA[
-			// The Button calls "init()" on both initialize and rollOver to 
 		    import com.asfusion.mate.events.Dispatcher;
 			import org.bigbluebutton.common.Images;
 			import org.bigbluebutton.common.LogUtil;
@@ -42,16 +41,12 @@
 			import org.bigbluebutton.util.i18n.ResourceUtil;
 	       	import org.bigbluebutton.modules.polling.events.PollingInstructionsWindowEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-			import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
 			import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 			import org.bigbluebutton.modules.polling.events.OpenSavedPollEvent;
 			import org.bigbluebutton.modules.polling.events.ReviewResultsEvent;
 			
-			import org.bigbluebutton.modules.polling.model.ToolbarPollingRenderer;
 			import org.bigbluebutton.modules.polling.model.ValueObject;
 			import org.bigbluebutton.modules.polling.model.PollObject;
-			
-			import org.bigbluebutton.util.i18n.ResourceUtil;
 			
 			import mx.collections.ArrayCollection;
 			import mx.controls.Menu;
@@ -61,14 +56,11 @@
 			
 			private var images:Images = new Images();
 			
-			[Bindable] public var pollIcon:Class = images.pollIcon;
 			[Bindable] private var myMenuData:ArrayCollection;
-			
 			
 			[Bindable] 
 			[Embed(source="../../../common/assets/images/poll_icon.png")]  
-			public var OpenIcon:Class;			
-			
+			public var pollIcon:Class;			
 						
 			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
 			
@@ -77,8 +69,7 @@
 			[Bindable] public var pollList:ArrayCollection;
 			
 			// #################################################################
-			public function init():void {
-				// LogUtil.debug(LOGNAME +"Entering function init()");	
+			public function init():void {	
 				myMenuData = new ArrayCollection();
 				pollList = new ArrayCollection();			
 				listInitialize();
@@ -86,36 +77,24 @@
             }
 			
 			private function createAndShow():void{
-				// LogUtil.debug(LOGNAME +"Toolbar Polling Button Clicked, titleList is: " + titleList);
 				renderMenu();
-				
 				var myMenu:Menu = Menu.createMenu(null, myMenuData, false);
-				
 				myMenu.iconField="icon";
 				myMenu.show(this.x + 10, this.y + this.height + 10);
-            	
             	myMenu.addEventListener(MenuEvent.ITEM_CLICK, menuClick);
-            	  
-        		// LogUtil.debug(LOGNAME +"Survived CreateandShow");
 			}
 			// #################################################################
 
 			public function listInitialize():void{
-				// LogUtil.debug(LOGNAME +"Entering listInitialize");
 				titleList = new Array();
 				myMenuData.removeAll();
 				pollList.removeAll();
 				dispatchEvent(new PollGetTitlesEvent(PollGetTitlesEvent.INIT));
-				// After this, we have the list of all titles (which should already be unique) which correspond to our room and pollList
-				// should have all of the available polls, which won't contain duplicates because Redis won't allow them
-				// LogUtil.debug(LOGNAME +"Survived listInitialize, titleList is: " + titleList);
 			}
 						
 			private function renderMenu():void{
-				// LogUtil.debug(LOGNAME +"Entering RenderMenu, titleList is: " + titleList);
 				myMenuData.removeAll();
-				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.menu.createNewPoll')));
-				
+				myMenuData.addItem(new ValueObject("create", ResourceUtil.getInstance().getString('bbb.polling.createPoll')));
 				for (var i:int = 0; i < pollList.length; i++){
 					if (pollList[i] != null){
 						var keyString:String = pollList[i].room +"-"+ pollList[i].title;
@@ -129,36 +108,24 @@
 						myMenuData.addItem(menuEntry);
 					}
 				}
-				// LogUtil.debug(LOGNAME +"Survived renderMenu");
 			}
 			
 			private function updateMenu():void{
-				// LogUtil.debug(LOGNAME +"Entering UpdateMenu");
 				listInitialize();
-				// LogUtil.debug(LOGNAME +"Survived UpdateMenu");
 			}
 			
         	private function menuClick(event:MenuEvent):void {            	
-            	// LogUtil.debug("You've clicked a menu item");
             	if(event.index == 0){
-            		LogUtil.debug("Opening new poll");
             	  	openPollingInstructions();
             	}else{
-            		// LogUtil.debug("Checking menu item at: " + event.index);
             		var poll:PollObject = myMenuData.getItemAt(event.index).poll;
-            		// poll.checkObject();
             		if (poll.status){
             			// Poll has not been used yet, open instructions window
             			var openPollEvent:OpenSavedPollEvent = new OpenSavedPollEvent(OpenSavedPollEvent.OPEN);
             			openPollEvent.poll = poll;
-            			// LogUtil.debug("Checking poll progress at the beginning of the path");
-            			//poll.checkObject();
-            			//openPollEvent.poll.checkObject();
             			dispatchEvent(openPollEvent);
             		}else{
             			// Poll has been closed, show results
-            			// LogUtil.debug("You have selected a poll that was already published.");
-            			// poll.checkObject();
             			var reviewEvent:ReviewResultsEvent = new ReviewResultsEvent(ReviewResultsEvent.REVIEW);
             			reviewEvent.poll = poll;
             			dispatchEvent(reviewEvent);

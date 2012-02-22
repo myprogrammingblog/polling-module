@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.polling.model
 				LogUtil.debug(LOGNAME + "WebKey is: " + webKey);
 				LogUtil.debug(LOGNAME + "--------------");
 			}else{
-				LogUtil.debug(LOGNAME + "This PollObject is NULL.");
+				LogUtil.error(LOGNAME + "This PollObject is NULL.");
 			}
 		}
 	}

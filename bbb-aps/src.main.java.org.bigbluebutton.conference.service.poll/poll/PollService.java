@@ -43,28 +43,15 @@ public class PollService {
 	private Poll poll;
 	
 	public void savePoll(ArrayList clientSidePoll){
-		log.debug(LOGNAME+"SAVEPOLL starting");
-		/*
-		log.debug(LOGNAME + "State of the clientSidePoll array:");
-		for (int i = 0; i < clientSidePoll.size(); i++)
-			log.debug(LOGNAME + "clientSidePoll["+i+"]: " + clientSidePoll.get(i));
-		*/
 	    String pollTime = DateFormatUtils.formatUTC(System.currentTimeMillis(), "MM/dd/yy HH:mm");
 	    clientSidePoll.set(6, pollTime);
 	    poll = new Poll(clientSidePoll);
-	    log.debug(LOGNAME+"Survived instantiating a new Poll with the array from client-side");
-	    log.debug(LOGNAME+"Checking the savePoll; Poll status is:");
-	    poll.checkObject();
 	    application.savePoll(poll);
 	}
 	
 	public ArrayList publish(ArrayList clientSidePoll, String pollKey){
 		savePoll(clientSidePoll);
 		return getPoll(pollKey);
-	}
-	
-	public void saveWebKey(String pollKey, String webKey){
-		// Logic to save a webkey to the hash
 	}
 	
 	public void setPollApplication(PollApplication a) {
@@ -74,9 +61,7 @@ public class PollService {
 	
 	public ArrayList getPoll(String pollKey)
 	{
-		log.debug(LOGNAME + "Retrieving poll with key: " + pollKey);
 		Poll poll = application.getPoll(pollKey);
-		log.debug(LOGNAME + "Retrieved poll " + poll.title);
 		
 		ArrayList values = new ArrayList();
 		values.add(poll.title);
@@ -96,15 +81,12 @@ public class PollService {
 	
 	public ArrayList vote(String pollKey, ArrayList answerIDs, Boolean webVote)
 	{
-		log.debug(LOGNAME + "JAVA-SIDE VOTING START; pollkey is : " + pollKey + " submitted answers are: " + answerIDs);
 		application.vote(pollKey, answerIDs.toArray(), webVote);
-		log.debug(LOGNAME + "JAVA-SIDE VOTING FINISHED");
 		return getPoll(pollKey);
 	}
 	
 	public ArrayList titleList()
 	{
-		log.debug("In PollService titleList()");
 		return application.titleList();
 	}
 	
@@ -113,11 +95,8 @@ public class PollService {
 	}
 	
 	public String generate(String pollKey){
-		log.debug("In PollService generate()");
 		String webKey;
 		webKey = application.generate(pollKey);
-		saveWebKey(pollKey, webKey);
-		log.debug("WebKey " + webKey + " has been generated for poll " + pollKey);
 		return webKey;
 	}
 }

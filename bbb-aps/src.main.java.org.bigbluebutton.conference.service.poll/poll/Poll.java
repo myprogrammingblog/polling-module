@@ -65,7 +65,6 @@ public class Poll{
 	
 	@SuppressWarnings("unchecked")
 	public Poll (ArrayList otherPoll){
-		//log.debug(LOGNAME+"Entering poll constructor");
 		title 			= otherPoll.get(0).toString();
 		room 			= otherPoll.get(1).toString();
 		isMultiple 		= (Boolean)otherPoll.get(2);
@@ -83,7 +82,6 @@ public class Poll{
 		else{
 			webKey		= "";
 		}
-		//log.debug(LOGNAME+"Exiting constructor");
 	}
 
 	public String getRoom() {
@@ -106,7 +104,7 @@ public class Poll{
 			log.debug(LOGNAME + "PublishToWeb is: " + publishToWeb.toString());
 			log.debug(LOGNAME + "WebKey is: " + webKey);
 		}else{
-			log.debug(LOGNAME + "This Poll is NULL.");
+			log.error(LOGNAME + "This Poll is NULL.");
 		}
 	}
 	
