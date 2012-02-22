@@ -56,12 +56,11 @@
 			
 			private var images:Images = new Images();
 			
-			[Bindable] public var pollIcon:Class = images.pollIcon;
 			[Bindable] private var myMenuData:ArrayCollection;
 			
 			[Bindable] 
 			[Embed(source="../../../common/assets/images/poll_icon.png")]  
-			public var OpenIcon:Class;			
+			public var pollIcon:Class;			
 						
 			public static const LOGNAME:String = "[Polling (views) : ToolbarButton] ";
 			

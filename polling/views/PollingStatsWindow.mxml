@@ -26,8 +26,9 @@
 	implements="org.bigbluebutton.common.IBbbModuleWindow"
 	initialize="init();"
 	creationComplete="onCreationComplete()"
-	label="Polling" layout="absolute" 
-	title="Polling">
+	label="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
+	layout="absolute" 
+	title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}">
 
 	<mx:Script>
 		<![CDATA[
@@ -136,12 +137,12 @@
  			}
  		
  			private function stopPoll():void{
- 				refreshPoll()
-				btnRefreshResults.label = "Repost";
+ 				refreshPoll();
+ 				btnRefreshResults.label = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
 				btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
 				btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
 				
-				btnClosePoll.label = "Close";
+				btnClosePoll.label = ResourceUtil.getInstance().getString('bbb.polling.stats.close');
 				btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
 				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
 
@@ -232,7 +233,7 @@
 				
 				_tx.name = "optionNull";
 				_tx.width = 200;
-				_tx.text = "Did Not Vote"; 
+				_tx.text = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 
 										
 				_votes.name = "voteNull";
 				_votes.width = 30;
@@ -252,9 +253,7 @@
 	
 	<!-- Prototype of Polling Statistics View Design -->
         <mx:VBox width="100%" height="75%" horizontalAlign="center" paddingLeft="10" paddingRight="10">
-				
-				
-				<mx:HBox id="webPollBox" width="90%" height="35" paddingTop="10">
+				<mx:HBox id="webPollBox" width="90%" paddingTop="10">
 					<mx:Text text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}"
 						width="140"/>
 					<mx:TextArea id="webPollURLBox" 
@@ -264,22 +263,21 @@
 						verticalScrollPolicy="off" 
 						height="25"/>          
 				</mx:HBox>
-               	
                	<mx:Text width="200" 
                		paddingTop="15" paddingBottom="10" 
                		fontWeight="bold" textAlign="center"
                     text="{question}"/>
-     
-        		<mx:Box id="resultBox"  width="90%" height="90%" >
-        			
-        		</mx:Box>
-  					
-          		
-          		
+        		<mx:Box id="resultBox"  width="90%" height="90%" />
        </mx:VBox>
        <mx:ControlBar width="100%" horizontalAlign="center">
-       <mx:Button id="btnRefreshResults" label="Refresh" click="refreshPoll()" width="100" height="30"/>
-       <mx:Button id="btnClosePoll" label="Stop Poll" click="stopPoll()" width="100" height="30"/>
+       <mx:Button id="btnRefreshResults" 
+       			  label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
+       			  click="refreshPoll()" 
+       			  width="100" height="30"/>
+       <mx:Button id="btnClosePoll" 
+       			  label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
+       			  click="stopPoll()" 
+       			  width="100" height="30"/>
        </mx:ControlBar> 	 
 
 
