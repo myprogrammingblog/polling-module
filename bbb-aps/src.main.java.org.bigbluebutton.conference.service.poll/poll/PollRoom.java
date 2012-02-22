@@ -38,7 +38,6 @@ public class PollRoom {
 	ArrayList<String> messages;
 	
 	public PollRoom(String name) {
-	log.debug("[TEST] Step 6 Constructing PollRoom");	
 		this.name = name;
 		listeners   = new ConcurrentHashMap<String, IPollRoomListener>();
 		this.messages = new ArrayList<String>();
@@ -49,30 +48,20 @@ public class PollRoom {
 	}
 	
 	public void addRoomListener(IPollRoomListener listener) {
-	
-
 		if (! listeners.containsKey(listener.getName())) {
-			log.debug("adding room listener");
 			listeners.put(listener.getName(), listener);			
 		}
 	}
 	
 	public void removeRoomListener(IPollRoomListener listener) {
-		log.debug("removing room listener");
 		listeners.remove(listener);		
 	}
 	
-	
 	@SuppressWarnings("unchecked")
 	public void savePoll(Poll poll){
-
-		log.debug(" [TEST] Step 7 Inside savePoll  of Pollroom.java");
 		for (Iterator iter = listeners.values().iterator(); iter.hasNext();) {
-			log.debug("[TEST] Step 8 calling on listener");
 			IPollRoomListener listener = (IPollRoomListener) iter.next();
-			log.debug("[TEST] Step 9 calling savePoll on listener " + listener.getName());
 			listener.savePoll(poll);
 		}
 	} 
-		
 }

@@ -66,16 +66,15 @@ public class PollApplication {
  	       String serverIP = "INVALID IP";
  	       try
  	       {
- 	       	InetAddress addr = InetAddress.getLocalHost();
+ 	    	   InetAddress addr = InetAddress.getLocalHost();
  	           // Get hostname
  	           String hostname = addr.getHostName();
  	           serverIP = hostname;
- 	       	log.debug("[TEST] IP capture successful, IP is " + serverIP);
- 	       } catch (Exception e)
+ 	       } 
+ 	       catch (Exception e)
  	       {
- 	       	log.debug("[TEST] IP capture failed...");
+ 	    	   log.error("IP capture failed.");
  	       }
- 	       
  	       JedisPool redisPool = new JedisPool(serverIP, 6379);
  	       return redisPool.getResource();
     }
@@ -83,61 +82,42 @@ public class PollApplication {
 	public void destroyPolls(String name){
 		// Destroy polls that were created in the room
 		Jedis jedis = dbConnect();
-		log.debug("PollApplication.destroyPolls");
-		
 		ArrayList polls = titleList();
-		
 	    int pollCounter = 0;
 	    int webCounter = 0;
-	    
 		for (int i = 0; i < polls.size(); i++){
 			String pollKey = name + "-" + polls.get(i).toString();
 			Poll doomedPoll = getPoll(pollKey);
 			ArrayList <String> webKeys = new ArrayList <String>();
-			
-			
 			String webKeyString = jedis.get(CURRENTKEY);
 			Integer webKeyInt = Integer.parseInt(webKeyString);
-			log.debug("webKeyString is " + webKeyString + " and webKeyInt is " + webKeyInt);
-			
 			if (doomedPoll.publishToWeb){
-				log.debug("Poll is web-enabled, prepping for webkey deletion");
 				// Search through the available webkeys to find one that holds this poll
 				for (Integer index = 0; index <= webKeyInt; index++){
 					String indexStr = index.toString();
-					log.debug("indexStr is " + indexStr);
 					if (jedis.exists(indexStr)){
 						if (jedis.get(indexStr).equals(pollKey)){
-							log.debug("PollKey has been found at webKey " + indexStr);
 							webKeys.add(indexStr);
 						}
 					}
 				}
-
-				log.debug("The poll about to be deleted lives at webKey: " + webKeys);
 			}
 			try{
 				jedis.del(pollKey);
 				++pollCounter;
-				log.debug("[TEST] Poll deletion successful on title: " + polls.get(i).toString());
-				
 				for (String s : webKeys){
-					log.debug("Trying to delete webkey " + s);
 					try{
 						jedis.del(s);
-						log.debug("Webkey deletion successful!");
 						++webCounter;
 					}
 					catch (Exception e){
-						log.debug("[ERROR] Webkey deletion had a problem.");
+						log.error("Webkey deletion failed.");
 					}
 				}
 			}
 			catch (Exception e){
-				log.debug("[ERROR] Poll deletion had a problem.");
+				log.error("Poll deletion failed.");
 			}
-			log.debug(" Deleted " + pollCounter + " polls.");
-			log.debug(" Deleted " + webCounter + " webkeys.");
 		}
 	}
 	
@@ -160,15 +140,12 @@ public class PollApplication {
 	}
 	
 	public void savePoll(Poll poll) {
-		log.debug("[TEST] Step 4 inside  savePoll of PollApplication sending poll to roomsManager and saving data to PollRecorder:");
-		poll.checkObject();
         PollRecorder pollRecorder = new PollRecorder();
         pollRecorder.record(poll);
 	}
 	
 	public Poll getPoll(String pollKey)
 	{
-		log.debug("[TEST] Inside retrievePoll of PollApplication.java passing a Poll object back up to Pollservice");
 		PollInvoker pollInvoker = new PollInvoker();
 		return pollInvoker.invoke(pollKey);
 	}
@@ -176,8 +153,6 @@ public class PollApplication {
 	// AnswerIDs comes in as an array of each answer the user voted for
 	// If they voted for answers 3 and 5, the array could be [0] = 3, [1] = 5 or the other way around, shouldn't matter
 	public void vote(String pollKey, Object[] answerIDs, Boolean webVote){
-		log.debug("[TEST] Recording votes");
-	    // Retrieve the poll that corresponds to pollKey
 		PollRecorder recorder = new PollRecorder();
 	    Poll poll = getPoll(pollKey);
 	    recorder.vote(pollKey, poll, answerIDs, webVote);
@@ -185,51 +160,37 @@ public class PollApplication {
 	
 	public ArrayList titleList()
 	{
-		log.debug("Entering PollApplication titleList");
 		PollInvoker pollInvoker = new PollInvoker();
 		ArrayList titles = pollInvoker.titleList(); 
-		log.debug("Leaving PollApplication titleList");
 		return titles;
 	}
 	
 	public void setStatus(String pollKey, Boolean status){
-		log.debug("[TEST] In pollApplication, setting status of " + pollKey + " to " + status);	
-        PollRecorder pollRecorder = new PollRecorder();
+		PollRecorder pollRecorder = new PollRecorder();
         pollRecorder.setStatus(pollKey, status);
 	}
 	
 	public String generate(String pollKey){
-		log.debug("Entering PollApplication.generate with pollKey " + pollKey);
 		Jedis jedis = dbConnect();
-		
 		if (!jedis.exists(CURRENTKEY)){
 			jedis.set(CURRENTKEY, "0");
-			log.debug("Success in resetting " + CURRENTKEY);
 		}
-		
 		// The value stored in the bbb-polling-webID key represents the next available web-friendly poll ID 		
 		String nextWebKey = webKeyIncrement(Integer.parseInt(jedis.get(CURRENTKEY)), jedis);
 		jedis.del(nextWebKey);
 		jedis.set(nextWebKey, pollKey);
-		log.debug("Checking is done, setting a new pair with " + nextWebKey + " and the pollKey for a value.");
 		// Replace the value stored in bbb-polling-webID
 		jedis.set(CURRENTKEY, nextWebKey);
 		return nextWebKey;
 	}
 	
 	private String webKeyIncrement(Integer index, Jedis jedis){
-		log.debug("Entering PollApplication.webKeyIncrement with index: " + index);
 		String nextIndex;
 		if (++index <= MAX_WEBKEYS){
-			log.debug("Increasing index");
 			nextIndex = index.toString();
 		}else{
-			log.debug("Rolling index over to 1");
 			nextIndex = "1";
 		}
-		log.debug("Returning index: " + nextIndex);
 		return nextIndex;
 	}
 }
-
-	

@@ -38,12 +38,10 @@ import org.bigbluebutton.conference.service.poll.Poll;
 
 public class PollInvoker {
     private static Logger log = Red5LoggerFactory.getLogger( PollInvoker.class, "bigbluebutton");
-    
     JedisPool redisPool;
 
     public PollInvoker(){
     	super();
-    	log.debug("[TEST] Initializing PollInvoker");
     }
     
     public JedisPool getRedisPool() {
@@ -63,12 +61,11 @@ public class PollInvoker {
 	           // Get hostname
 	           String hostname = addr.getHostName();
 	           serverIP = hostname;
-	       	log.debug("[TEST] IP capture successful, IP is " + serverIP);
-	       } catch (Exception e)
+	       } 
+	       catch (Exception e)
 	       {
-	       	log.debug("[TEST] IP capture failed...");
+	    	   log.error("IP capture failed.");
 	       }
-	       
 	       JedisPool redisPool = new JedisPool(serverIP, 6379);
 	       return redisPool.getResource();
    }
@@ -77,10 +74,7 @@ public class PollInvoker {
    // The invoke method is called after already determining which poll is going to be used
    // (ie, the presenter has chosen this poll from a list and decided to use it, or it is being used immediately after creation)
    public Poll invoke(String pollKey){
-	   log.debug("[TEST] inside PollInvoker invoke for key: " + pollKey);
-	   
 	   Jedis jedis = dbConnect();   
-       
        if (jedis.exists(pollKey))
        {
     	   // Get Boolean values from string-based Redis hash
@@ -133,18 +127,13 @@ public class PollInvoker {
    // Gets the ID of the current room, and returns a list of all available polls.
    public ArrayList <String> titleList()
    { 
-	   log.debug("Entering PollInvoker titleList");
 	   Jedis jedis = dbConnect();
        String roomName = Red5.getConnectionLocal().getScope().getName();
 	   ArrayList <String> pollTitleList = new ArrayList <String>(); 
        for (String s : jedis.keys(roomName+"*"))
        {
-    	   log.debug("[TEST] Getting titles, key is " + s);
     	   pollTitleList.add(jedis.hget(s, "title"));
-    	   log.debug("[TEST] Getting titles, title is " + jedis.hget(s, "title"));
        }
-       log.debug("[TEST] titleList is " + pollTitleList);
-       log.debug("Leaving PollInvoker titleList");
 	   return pollTitleList;
    }
 }

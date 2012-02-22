@@ -84,19 +84,13 @@
 			private function init():void{
 				webPollBox.visible = (!reviewing && trackingPoll.publishToWeb);
 				if (!reviewing && trackingPoll.publishToWeb){
-					LogUtil.debug(LOGNAME + "About to generate web key");
 					var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
-					LogUtil.debug(LOGNAME + "Survived making new event");
 					generate.poll = trackingPoll;
-					LogUtil.debug(LOGNAME + "Survived adding poll to event, preparing to dispatch");
 					dispatchEvent(generate);
-					LogUtil.debug(LOGNAME + "Survived dispatching event");
 				}
 			}
 
 			private function onCreationComplete():void{
-				LogUtil.debug(LOGNAME + "Stats window has been built, trackingPoll is: ");
-				trackingPoll.checkObject();
 				conference = UserManager.getInstance().getConference();
 				// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
 				// immediately appear with only the option to close the window. 
@@ -104,7 +98,6 @@
 					stopPoll();
 				
 				if (trackingPoll.publishToWeb){
-					LogUtil.debug("About to try and use webKey, value is: " + trackingPoll.webKey);
 					webPollURLBox.text = trackingPoll.webKey;
 				}
 				
@@ -112,17 +105,10 @@
 				question = trackingPoll.question;
 								
 				var lines:int = (question.length / 28) + 1;
-				LogUtil.debug(LOGNAME + "Stats window question is: " + question);
-				LogUtil.debug(LOGNAME + "Stats window answers are: " + answers);
-				LogUtil.debug(LOGNAME + "Stats window answers.length is: " + answers.length);
 				for(var s:String in answers){
-					lines = lines + ((s.length / 28) + 1);
-					LogUtil.debug(LOGNAME + "Inside for-loop, lines is: " + lines);	
+					lines = lines + ((s.length / 28) + 1);	
 				}				 	            	
 				height = height + ((lines+1) * 45);
-				LogUtil.debug(LOGNAME + "After for-loop, lines is: " + lines + " and height is " + height);
-				
-				LogUtil.debug(LOGNAME+"About to draw the results table");
 				createResultsTable(answers.length, answers);
 			}			
 
@@ -131,15 +117,12 @@
 			}
 				
 			private function refreshPoll():void{
-				//LogUtil.debug(LOGNAME + "Result of getMeetingInfo is " + getMeetingInfo());
-			
 				var e:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.GET);
 				e.poll.title = trackingPoll.title;
 				dispatchEvent(e);
 			} // end of function refreshResults
 						
 			private function closeWindow():void{
-				LogUtil.debug(LOGNAME + "inside closeWindow()");
 				dispatchEvent(new PollingStatsWindowEvent(PollingStatsWindowEvent.CLOSE));
 			}
  
@@ -147,8 +130,6 @@
  				trackingPoll.votes = newVotes;
  				trackingPoll.totalVotes = totalVotes;
  				trackingPoll.didNotVote = noVoteYet;
- 				LogUtil.debug(LOGNAME + "After refresh event SHOULD have been triggered, checking trackingPoll");
- 				trackingPoll.checkObject();
  				createResultsTable(trackingPoll.answers.length, trackingPoll.answers);
  				invalidateDisplayList();
 				validateNow();
@@ -156,26 +137,19 @@
  		
  			private function stopPoll():void{
  				refreshPoll()
-				//refreshWindow(trackingPoll.votes, trackingPoll.totalVotes, trackingPoll.didNotVote);
 				btnRefreshResults.label = "Repost";
 				btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
-				//btnRefreshResults.removeEventListener(MouseEvent.MOUSE_OVER, refreshPoll);
 				btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
-				//btnRefreshResults.addEventListener(MouseEvent.MOUSE_OVER, generateWebKey);
 				
 				btnClosePoll.label = "Close";
 				btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
 				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
 
-				LogUtil.debug(LOGNAME+"Poll has been stopped; state of the poll object:");
 				trackingPoll.status = false;
-				trackingPoll.checkObject();
 				stopViewersPolls();					
 			}
 			
 			private function publishPollAgain(e:Event):void{
-				LogUtil.debug(LOGNAME + "inside publishPollAgain()");
-				//trackingPoll.checkObject();
 				var event:PublishPollEvent = new PublishPollEvent(PublishPollEvent.REPOST);
 				event.poll = trackingPoll;
 				dispatchEvent(event);
@@ -183,13 +157,10 @@
 			}
 			
 			private function closeButtonClick(e:Event):void{
-				LogUtil.debug(LOGNAME + "inside closeButtonClick, checking trackingPoll");
-				trackingPoll.checkObject();
 				closeWindow();
 			}
 			
 			private function stopViewersPolls():void{
-				LogUtil.debug(LOGNAME + "inside stopViewersPolls()");
 				var stopPollEvent:StopPollEvent = new StopPollEvent(StopPollEvent.STOP_POLL);
 				stopPollEvent.poll.title = title;
 				dispatchEvent(stopPollEvent);
@@ -197,7 +168,6 @@
  		
 			// function receives Array.length and ArrayCollection
 			private function createResultsTable(amount:uint, content:Array):void{
-				LogUtil.debug(LOGNAME+"Entering createResultsTable");
 				var _tx: Text;
 				var _votes: Text;
 				var _percent: Text;
@@ -250,15 +220,12 @@
 					resultBox.addChild(_line);
 				} // end of loop
 					
-				LogUtil.debug(LOGNAME+"About to enter didNotVote()");			
 				didNotVote();
-				LogUtil.debug(LOGNAME+"survived didNotVote()");
 				invalidateDisplayList();
 				resultBox.validateNow();	
 			} // end of function createResultsTable
 			
 			private function didNotVote():void{
-				LogUtil.debug(LOGNAME+"Entering didNotVote()");
 				var _tx:Text = new Text();
 				var _votes:Text= new Text;
 				var _hb:HBox = new HBox();
@@ -270,7 +237,6 @@
 				_votes.name = "voteNull";
 				_votes.width = 30;
 				
-				LogUtil.debug(LOGNAME+"TrackingPoll's didNotVote is: " + trackingPoll.didNotVote);
 				_votes.text = trackingPoll.didNotVote.toString();
 								
 				resultBox.addChild(_hb);					
@@ -289,8 +255,8 @@
 				
 				
 				<mx:HBox id="webPollBox" width="90%" height="35" paddingTop="10">
-					<mx:Text text="{ResourceUtil.getInstance().getString('bbb.polling.pollStats.webPollURL')}"
-						width="180"/>
+					<mx:Text text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}"
+						width="140"/>
 					<mx:TextArea id="webPollURLBox" 
 						editable="false" 
 						text="" 

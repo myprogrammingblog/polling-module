@@ -45,9 +45,6 @@ package org.bigbluebutton.modules.polling.managers
 		
 		// Button
 		public function addToolbarButton():void {
-			LogUtil.debug(LOGNAME + " inside addToolbarButton");
-			
-
 			if ((button != null) && (!buttonShownOnToolbar)) {
 				button = new ToolbarButton();
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.ADD);
@@ -59,7 +56,6 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		public function removeToolbarButton():void {
-			LogUtil.debug(LOGNAME + " inside removeToolbarButton");
 			if (buttonShownOnToolbar) {
 				var event:ToolbarButtonEvent = new ToolbarButtonEvent(ToolbarButtonEvent.REMOVE);
 				event.button = button;
@@ -69,12 +65,10 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		public function enableToolbarButton():void {
-			LogUtil.debug(LOGNAME + " inside enableToolbarButton");
 			button.enabled = true;
 		}
 		
 		public function disableToolbarButton():void {
-			LogUtil.debug(LOGNAME + " inside disableToolbarButton");
 			button.enabled = false;
 		}
 		// _Button

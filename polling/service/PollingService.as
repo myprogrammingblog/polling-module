@@ -39,9 +39,7 @@ package org.bigbluebutton.modules.polling.service
 	import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
 	import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.PollGetStatusEvent;
 	import org.bigbluebutton.modules.polling.events.PollReturnTitlesEvent;
-	import org.bigbluebutton.modules.polling.events.PollReturnStatusEvent;
 	import org.bigbluebutton.modules.polling.events.PollGetPollEvent;
 	import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 	
@@ -80,16 +78,14 @@ package org.bigbluebutton.modules.polling.service
 					
 	public function PollingService()
 		{
-			LogUtil.debug(LOGNAME + " Inside constructor");
+			LogUtil.debug(LOGNAME + " Building PollingService");
 			dispatcher = new Dispatcher();
 					
 		}
 		
 		public function handleStartModuleEvent(module:PollingModule):void {
-			
 			this.module = module;
 			nc = module.connection
-			LogUtil.debug(LOGNAME + "Connection in constructor: " + nc);
 			uri = module.uri;
 			connect();
 		}
@@ -98,19 +94,14 @@ package org.bigbluebutton.modules.polling.service
 		 // CONNECTION
 		/*###################################################*/
 		public function connect():void {
-			LogUtil.debug(LOGNAME + "inside connect ()  ");
 			pollingSO = SharedObject.getRemote(SHARED_OBJECT, uri, false);
 	 		pollingSO.addEventListener(SyncEvent.SYNC, sharedObjectSyncHandler);
 			pollingSO.addEventListener(NetStatusEvent.NET_STATUS, handleResult);
 				pollingSO.client = this;
 				pollingSO.connect(nc); 	
-			LogUtil.debug(LOGNAME + "shared object pollingSO connected via uri: "+uri);   
-			LogUtil.debug(LOGNAME + "Connection in connect(): " + nc); 
-			LogUtil.debug(LOGNAME + " getConnection " +getConnection());
 		}
 		
-			public function getConnection():NetConnection{
-	   		LogUtil.debug(LOGNAME + "Inside getConnection() returning: " + module.connection);
+		public function getConnection():NetConnection{
 			return module.connection;
 		}
           
@@ -120,14 +111,8 @@ package org.bigbluebutton.modules.polling.service
           /*#######################################################*/
           
          public function sharePollingWindow(poll:PollObject):void{
-         		LogUtil.debug(LOGNAME + "inside sharePollingWindow calling pollingSO.send()");
-         		LogUtil.debug(LOGNAME + "Sharing window: Poll title is: " + poll.title);
-         	
          	if (isConnected = true ) {
-         			poll.checkObject();
-           			//LogUtil.debug(LOGNAME + "Going into shared object send NOW");
-         			pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.didNotVote, poll.publishToWeb, poll.webKey);
-         			LogUtil.debug(LOGNAME+"Survived sharing object");
+           		pollingSO.send("openPollingWindow", poll.title, poll.question, poll.isMultiple, poll.answers, poll.votes, poll.time, poll.totalVotes, poll.didNotVote, poll.publishToWeb, poll.webKey);
          	}
          }
                   
@@ -144,22 +129,14 @@ package org.bigbluebutton.modules.polling.service
          		poll.didNotVote = didNotVote;
          		poll.publishToWeb = publishToWeb;
          		poll.webKey = webKey;
-          		//LogUtil.debug(LOGNAME + "Opening window: Answers are : " + answers);
-          		//LogUtil.debug(LOGNAME + "Opening window: Poll title is: " + title);
           		if (!UserManager.getInstance().getConference().amIModerator()){
-          		//	LogUtil.debug(LOGNAME + "dispatching Open polling view window for NON moderator users");
           			var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
 	        		e.poll = poll;
           			dispatcher.dispatchEvent(e);
           		}else{
-          			LogUtil.debug(LOGNAME + "Checking the object for moderator polling view");
           			var stats:PollingStatsWindowEvent = new PollingStatsWindowEvent(PollingStatsWindowEvent.OPEN);
-          			LogUtil.debug(LOGNAME + "Survived creating stats event");
           			stats.poll = poll;
-          			LogUtil.debug(LOGNAME + "Check webKey before stats window is dispatched");
-          			stats.poll.checkObject();
           			stats.poll.status = false;
-          			LogUtil.debug(LOGNAME + "Survived populating stats event");
           			dispatcher.dispatchEvent(stats);
           		}
          }
@@ -198,53 +175,37 @@ package org.bigbluebutton.modules.polling.service
             } 
 	   
 	   
-	   	public function handleResult(e:NetStatusEvent):void {
-	   	LogUtil.debug(LOGNAME + "inside handleResult(nc)");	
-	   		
+	   	public function handleResult(e:NetStatusEvent):void {	   		
 			var statusCode : String = e.info.code;
-
 			switch ( statusCode ) 
 			{
 				case "NetConnection.Connect.Success":
-					LogUtil.debug(LOGNAME + ":Connection to Polling Module succeeded.");
 					isConnected = true;
 					break;
 				case "NetConnection.Connect.Failed":					
-						LogUtil.debug(LOGNAME + ":Connection to Polling Module failed");
 					break
 				case "NetConnection.Connect.Rejected":
-						LogUtil.debug(LOGNAME + "Connection to Polling Module Rejected");		
-					 break 
+					break 
 				default :
-				   LogUtil.debug(LOGNAME + ":Connection default case" );
 				   break;
 			}
 		}
 		
-		private function sharedObjectSyncHandler(e:SyncEvent) : void
-		{	
-			LogUtil.debug(LOGNAME+"Shared object is connected");	
-		}
+		private function sharedObjectSyncHandler(e:SyncEvent) : void{}
 		
 		
 		public function savePoll(poll:PollObject):void
 		{
 			var serverPoll:Array = buildServerPoll(poll);
-			LogUtil.debug(LOGNAME + "State of the serverPoll array:");
-			for (var i:int = 0; i < serverPoll.length; i++)
-				LogUtil.debug(LOGNAME + "serverPoll["+i+"]:" + serverPoll[i]);
-					
 			nc.call("poll.savePoll", new Responder(success, failure), serverPoll);
 						
 			//--------------------------------------//
 			
 			// Responder functions
-			function success(obj:Object):void{
-				LogUtil.debug(LOGNAME+" succesfully connected  sent info to server with savePoll"); 
-			}
+			function success(obj:Object):void{}
 	
 			function failure(obj:Object):void{
-				LogUtil.error(LOGNAME + "Error occurred sending info to server in SAVEPOLL NC.CALL"); 
+				LogUtil.error(LOGNAME + "Responder object failure in SAVEPOLL NC.CALL"); 
 			}
 			
 			//--------------------------------------//
@@ -252,8 +213,6 @@ package org.bigbluebutton.modules.polling.service
 		//#################################################//
 				
 	   	public function  getPoll(pollKey:String, option:String):void{	   	
-			LogUtil.debug(LOGNAME + "inside getPoll making netconnection getting our poll back! key: " + pollKey);
-			
 			nc.call("poll.getPoll", new Responder(success, failure), pollKey);
 			
 			//--------------------------------------//
@@ -261,8 +220,6 @@ package org.bigbluebutton.modules.polling.service
 			// Responder functions
 			function success(obj:Object):void{
 				var itemArray:Array = obj as Array;
-				LogUtil.debug(LOGNAME+" Responder success, option is " + option);
-				LogUtil.debug(LOGNAME+"Responder object success! " + itemArray);
 				extractPoll(itemArray, pollKey, option);
 			}
 	
@@ -276,19 +233,15 @@ package org.bigbluebutton.modules.polling.service
 	  	//#################################################//
 		 
 		 public function publish(poll:PollObject):void{
-		 	LogUtil.debug(LOGNAME + "inside service.publish to save and subsequently get the poll");
 			var pollKey:String = poll.room + "-" + poll.title;
 			var webKey:String = poll.webKey;
 			var serverPoll:Array = buildServerPoll(poll);
-			poll.checkObject();
-			LogUtil.debug("Just about to publish");
 			nc.call("poll.publish", new Responder(success, failure), serverPoll, pollKey);
 						
 			//--------------------------------------//
 			
 			// Responder functions
 			function success(obj:Object):void{
-				LogUtil.debug(LOGNAME+"SERVICE.PUBLISH: succesfully connected  sent info to server");
 				var itemArray:Array = obj as Array;
 				if (webKey != null){
 					itemArray[11] = webKey;
@@ -297,7 +250,7 @@ package org.bigbluebutton.modules.polling.service
 			}
 	
 			function failure(obj:Object):void{
-				LogUtil.error(LOGNAME + "Error occurred sending info to server in PUBLISH NC.CALL"); 
+				LogUtil.error(LOGNAME + "Responder object failure in PUBLISH NC.CALL"); 
 			}
 			
 			//--------------------------------------//
@@ -306,7 +259,6 @@ package org.bigbluebutton.modules.polling.service
 	  	//#################################################//
 	    
 	     public function extractPoll(values:Array, pollKey:String, option:String):void {
-		    LogUtil.debug(LOGNAME + "Inside extractPoll()");
 		    var poll:PollObject = new PollObject();
 		    		    
 		    poll.title 			= values[0] as String;
@@ -323,34 +275,23 @@ package org.bigbluebutton.modules.polling.service
 		    poll.webKey			= values[11] as String;
 		    
 		    if (option == "publish"){
-		    	LogUtil.debug(LOGNAME + "You hit option publish");
-		    	LogUtil.debug(LOGNAME + " poll.didNotVote is " + poll.didNotVote + " in extractPoll for publishing");
-		    	poll.checkObject();
 		    	sharePollingWindow(poll);
 		    }
 		    else if (option == "refresh"){
-		    	LogUtil.debug(LOGNAME + "You hit option refresh"); 
-		    	LogUtil.debug(LOGNAME + " poll.didNotVote is " + poll.didNotVote + " in extractPoll for refreshing");
 		    	refreshResults(poll);
 		    }
 		    else if (option == "menu"){
-		    	LogUtil.debug(LOGNAME + "STEP 3 DISPATCH POLLS");
-		    	LogUtil.debug(LOGNAME + "You hit option menu");
 		    	var pollReturn:PollGetPollEvent = new PollGetPollEvent(PollGetPollEvent.RETURN);
 				pollReturn.poll = poll;		
 				pollReturn.pollKey = pollKey;
-				LogUtil.debug(LOGNAME + "About to dispatch poll with title " + pollReturn.poll.title);
-				pollReturn.poll.checkObject();
 				dispatcher.dispatchEvent(pollReturn);
 		    }
 		    else if (option == "initialize"){
-		    	LogUtil.debug(LOGNAME+"Initializing the polling menu");
 		    	var pollInitialize:PollGetPollEvent = new PollGetPollEvent(PollGetPollEvent.INIT);
 		    	pollInitialize.poll = poll;
 		    	pollInitialize.pollKey = pollKey;
 		    	dispatcher.dispatchEvent(pollInitialize);
 		    }
-		    LogUtil.debug(LOGNAME + "Leaving extractPoll()");
 		 }
 		 
 		 //#################################################//
@@ -366,50 +307,41 @@ package org.bigbluebutton.modules.polling.service
         }
         
         public function closePollingWindow():void{
-        		LogUtil.debug(LOGNAME + "Inside service.closePollingWindow()");
          	var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE);
-         		LogUtil.debug(LOGNAME + "Created close window event");
          	dispatcher.dispatchEvent(e);
-         		LogUtil.debug(LOGNAME + "Created close window event");
         }
 	   	
-	   	
+		//#################################################//
 		 
-		 public function vote(pollKey:String, answerIDs:Array, webVote:Boolean = false):void{
-		 	// answerIDs will indicate by integer which option(s) the user voted for
+		public function vote(pollKey:String, answerIDs:Array, webVote:Boolean = false):void{
+			// answerIDs will indicate by integer which option(s) the user voted for
 		 	// i.e., they voted for 3 and 5 on multiple choice, answerIDs will hold [0] = 3, [1] = 5
 		 	// It works the same regardless of if AnswerIDs holds {3,5} or {5,3} 
-		 	
-		 	 LogUtil.debug("What are we sending to apps ? pollkey: " +pollKey+ " answers: " + answerIDs.toString());
-		 	nc.call(
-				"poll.vote",
-				new Responder(
-					function(result:Object):void { 
-						LogUtil.debug(LOGNAME+" succesfully sending votes to server"); 
-					},	
-					function(status:Object):void { 
-						LogUtil.error(LOGNAME + "Error occurred sending info to server in VOTE NC.CALL with pollKey " + pollKey + " and answerIDs: " + answerIDs); 
-						for (var x:Object in status) { 
-							LogUtil.error(x + " : " + status[x]); 
-						} 
-					}
-				),
-				pollKey, answerIDs, webVote
-			);
-		 } // _vote
+			nc.call("poll.vote", new Responder(success, failure), pollKey, answerIDs, webVote);
+						
+			//--------------------------------------//
+			
+			// Responder functions
+			function success(obj:Object):void{}
+	
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME + "Responder object failure in VOTE NC.CALL"); 
+			}
+			
+			//--------------------------------------//
+		}
+	  	
+	  	//#################################################//
 		 
 		 public function refreshResults(poll:PollObject):void{
 		 	var refreshEvent:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.REFRESH);
 		 	refreshEvent.poll = poll;
-		 	LogUtil.debug(LOGNAME+"In refreshResults, checking for refreshEvent null:");
-		 	refreshEvent.poll.checkObject();
 		 	dispatcher.dispatchEvent(refreshEvent);
 		 } // _refreshResults
 		 
 		 // Initialize the Polling Menu on the toolbar button
 		 public function initializePollingMenu(roomID:String):void{
 		 	nc.call("poll.titleList", new Responder(titleSuccess, titleFailure));
-		 	LogUtil.debug(LOGNAME+"After nc.call in updateTitles");
 		 	//--------------------------------------//
 			
 			// Responder functions
@@ -426,7 +358,7 @@ package org.bigbluebutton.modules.polling.service
 			}
 	
 			function titleFailure(obj:Object):void{
-				LogUtil.error(LOGNAME+"Responder object failure in UPDATE_TITLES NC.CALL");
+				LogUtil.error(LOGNAME+"Responder object failure in INITALIZE POLLING MENU NC.CALL");
 			}
 			
 			//--------------------------------------//
@@ -434,15 +366,12 @@ package org.bigbluebutton.modules.polling.service
 		 
 		 public function updateTitles():void{
 		 	nc.call("poll.titleList", new Responder(success, failure));
-		 	LogUtil.debug(LOGNAME+"After nc.call in updateTitles");
 		 	//--------------------------------------//
 			
 			// Responder functions
 			function success(obj:Object):void{
-				LogUtil.debug(LOGNAME + "STEP 1 DISPATCH TITLES");
 				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
 				event.titleList = obj as Array;
-				LogUtil.debug(LOGNAME+"Responder object success! Object is " + obj);
 				dispatcher.dispatchEvent(event);
 			}
 	
@@ -456,14 +385,12 @@ package org.bigbluebutton.modules.polling.service
 		 
 		 public function checkTitles():void{
 		 	nc.call("poll.titleList", new Responder(success, failure));
-		 	LogUtil.debug(LOGNAME+"After nc.call in checkTitles");
 		 	//--------------------------------------//
 			
 			// Responder functions
 			function success(obj:Object):void{
 				var event:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.RETURN);
 				event.titleList = obj as Array;
-				LogUtil.debug(LOGNAME+"Responder object success! Sending titles " + event.titleList);
 				dispatcher.dispatchEvent(event);
 			}
 	
@@ -480,9 +407,7 @@ package org.bigbluebutton.modules.polling.service
 		 	//--------------------------------------//
 
 			// Responder functions
-			function success(obj:Object):void{
-				LogUtil.debug(LOGNAME+"Responder object success! in SET POLL TO OPEN");
-			}
+			function success(obj:Object):void{}
 	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in OPENPOLL NC.CALL");
@@ -497,9 +422,7 @@ package org.bigbluebutton.modules.polling.service
 		 	//--------------------------------------//
 			
 			// Responder functions
-			function success(obj:Object):void{
-				LogUtil.debug(LOGNAME+"Responder object success! SET POLL TO CLOSED");
-			}
+			function success(obj:Object):void{}
 	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in CLOSEPOLL NC.CALL");
@@ -509,8 +432,6 @@ package org.bigbluebutton.modules.polling.service
 		 }
 		 
 		 public function generate(generateEvent:GenerateWebKeyEvent):void{
-		 	LogUtil.debug("Entering generate for web key; incoming poll is:");
-		 	generateEvent.poll.checkObject();
 		 	nc.call("poll.generate", new Responder(success, failure), generateEvent.pollKey);
 		 	
 		 	//--------------------------------------//
@@ -518,11 +439,9 @@ package org.bigbluebutton.modules.polling.service
 			// Responder functions
 			function success(obj:Object):void{
 				var webKey:String = obj as String;
-				LogUtil.debug(LOGNAME+"Responder object success! Webkey is generated: " + webKey);
 				var webKeyReturnEvent:GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.RETURN);
 				webKeyReturnEvent.poll = generateEvent.poll
 				webKeyReturnEvent.poll.webKey = webKey;
-				LogUtil.debug(LOGNAME+"Webkey in RETURN event is: " + webKeyReturnEvent.poll.webKey);
 				dispatcher.dispatchEvent(webKeyReturnEvent);
 			}
 	

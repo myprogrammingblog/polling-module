@@ -57,7 +57,7 @@ package org.bigbluebutton.modules.polling.managers
 		public static const LOGNAME:String = "[Polling::PollingWindowManager] ";
 		
 		public function PollingWindowManager(service:PollingService) {
-		  LogUtil.debug(LOGNAME +" inside constructor");	
+		  LogUtil.debug(LOGNAME +" Built PollingWindowManager");	
 		  this.service = service;
 		  globalDispatcher = new Dispatcher();
 		}
@@ -65,102 +65,67 @@ package org.bigbluebutton.modules.polling.managers
 		//PollingInstructionsWindow.mxml Window Event Handlers
 		//##########################################################################
 		public function handleOpenPollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
-			LogUtil.debug(LOGNAME + "inside handleOpenPollingInstructionsWindow");
 			instructionsWindow = new PollingInstructionsWindow();
-			
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
-			LogUtil.debug(LOGNAME + "Dispatching event to create list of titles on Instruction Window Creation");
 			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
 			globalDispatcher.dispatchEvent(getTitlesEvent);
 			openWindow(instructionsWindow);
 		}
 		
 		public function handleOpenPollingInstructionsWindowWithExistingPoll(e:OpenSavedPollEvent):void{
-			LogUtil.debug(LOGNAME + "inside handleOpenPollingInstructionsWindowWithExistingPoll");
 			instructionsWindow = new PollingInstructionsWindow();
-			
 			// Use the PollGetTitlesEvent to fetch a list of already-used titles
-			LogUtil.debug(LOGNAME + "Dispatching event to create list of titles on Instruction Window Creation");
 			var getTitlesEvent:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.CHECK);
 			globalDispatcher.dispatchEvent(getTitlesEvent);
-			LogUtil.debug(LOGNAME + "Passing poll object to Instruction window.....");
 			if (e.poll != null){
-				LogUtil.debug(LOGNAME + "Sending a non-null poll object to Instruction window");
-				e.poll.checkObject();
 				instructionsWindow.incomingPoll = new PollObject();
 				instructionsWindow.incomingPoll = e.poll;
 				instructionsWindow.editing = true;
-				LogUtil.debug(LOGNAME + "Examining poll in instruction window");
-				instructionsWindow.incomingPoll.checkObject();
-			}else{
-				LogUtil.debug(LOGNAME + "Tried to pass a null poll object to Instruction window");
-			}
-			
+			}		
 			openWindow(instructionsWindow);
 		}
 		
 		public function handleClosePollingInstructionsWindow(e:PollingInstructionsWindowEvent):void{
-			LogUtil.debug(LOGNAME + " inside handleClosePollingInstructionsWindow");
 			closeWindow(instructionsWindow);
 		}
 		
 		// Checking the polling status to prevent a presenter from publishing two polls at a time
 		  public function handleCheckStatusEvent(e:PollingStatusCheckEvent):void{
-			  LogUtil.debug(LOGNAME +" inside handleCheckStatusEvent ");
 			  e.allowed = !service.getPollingStatus();
 			  instructionsWindow.publishingAllowed = e.allowed;
 		  }
 		  
 		  public function handleCheckTitlesInInstructions(e:PollGetTitlesEvent):void{
-			  LogUtil.debug(LOGNAME +" inside handleCheckTitlesInInstructions ");
-			  LogUtil.debug(LOGNAME +" BINGO titles going into instructions: " + e.titleList);
 			  instructionsWindow.invalidTitles = e.titleList;
 		  }
 		  
 		  public function handleReturnWebKeyEvent(e:GenerateWebKeyEvent):void
 		  {
-			  LogUtil.debug(LOGNAME + " inside handleReturnWebKeyEvent()");
-			  if (!e.repost){
+			  if (!e.repost)
 				  instructionsWindow._webKey = e.poll.webKey;
-				  LogUtil.debug(LOGNAME + " Returning webkey to instructions window: " + instructionsWindow._webKey);
-			  }else{
+			  else
 				  statsWindow.trackingPoll.webKey = e.poll.webKey;
-				  LogUtil.debug(LOGNAME + " Returning webkey to stats window: " + statsWindow.trackingPoll.webKey);
-			  }
 		  }
 
-		//##########################################################################
-		
-		public function handleStartPollingEvent():void{
-			LogUtil.debug(LOGNAME+ "calling service to share PollingWindow");
-		}
-		
-		
 		// Action makers (function that actually act on the windows )
 		//#############################################################################
 		public function openWindow(window:IBbbModuleWindow):void{
-			LogUtil.debug(LOGNAME + " inside openWindow calling OpwnWindowEvent with window: " + window );				
 			var windowEvent:OpenWindowEvent = new OpenWindowEvent(OpenWindowEvent.OPEN_WINDOW_EVENT);
 			windowEvent.window = window;
 			globalDispatcher.dispatchEvent(windowEvent);
-			LogUtil.debug(LOGNAME + " " + window +" is opened ");
 		}
 		
 		private function closeWindow(window:IBbbModuleWindow):void{
-			LogUtil.debug(LOGNAME + " inside closeWindow calling CloseWindowEvent with window: " + window );				
 			var windowEvent:CloseWindowEvent = new CloseWindowEvent(CloseWindowEvent.CLOSE_WINDOW_EVENT);
 			windowEvent.window = window;
 			globalDispatcher.dispatchEvent(windowEvent);
-			LogUtil.debug(LOGNAME + " " + window +" is closed ");
 		}
 		//#################################################################################
 
-		import mx.collections.ArrayCollection;
+
 		// PollingViewWindow.mxml Window Handlers 
 		//#########################################################################
 		public function handleOpenPollingViewWindow(e:PollingViewWindowEvent):void{
-			LogUtil.debug(LOGNAME + "inside handleOpenPollingViewWindow");
-			LogUtil.debug(LOGNAME + "Event.title = " + e.poll.title);
 			pollingWindow = new PollingViewWindow();
 			pollingWindow.title = e.poll.title;
 			pollingWindow.question = e.poll.question;
@@ -170,13 +135,10 @@ package org.bigbluebutton.modules.polling.managers
 		}
 		
 		public function handleClosePollingViewWindow(e:PollingViewWindowEvent):void{
-			LogUtil.debug(LOGNAME + " inside handleClosePollingViewWindow");
 			closeWindow(pollingWindow);
-			LogUtil.debug(LOGNAME + " After closeWindow");
 		}
 		
 		public function handleStopPolling(e:StopPollEvent):void{
-			LogUtil.debug(LOGNAME + " inside handleStopPolling");
 			service.setPolling(false);
 		}
 		//##########################################################################
@@ -185,36 +147,24 @@ package org.bigbluebutton.modules.polling.managers
 		// PollingStatsWindow.mxml Window Handlers 
 		//#########################################################################
 		public function handleOpenPollingStatsWindow(e:PollingStatsWindowEvent):void{
-			LogUtil.debug(LOGNAME + "inside handleOpenPollingStatsWindow");
-			LogUtil.debug(LOGNAME + "Event.title = " + e.poll.title);
 			statsWindow = new PollingStatsWindow();
 			statsWindow.trackingPoll = e.poll;
-			//LogUtil.debug(LOGNAME + "Stats Window created, event poll is: ");
-			//e.poll.checkObject();
-			LogUtil.debug(LOGNAME + "Stats Window created, window's trackingPoll is: ");
-			statsWindow.trackingPoll.checkObject();
 			openWindow(statsWindow);
 			service.setPolling(true);
 		}
 		
 		public function handleClosePollingStatsWindow(e:PollingStatsWindowEvent):void{
-			LogUtil.debug(LOGNAME + " inside handleClosePollingStatsWindow");
 			closeWindow(statsWindow);
 		}
 		
 		public function handleRefreshPollingStatsWindow(e:PollRefreshEvent):void{
-			LogUtil.debug(LOGNAME + " inside handleRefreshPollingStatsWindow");
 			statsWindow.refreshWindow(e.poll.votes, e.poll.totalVotes, e.poll.didNotVote);
 		}
 		
 		public function handleReviewResultsEvent(e:ReviewResultsEvent):void{
-			LogUtil.debug(LOGNAME + " inside handleReviewResultsEvent (window manager)");
 			statsWindow = new PollingStatsWindow();
-				LogUtil.debug(LOGNAME + "Survived new statsWindow");
 			statsWindow.trackingPoll = e.poll;
-				LogUtil.debug(LOGNAME + "Survived setting poll");
 			statsWindow.viewingClosedPoll = true;
-				LogUtil.debug(LOGNAME + "Survived setting boolean");
 			statsWindow.reviewing = true;
 			openWindow(statsWindow);
 		}
