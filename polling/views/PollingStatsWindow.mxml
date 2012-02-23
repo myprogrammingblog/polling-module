@@ -33,252 +33,236 @@
 	<mx:Script>
 		<![CDATA[
 		import flexlib.mdi.events.MDIWindowEvent;
+		import org.bigbluebutton.main.views.MainCanvas;
+		import mx.controls.Alert;
+		import org.bigbluebutton.common.LogUtil;	 
+		import org.bigbluebutton.modules.polling.events.StartPollingEvent;
+		import org.bigbluebutton.modules.polling.managers.PollingManager;
+		import org.bigbluebutton.modules.polling.events.VoteEvent;
+		import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
+		import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
+		import org.bigbluebutton.modules.polling.events.StopPollEvent;
+		import org.bigbluebutton.modules.polling.events.SavePollEvent;
+		import org.bigbluebutton.modules.polling.events.PublishPollEvent;
+		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
 			
-			import org.bigbluebutton.main.views.MainCanvas;
-			import mx.controls.Alert;
-			import org.bigbluebutton.common.LogUtil;	 
-			import org.bigbluebutton.modules.polling.events.StartPollingEvent;
-			import org.bigbluebutton.modules.polling.managers.PollingManager;
-			import org.bigbluebutton.modules.polling.events.VoteEvent;
-			import org.bigbluebutton.modules.polling.events.PollingStatsWindowEvent;
-			import org.bigbluebutton.modules.polling.events.PollRefreshEvent;
-			import org.bigbluebutton.modules.polling.events.StopPollEvent;
-			import org.bigbluebutton.modules.polling.events.SavePollEvent;
-			import org.bigbluebutton.modules.polling.events.PublishPollEvent;
-			import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
-			
-			import org.bigbluebutton.modules.polling.model.PollObject;
-			
-			import org.bigbluebutton.core.managers.UserManager;
-			import org.bigbluebutton.main.model.users.Conference 
-			import org.bigbluebutton.main.model.users.BBBUser;
-			import org.bigbluebutton.common.Role;
-
-			import mx.validators.Validator;	
-			import mx.utils.ObjectUtil;
-			import org.bigbluebutton.util.i18n.ResourceUtil;
-			
-			import mx.collections.ArrayCollection;
-			import mx.core.IUIComponent;
-			import mx.controls.Text;
-			import mx.controls.TextArea;
-		    import mx.containers.*;
-		    import mx.controls.*;
-
-
-		   	public static const LOGNAME:String = "[PollingStatsWindow] ";
-
-			[Bindable] public var question:String;
-			[Bindable] public var answers:Array;
- 			
-			[Bindable] public var trackingPoll:PollObject;
-			public var viewingClosedPoll:Boolean = false;
-			
-			
-			public var moduleAttributes:Object;
-			private var _userid:Number; 
-			private var window:PollingStatsWindow;
-			private var conference:Conference;
-			
-			public var reviewing:Boolean = false;
-
-			private function init():void{
-				webPollBox.visible = (!reviewing && trackingPoll.publishToWeb);
-				if (!reviewing && trackingPoll.publishToWeb){
-					var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
-					generate.poll = trackingPoll;
-					dispatchEvent(generate);
-				}
-			}
-
-			private function onCreationComplete():void{
-				conference = UserManager.getInstance().getConference();
-				// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
-				// immediately appear with only the option to close the window. 
-				if(viewingClosedPoll)
-					stopPoll();
+		import org.bigbluebutton.modules.polling.model.PollObject;
 				
-				if (trackingPoll.publishToWeb){
-					webPollURLBox.text = trackingPoll.webKey;
-				}
-				
-				answers = trackingPoll.answers;
-				question = trackingPoll.question;
-								
-				var lines:int = (question.length / 28) + 1;
-				for(var s:String in answers){
-					lines = lines + ((s.length / 28) + 1);	
-				}				 	            	
-				height = height + ((lines+1) * 45);
-				createResultsTable(answers.length, answers);
-			}			
+		import org.bigbluebutton.core.managers.UserManager;
+		import org.bigbluebutton.main.model.users.Conference 
+		import org.bigbluebutton.main.model.users.BBBUser;
+		import org.bigbluebutton.common.Role;
 
-			public function getPrefferedPosition():String{
-				return MainCanvas.POPUP;
+		import mx.validators.Validator;	
+		import mx.utils.ObjectUtil;
+		import org.bigbluebutton.util.i18n.ResourceUtil;
+			
+		import mx.collections.ArrayCollection;
+		import mx.core.IUIComponent;
+		import mx.controls.Text;
+		import mx.controls.TextArea;
+		import mx.containers.*;
+		import mx.controls.*;
+
+	   	public static const LOGNAME:String = "[PollingStatsWindow] ";
+		[Bindable] public var question:String;
+		[Bindable] public var answers:Array;
+		[Bindable] public var trackingPoll:PollObject;
+		public var viewingClosedPoll:Boolean = false;
+		public var moduleAttributes:Object;
+		private var _userid:Number; 
+		private var window:PollingStatsWindow;
+		private var conference:Conference;
+		public var reviewing:Boolean = false;
+
+		private function init():void{
+			webPollBox.visible = (!reviewing && trackingPoll.publishToWeb);
+			if (!reviewing && trackingPoll.publishToWeb){
+				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
+				generate.poll = trackingPoll;
+				dispatchEvent(generate);
 			}
+		}
+
+		private function onCreationComplete():void{
+			conference = UserManager.getInstance().getConference();
+			// If the statistics window is being opened to view a poll that has been published and closed, the interface will 
+			// immediately appear with only the option to close the window. 
+			if(viewingClosedPoll)
+				stopPoll();
+			if (trackingPoll.publishToWeb){
+				webPollURLBox.text = trackingPoll.webKey;
+			}
+			answers = trackingPoll.answers;
+			question = trackingPoll.question;
+			var lines:int = (question.length / 28) + 1;
+			for(var s:String in answers){
+				lines = lines + ((s.length / 28) + 1);	
+			}				 	            	
+			height = height + ((lines+1) * 45);
+			createResultsTable(answers.length, answers);
+		}			
+
+		public function getPrefferedPosition():String{
+			return MainCanvas.POPUP;
+		}
 				
-			private function refreshPoll():void{
-				var e:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.GET);
-				e.poll.title = trackingPoll.title;
-				dispatchEvent(e);
-			} // end of function refreshResults
-						
-			private function closeWindow():void{
-				dispatchEvent(new PollingStatsWindowEvent(PollingStatsWindowEvent.CLOSE));
-			}
+		private function refreshPoll():void{
+			var e:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.GET);
+			e.poll.title = trackingPoll.title;
+			dispatchEvent(e);
+		} // end of function refreshResults
+					
+		private function closeWindow():void{
+			dispatchEvent(new PollingStatsWindowEvent(PollingStatsWindowEvent.CLOSE));
+		}
  
- 			public function refreshWindow(newVotes:Array, totalVotes:int, noVoteYet:int):void{
- 				trackingPoll.votes = newVotes;
- 				trackingPoll.totalVotes = totalVotes;
- 				trackingPoll.didNotVote = noVoteYet;
- 				createResultsTable(trackingPoll.answers.length, trackingPoll.answers);
- 				invalidateDisplayList();
-				validateNow();
- 			}
+ 		public function refreshWindow(newVotes:Array, totalVotes:int, noVoteYet:int):void{
+ 			trackingPoll.votes = newVotes;
+ 			trackingPoll.totalVotes = totalVotes;
+ 			trackingPoll.didNotVote = noVoteYet;
+ 			createResultsTable(trackingPoll.answers.length, trackingPoll.answers);
+ 			invalidateDisplayList();
+			validateNow();
+ 		}
  		
- 			private function stopPoll():void{
- 				refreshPoll();
- 				btnRefreshResults.label = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
-				btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
-				btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
-				
-				btnClosePoll.label = ResourceUtil.getInstance().getString('bbb.polling.stats.close');
-				btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
-				btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
-
-				trackingPoll.status = false;
-				stopViewersPolls();					
-			}
+ 		private function stopPoll():void{
+ 			refreshPoll();
+ 			btnRefreshResults.label = ResourceUtil.getInstance().getString('bbb.polling.stats.repost');
+			btnRefreshResults.removeEventListener(MouseEvent.CLICK, refreshWindow);
+			btnRefreshResults.addEventListener(MouseEvent.CLICK, publishPollAgain);
+			btnClosePoll.label = ResourceUtil.getInstance().getString('bbb.polling.stats.close');
+			btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
+			btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
+			trackingPoll.status = false;
+			stopViewersPolls();					
+		}
 			
-			private function publishPollAgain(e:Event):void{
-				var event:PublishPollEvent = new PublishPollEvent(PublishPollEvent.REPOST);
-				event.poll = trackingPoll;
-				dispatchEvent(event);
-				closeWindow();
-			}
+		private function publishPollAgain(e:Event):void{
+			var event:PublishPollEvent = new PublishPollEvent(PublishPollEvent.REPOST);
+			event.poll = trackingPoll;
+			dispatchEvent(event);
+			closeWindow();
+		}
 			
-			private function closeButtonClick(e:Event):void{
-				closeWindow();
-			}
+		private function closeButtonClick(e:Event):void{
+			closeWindow();
+		}
 			
-			private function stopViewersPolls():void{
-				var stopPollEvent:StopPollEvent = new StopPollEvent(StopPollEvent.STOP_POLL);
-				stopPollEvent.poll.title = title;
-				dispatchEvent(stopPollEvent);
-			}
+		private function stopViewersPolls():void{
+			var stopPollEvent:StopPollEvent = new StopPollEvent(StopPollEvent.STOP_POLL);
+			stopPollEvent.poll.title = title;
+			dispatchEvent(stopPollEvent);
+		}
  		
-			// function receives Array.length and ArrayCollection
-			private function createResultsTable(amount:uint, content:Array):void{
-				var _tx: Text;
-				var _votes: Text;
-				var _percent: Text;
-				var _hb: HBox; 
-				var _line: HRule;
+		// function receives Array.length and ArrayCollection
+		private function createResultsTable(amount:uint, content:Array):void{
+			var _tx: Text;
+			var _votes: Text;
+			var _percent: Text;
+			var _hb: HBox; 
+			var _line: HRule;
+			var totalVotes:int = 0;
+			for (var n:int = 0; n < trackingPoll.votes.length; n++){
+				totalVotes+= int(trackingPoll.votes[n]);
+			}
+			// delete existing rows
+			resultBox.removeAllChildren();
+			// creating rows one by one
+			for (var i:int = 0; i < amount; i++) {
+				_tx = new Text();
+				_votes= new Text;
+				_percent= new Text();
+				_hb = new HBox();
 				
-				var totalVotes:int = 0;
-				for (var n:int = 0; n < trackingPoll.votes.length; n++){
-					totalVotes+= int(trackingPoll.votes[n]);
-				}
+				_line = new HRule();
+				_line.width = 290;
 				
-				// delete existing rows
-				resultBox.removeAllChildren();
-				
-				// creating rows one by one
-				for (var i:int = 0; i < amount; i++) {
-					_tx = new Text();
-					_votes= new Text;
-					_percent= new Text();
-					_hb = new HBox();
-					_line = new HRule();
-					
-					_line.width = 290;
-					
-					_tx.name = "option" +i;
-					_tx.width = 200;
-					// assigning array element to text field
-					_tx.text =content[i].toString(); 
-										
-					_votes.name = "votes" +i;
-					_votes.width = 30;
-					_votes.text = trackingPoll.votes[i];
-					
-					_percent.name = "percent" +i;
-					_percent.width = 50;
-					
-					// Percentage is in terms of how many votes each option has in terms of total votes
-					if (totalVotes > 0){
-						_percent.text = Math.round(100*(trackingPoll.votes[i]/totalVotes)) + "%";
-					}else{
-						// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
-						_percent.text = " ";
-					}
-					
-					resultBox.addChild(_hb);					
-					_hb.addChild(_tx);
-					_hb.addChild(_votes);
-					_hb.addChild(_percent);
-					
-					resultBox.addChild(_line);
-				} // end of loop
-					
-				didNotVote();
-				invalidateDisplayList();
-				resultBox.validateNow();	
-			} // end of function createResultsTable
-			
-			private function didNotVote():void{
-				var _tx:Text = new Text();
-				var _votes:Text= new Text;
-				var _hb:HBox = new HBox();
-				
-				_tx.name = "optionNull";
+				_tx.name = "option" +i;
 				_tx.width = 200;
-				_tx.text = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 
+				_tx.text =content[i].toString(); 
 										
-				_votes.name = "voteNull";
+				_votes.name = "votes" +i;
 				_votes.width = 30;
-				
-				_votes.text = trackingPoll.didNotVote.toString();
-								
+				_votes.text = trackingPoll.votes[i];
+					
+				_percent.name = "percent" +i;
+				_percent.width = 50;
+					
+				// Percentage is in terms of how many votes each option has in terms of total votes
+				if (totalVotes > 0){
+					_percent.text = Math.round(100*(trackingPoll.votes[i]/totalVotes)) + "%";
+				}else{
+					// Prevents percentages from displaying misleading results before any votes come in, and from dividing by zero
+					_percent.text = " ";
+				}
+					
 				resultBox.addChild(_hb);					
 				_hb.addChild(_tx);
 				_hb.addChild(_votes);
-			}
+				_hb.addChild(_percent);
+				
+				resultBox.addChild(_line);
+			} // end of loop
+			didNotVote();
+			invalidateDisplayList();
+			resultBox.validateNow();	
+		} // end of function createResultsTable
 			
-		]]>
+		private function didNotVote():void{
+			var _tx:Text = new Text();
+			var _votes:Text= new Text;
+			var _hb:HBox = new HBox();
+			_tx.name = "optionNull";
+			_tx.width = 200;
+			_tx.text = ResourceUtil.getInstance().getString('bbb.polling.stats.didNotVote'); 
+										
+			_votes.name = "voteNull";
+			_votes.width = 30;
+			_votes.text = trackingPoll.didNotVote.toString();
+								
+			resultBox.addChild(_hb);					
+			_hb.addChild(_tx);
+			_hb.addChild(_votes);
+		}	
+	]]>
 	</mx:Script>
-
-	
- 
-	
 	<!-- Prototype of Polling Statistics View Design -->
-        <mx:VBox width="100%" height="75%" horizontalAlign="center" paddingLeft="10" paddingRight="10">
-				<mx:HBox id="webPollBox" width="90%" paddingTop="10">
-					<mx:Text text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}"
-						width="140"/>
-					<mx:TextArea id="webPollURLBox" 
-						editable="false" 
-						text="" 
-						horizontalScrollPolicy="off" 
-						verticalScrollPolicy="off" 
-						height="25"/>          
-				</mx:HBox>
-               	<mx:Text width="200" 
-               		paddingTop="15" paddingBottom="10" 
-               		fontWeight="bold" textAlign="center"
-                    text="{question}"/>
-        		<mx:Box id="resultBox"  width="90%" height="90%" />
-       </mx:VBox>
-       <mx:ControlBar width="100%" horizontalAlign="center">
-       <mx:Button id="btnRefreshResults" 
-       			  label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
-       			  click="refreshPoll()" 
-       			  width="100" height="30"/>
-       <mx:Button id="btnClosePoll" 
-       			  label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
-       			  click="stopPoll()" 
-       			  width="100" height="30"/>
-       </mx:ControlBar> 	 
-
-
+    <mx:VBox width="100%" 
+    		 height="75%" 
+    		 horizontalAlign="center" 
+    		 paddingLeft="10" 
+    		 paddingRight="10">
+		<mx:HBox id="webPollBox" 
+				 width="90%" 
+				 paddingTop="10">
+			<mx:Text text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}" 
+					 width="140"/>
+			<mx:TextArea id="webPollURLBox" 
+						 editable="false" 
+						 text="" 
+						 horizontalScrollPolicy="off" 
+						 verticalScrollPolicy="off" 
+						 height="25"/>          
+		</mx:HBox>
+        <mx:Text width="200" 
+        		 paddingTop="15" paddingBottom="10" 
+               	 fontWeight="bold" textAlign="center"
+                 text="{question}"/>
+        <mx:Box id="resultBox"  
+        		width="90%" 
+        		height="90%" />
+	</mx:VBox>
+    <mx:ControlBar width="100%" 
+    			   horizontalAlign="center">
+    	<mx:Button id="btnRefreshResults" 
+       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.refresh')}" 
+       			   click="refreshPoll()" 
+       			   width="100" 
+       			   height="30"/>
+       	<mx:Button id="btnClosePoll" 
+       			   label="{ResourceUtil.getInstance().getString('bbb.polling.stats.stopPoll')}" 
+       			   click="stopPoll()" 
+       			   width="100" height="30"/>
+	</mx:ControlBar> 	 
 </MDIWindow>

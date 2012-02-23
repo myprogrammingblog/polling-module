@@ -130,7 +130,7 @@
             			reviewEvent.poll = poll;
             			dispatchEvent(reviewEvent);
             		}
-            	} // _ if index==0
+            	}
         	}
 						
 								

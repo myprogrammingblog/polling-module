@@ -31,7 +31,7 @@
 
 	<mx:Script>
 		<![CDATA[
-		import flexlib.mdi.events.MDIWindowEvent;
+			import flexlib.mdi.events.MDIWindowEvent;
 			
 			import org.bigbluebutton.main.views.MainCanvas;
 			import mx.controls.Alert;
@@ -42,7 +42,7 @@
 			import org.bigbluebutton.modules.polling.events.VoteEvent;
 			
 			import org.bigbluebutton.main.model.users.Conference;
-
+			
 			import mx.validators.Validator;	
 			import mx.utils.ObjectUtil;
 			import org.bigbluebutton.util.i18n.ResourceUtil;
@@ -54,22 +54,18 @@
 			import mx.controls.Text;
 		    import mx.containers.*;
 		    import mx.controls.*;
-
-
-		   	public static const LOGNAME:String = "[PollingViewWindow] ";
 			
+		   	public static const LOGNAME:String = "[PollingViewWindow] ";
 			public var isMultiple:Boolean;
 			[Bindable] public var question:String;
 			[Bindable] public var answers:Array;
 			public var votes:Array;
 			public var time:String;
-			
 			public var moduleAttributes:Object;
 			private var _userid:Number; 
 			private var window:PollingViewWindow;			
-			
 			public var cbSelected:Array = new Array(); // variable that receives either CheckBox or ReadioButton info and sends it to VoteEvent
-
+			
 			public function getPrefferedPosition():String{
 				return MainCanvas.POPUP;
 			}	
@@ -77,8 +73,7 @@
 			private function closeWindow():void{
 				dispatchEvent(new PollingViewWindowEvent(PollingViewWindowEvent.CLOSE));
 			}
- 
- 
+ 			 
 			private function onCreationComplete():void{
 				checkInstructions.visible = isMultiple;
 				createButtons(answers.length,answers);
@@ -90,8 +85,7 @@
 				}				 	            	
 				height = height + (lines * 50);
 			}
-			
-			
+						
 			// This function will receive information and generate radiobuttons on fly
 			// function receives Array.length and ArrayCollection
 			private function createButtons(amount:uint, content:Array):void{
@@ -169,19 +163,32 @@
 			}
 		]]>
 	</mx:Script>
+
 	<mx:RadioButtonGroup id="answersGroup"/>
- 
-	
-	<!-- Prototype of Polling Module Design -->
-    <mx:VBox width="100%" height="75%" horizontalAlign="center" paddingLeft="10" paddingRight="10">
+ 	<!-- Prototype of Polling Module Design -->
+    <mx:VBox width="100%" 
+    		 height="75%" 
+    		 horizontalAlign="center" 
+    		 paddingLeft="10" 
+    		 paddingRight="10">
     	<mx:Text width="200" 
-        		 paddingTop="30" paddingBottom="10" 
-        		 fontWeight="bold" textAlign="center"
+        		 paddingTop="30" 
+        		 paddingBottom="10" 
+        		 fontWeight="bold" 
+        		 textAlign="center"
        			 text="{question}"/>
-       	<mx:Text id="checkInstructions" text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll')}"/>
-     	<mx:Box id="answerBox"  width="90%" height="90%" />
+       	<mx:Text id="checkInstructions" 
+       			 text="{ResourceUtil.getInstance().getString('bbb.polling.pollPreview.checkAll')}"/>
+     	<mx:Box id="answerBox"  
+     			width="90%" 
+     			height="90%" />
 	</mx:VBox>
-    <mx:ControlBar width="100%" horizontalAlign="center">
-    	<mx:Button id="btnAcceptPoll" label="{ResourceUtil.getInstance().getString('bbb.polling.pollView.vote')}" click="Vote()"  width="100" height="30"/>
+    <mx:ControlBar width="100%" 
+    			   horizontalAlign="center">
+    	<mx:Button id="btnAcceptPoll" 
+    			   label="{ResourceUtil.getInstance().getString('bbb.polling.pollView.vote')}" 
+    			   click="Vote()"  
+    			   width="100" 
+    			   height="30"/>
     </mx:ControlBar> 	 
 </MDIWindow>

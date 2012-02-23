@@ -101,30 +101,30 @@ package org.bigbluebutton.modules.polling.service
         
          // Dealing with PollingViewWindow
         /*#######################################################*/
-         public function sharePollingWindow(poll:PollObject):void{
-         	if (isConnected = true ) {
-           		pollingSO.send("openPollingWindow", buildServerPoll(poll));
-         	}
-         }
+        public function sharePollingWindow(poll:PollObject):void{
+        	if (isConnected = true ) {
+          		pollingSO.send("openPollingWindow", buildServerPoll(poll));
+        	}
+        }
                   
-         public function openPollingWindow(serverPoll:Array):void{
-         		var username:String = module.username;
-         		var poll:PollObject = extractPoll(serverPoll, serverPoll[1]+"-"+serverPoll[0]);
-          		if (!UserManager.getInstance().getConference().amIModerator()){
-          			var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
-	        		e.poll = poll;
-          			dispatcher.dispatchEvent(e);
-          		}else{
-          			var stats:PollingStatsWindowEvent = new PollingStatsWindowEvent(PollingStatsWindowEvent.OPEN);
-          			stats.poll = poll;
-          			stats.poll.status = false;
-          			dispatcher.dispatchEvent(stats);
-          		}
-         }
+        public function openPollingWindow(serverPoll:Array):void{
+        	var username:String = module.username;
+        	var poll:PollObject = extractPoll(serverPoll, serverPoll[1]+"-"+serverPoll[0]);
+        	if (!UserManager.getInstance().getConference().amIModerator()){
+        		var e:PollingViewWindowEvent = new PollingViewWindowEvent(PollingViewWindowEvent.OPEN);
+	       		e.poll = poll;
+         		dispatcher.dispatchEvent(e);
+         	}else{
+         		var stats:PollingStatsWindowEvent = new PollingStatsWindowEvent(PollingStatsWindowEvent.OPEN);
+         		stats.poll = poll;
+         		stats.poll.status = false;
+         		dispatcher.dispatchEvent(stats);
+         	}
+        }
 
 		public function closeAllPollingWindows():void{
         	if (isConnected = true ) {
-         			pollingSO.send("closePollingWindow"); 
+         		pollingSO.send("closePollingWindow"); 
          	}
         }
         
@@ -133,53 +133,48 @@ package org.bigbluebutton.modules.polling.service
          	dispatcher.dispatchEvent(e);
         }
 
-	  
-
-		
         //Event Handlers
         /*######################################################*/
         
  		public function setPolling(polling:Boolean):void{
 	   		isPolling = polling;
-	   }
+	    }
 	   
 	   
-	   public function setStatus(pollKey:String, status:Boolean):void{
+	   	public function setStatus(pollKey:String, status:Boolean):void{
 	   		if (status){
 	   			openPoll(pollKey);
 	   		}else{
 	   			closePoll(pollKey);
 	   		}
-	   }
+	    }
 	   
 	   
-	   public function getPollingStatus():Boolean{
+	    public function getPollingStatus():Boolean{
 	   		return isPolling;
-	   }
+		}
 		
 		public function disconnect():void{
 			if (module.connection != null) module.connection.close();
 		}
 		
 		public function onBWDone():void{
-                //called from asc
-                trace("onBandwithDone");
-            } 
-	   
+        	//called from asc
+        	trace("onBandwithDone");
+        } 
 	   
 	   	public function handleResult(e:NetStatusEvent):void {	   		
 			var statusCode : String = e.info.code;
-			switch ( statusCode ) 
-			{
-				case "NetConnection.Connect.Success":
-					isConnected = true;
-					break;
-				case "NetConnection.Connect.Failed":					
-					break
-				case "NetConnection.Connect.Rejected":
-					break 
-				default :
-				   break;
+			switch (statusCode){
+			case "NetConnection.Connect.Success":
+				isConnected = true;
+				break;
+			case "NetConnection.Connect.Failed":					
+				break;
+			case "NetConnection.Connect.Rejected":
+				break; 
+			default:
+				break;
 			}
 		}
 		
@@ -188,47 +183,36 @@ package org.bigbluebutton.modules.polling.service
 		public function savePoll(poll:PollObject):void
 		{
 			var serverPoll:Array = buildServerPoll(poll);
-			nc.call("poll.savePoll", new Responder(success, failure), serverPoll);
-						
+			nc.call("poll.savePoll", new Responder(success, failure), serverPoll);		
 			//--------------------------------------//
-			
 			// Responder functions
 			function success(obj:Object):void{}
-	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME + "Responder object failure in SAVEPOLL NC.CALL"); 
 			}
-			
 			//--------------------------------------//
 		}
 				
 	   	public function  getPoll(pollKey:String, option:String):void{	   	
 			nc.call("poll.getPoll", new Responder(success, failure), pollKey);
-			
 			//--------------------------------------//
-			
 			// Responder functions
 			function success(obj:Object):void{
 				var itemArray:Array = obj as Array;
 				extractPoll(itemArray, pollKey, option);
 			}
-	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in GETPOLL NC.CALL");
 			}
-			
 			//--------------------------------------//
-	   } // _getPoll 
+	   	}  
 	  
-		 
-		 public function publish(poll:PollObject):void{
+		public function publish(poll:PollObject):void{
 			var pollKey:String = poll.room + "-" + poll.title;
 			var webKey:String = poll.webKey;
 			var serverPoll:Array = buildServerPoll(poll);
 			nc.call("poll.publish", new Responder(success, failure), serverPoll, pollKey);
-						
 			//--------------------------------------//
-			
 			// Responder functions
 			function success(obj:Object):void{
 				var itemArray:Array = obj as Array;
@@ -237,38 +221,31 @@ package org.bigbluebutton.modules.polling.service
 				}
 				extractPoll(itemArray, pollKey, "publish");
 			}
-	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME + "Responder object failure in PUBLISH NC.CALL"); 
 			}
-			
 			//--------------------------------------//
-		 }
+		}
 		 
 		public function vote(pollKey:String, answerIDs:Array, webVote:Boolean = false):void{
 			// answerIDs will indicate by integer which option(s) the user voted for
 		 	// i.e., they voted for 3 and 5 on multiple choice, answerIDs will hold [0] = 3, [1] = 5
 		 	// It works the same regardless of if AnswerIDs holds {3,5} or {5,3} 
-			nc.call("poll.vote", new Responder(success, failure), pollKey, answerIDs, webVote);
-						
+			nc.call("poll.vote", new Responder(success, failure), pollKey, answerIDs, webVote);			
 			//--------------------------------------//
-			
 			// Responder functions
 			function success(obj:Object):void{}
-	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME + "Responder object failure in VOTE NC.CALL"); 
 			}
-			
 			//--------------------------------------//
 		}
 		
-		 
-		 public function refreshResults(poll:PollObject):void{
-		 	var refreshEvent:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.REFRESH);
-		 	refreshEvent.poll = poll;
-		 	dispatcher.dispatchEvent(refreshEvent);
-		 } // _refreshResults
+		public function refreshResults(poll:PollObject):void{
+			var refreshEvent:PollRefreshEvent = new PollRefreshEvent(PollRefreshEvent.REFRESH);
+			refreshEvent.poll = poll;
+			dispatcher.dispatchEvent(refreshEvent);
+		}
 	  	
 	  	//#################################################//
 	    
@@ -292,23 +269,23 @@ package org.bigbluebutton.modules.polling.service
 		}
 	    
 	    public function extractPoll(values:Array, pollKey:String, option:String = "extract"):PollObject {
-		   var poll:PollObject = new PollObject();
-		   		    
-		   poll.title 			= values[0] as String;
-		   poll.room 			= values[1] as String;
-		   poll.isMultiple 	= values[2] as Boolean;
-		   poll.question 		= values[3] as String;
-		   poll.answers 		= values[4] as Array;
-		   poll.votes 			= values[5] as Array;	    
-		   poll.time 			= values[6] as String;		    
-		   poll.totalVotes 	= values[7] as int;
-		   poll.status 		= values[8] as Boolean;
-		   poll.didNotVote 	= values[9] as int;
-		   poll.publishToWeb 	= values[10] as Boolean;
-		   poll.webKey			= values[11] as String;
+			var poll:PollObject = new PollObject();
+		
+			poll.title 			= values[0] as String;
+			poll.room 			= values[1] as String;
+			poll.isMultiple 	= values[2] as Boolean;
+			poll.question 		= values[3] as String;
+			poll.answers 		= values[4] as Array;
+			poll.votes 			= values[5] as Array;	    
+			poll.time 			= values[6] as String;		    
+			poll.totalVotes 	= values[7] as int;
+			poll.status 		= values[8] as Boolean;
+			poll.didNotVote 	= values[9] as int;
+			poll.publishToWeb 	= values[10] as Boolean;
+			poll.webKey			= values[11] as String;
 		   
-		   switch (option) 
-		   {
+			switch (option) 
+			{
 		   		case "publish":
 					sharePollingWindow(poll);
 					break;
@@ -333,20 +310,19 @@ package org.bigbluebutton.modules.polling.service
 				   	LogUtil.error(LOGNAME+"Error in extractPoll: unknown option ["+option+"]");
 				   	break;
 			}
-		   return poll;
+			return poll;
 		}
 		// END OF POLLOBJECT-TO-ARRAY AND ARRAY-TO-POLLOBJECT TRANSFORMATION
 		
 		
-		 //#################################################//
+		//#################################################//
 		 
-		 // TOOLBAR/POLLING MENU
+		// TOOLBAR/POLLING MENU
 		 
-		 // Initialize the Polling Menu on the toolbar button
-		 public function initializePollingMenu(roomID:String):void{
-		 	nc.call("poll.titleList", new Responder(titleSuccess, titleFailure));
-		 	//--------------------------------------//
-			
+		// Initialize the Polling Menu on the toolbar button
+		public function initializePollingMenu(roomID:String):void{
+			nc.call("poll.titleList", new Responder(titleSuccess, titleFailure));
+			//--------------------------------------//
 			// Responder functions
 			function titleSuccess(obj:Object):void{
 				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
@@ -359,50 +335,42 @@ package org.bigbluebutton.modules.polling.service
 				// This dispatch populates the titleList back in the Menu; the pollList is populated one item at a time in the for-loop
 				dispatcher.dispatchEvent(event); 
 			}
-	
 			function titleFailure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in INITALIZE POLLING MENU NC.CALL");
 			}
-			
 			//--------------------------------------//
 		 }
 		 
 		 public function updateTitles():void{
 		 	nc.call("poll.titleList", new Responder(success, failure));
 		 	//--------------------------------------//
-			
 			// Responder functions
 			function success(obj:Object):void{
 				var event:PollReturnTitlesEvent = new PollReturnTitlesEvent(PollReturnTitlesEvent.UPDATE);
 				event.titleList = obj as Array;
 				dispatcher.dispatchEvent(event);
 			}
-	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in UPDATE_TITLES NC.CALL");
 			}
-			
 			//--------------------------------------//
-		 } // _updateTitles
+		 }
 		 
 		 
 		 public function checkTitles():void{
 		 	nc.call("poll.titleList", new Responder(success, failure));
 		 	//--------------------------------------//
-			
 			// Responder functions
 			function success(obj:Object):void{
 				var event:PollGetTitlesEvent = new PollGetTitlesEvent(PollGetTitlesEvent.RETURN);
 				event.titleList = obj as Array;
 				dispatcher.dispatchEvent(event);
 			}
-	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in CHECK_TITLES NC.CALL");
 			}
-			
 			//--------------------------------------//
-		 } // _checkTitles
+		 }
 		 
 		 // END OF TOOLBAR/POLLING MENU
 		 
@@ -412,39 +380,29 @@ package org.bigbluebutton.modules.polling.service
 		 
 		 public function openPoll(pollKey:String):void{
 		 	nc.call("poll.setStatus", new Responder(success, failure), pollKey, true);
-		 	
 		 	//--------------------------------------//
-
 			// Responder functions
 			function success(obj:Object):void{}
-	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in OPENPOLL NC.CALL");
 			}
-			
 			//--------------------------------------//
 		 }
 		 
 		 public function closePoll(pollKey:String):void{
 		 	nc.call("poll.setStatus", new Responder(success, failure), pollKey, false);
-		 	
-		 	//--------------------------------------//
-			
+		  	//--------------------------------------//
 			// Responder functions
 			function success(obj:Object):void{}
-	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in CLOSEPOLL NC.CALL");
 			}
-			
 			//--------------------------------------//
 		 }
 		 
 		 public function generate(generateEvent:GenerateWebKeyEvent):void{
 		 	nc.call("poll.generate", new Responder(success, failure), generateEvent.pollKey);
-		 	
 		 	//--------------------------------------//
-			
 			// Responder functions
 			function success(obj:Object):void{
 				var webKey:String = obj as String;
@@ -453,12 +411,10 @@ package org.bigbluebutton.modules.polling.service
 				webKeyReturnEvent.poll.webKey = webKey;
 				dispatcher.dispatchEvent(webKeyReturnEvent);
 			}
-	
 			function failure(obj:Object):void{
 				LogUtil.error(LOGNAME+"Responder object failure in GENERATE NC.CALL");
 			}
-			
 			//--------------------------------------//
-		 }
-   }
+		}
+	}
 }
