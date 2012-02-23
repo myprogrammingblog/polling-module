@@ -179,6 +179,8 @@ public class PollApplication {
 		String nextWebKey = webKeyIncrement(Integer.parseInt(jedis.get(CURRENTKEY)), jedis);
 		jedis.del(nextWebKey);
 		jedis.set(nextWebKey, pollKey);
+		// Save the webKey that is being used as part of the poll key, for quick reference later
+		jedis.hset(pollKey, "webKey", nextWebKey);
 		// Replace the value stored in bbb-polling-webID
 		jedis.set(CURRENTKEY, nextWebKey);
 		return nextWebKey;
@@ -192,5 +194,16 @@ public class PollApplication {
 			nextIndex = "1";
 		}
 		return nextIndex;
+	}
+	
+	public void cutOffWebPoll(String pollKey){
+		Jedis jedis = dbConnect();
+		String webKey = jedis.hget(pollKey, "webKey");
+		try{
+			jedis.del(webKey);
+		}
+		catch (Exception e){
+			log.warn("Error in deleting web key " + webKey);
+		}
 	}
 }

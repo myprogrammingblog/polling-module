@@ -99,4 +99,8 @@ public class PollService {
 		webKey = application.generate(pollKey);
 		return webKey;
 	}
+	
+	public void cutOffWebPoll(String pollKey){
+		application.cutOffWebPoll(pollKey);
+	}
 }

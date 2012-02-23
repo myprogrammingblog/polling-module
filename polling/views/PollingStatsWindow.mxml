@@ -151,7 +151,7 @@
 			
 		private function stopViewersPolls():void{
 			var stopPollEvent:StopPollEvent = new StopPollEvent(StopPollEvent.STOP_POLL);
-			stopPollEvent.poll.title = title;
+			stopPollEvent.poll = trackingPoll;
 			dispatchEvent(stopPollEvent);
 		}
  		

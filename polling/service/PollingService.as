@@ -246,6 +246,18 @@ package org.bigbluebutton.modules.polling.service
 			refreshEvent.poll = poll;
 			dispatcher.dispatchEvent(refreshEvent);
 		}
+		
+		public function cutOffWebPoll(poll:PollObject):void{
+			var pollKey:String = poll.room+"-"+poll.title;
+			nc.call("poll.cutOffWebPoll", new Responder(success, failure), pollKey);			
+			//--------------------------------------//
+			// Responder functions
+			function success(obj:Object):void{}
+			function failure(obj:Object):void{
+				LogUtil.error(LOGNAME + "Responder object failure in CUT OFF WEB POLL NC.CALL"); 
+			}
+			//--------------------------------------//
+		}
 	  	
 	  	//#################################################//
 	    
