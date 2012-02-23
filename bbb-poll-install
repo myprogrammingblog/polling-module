@@ -234,6 +234,8 @@ echo "Copying polling recorder to bbb-aps ......"
 	echo "Copying Locales..."
 	cp    ./client.locale/en_US/bbbResources.properties  $BBB/bigbluebutton-client/locale/en_US/bbbResources.properties
 	cp    ./client.locale/ru_RU/bbbResources.properties  $BBB/bigbluebutton-client/locale/ru_RU/bbbResources.properties
+	cp    ./client.locale/ru_RU/bbbResources.properties  $BBB/bigbluebutton-client/locale/fr_FR/bbbResources.properties
+	cp    ./client.locale/ru_RU/bbbResources.properties  $BBB/bigbluebutton-client/locale/fr_CA/bbbResources.properties
  	echo "                                                             [Done]"	
 
   	echo " Copying PollingModule.mxml "
