@@ -27,8 +27,8 @@
 	initialize="init();"
 	creationComplete="onCreationComplete()"
 	label="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
-	layout="absolute" 
-	title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}">
+	title="{ResourceUtil.getInstance().getString('bbb.polling.toolbar.toolTip')}"
+	layout="absolute">
 
 	<mx:Script>
 		<![CDATA[

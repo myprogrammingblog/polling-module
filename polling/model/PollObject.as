@@ -16,15 +16,13 @@ package org.bigbluebutton.modules.polling.model
 		/* 
 		 ########################################################################################
 		 # KEY PLACES TO UPDATE, WHEN ADDING NEW FIELDS TO THE HASH:							#
-		 # PollingService.as, sharePollingWindow()												#
-		 # PollingService.as, openPollingWindow()												#
-		 # PollingService.as, buildServerPoll()														#
+		 # PollingService.as, buildServerPoll()													#
 		 # PollingService.as, extractPoll()														#
 		 # PollingInstructionsWindow.mxml, buildPoll()											#
 		 # - Only necessary when the new field is involved with poll creation					#
 		 # Don't forget to update the server side as well (key locations found in Poll.java)	#
 		 ########################################################################################
-		 */
+		*/
 		
 		public var title:String;
 		public var room:String;
