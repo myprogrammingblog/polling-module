@@ -83,41 +83,29 @@ public class PollApplication {
 		// Destroy polls that were created in the room
 		Jedis jedis = dbConnect();
 		ArrayList polls = titleList();
-	    int pollCounter = 0;
-	    int webCounter = 0;
 		for (int i = 0; i < polls.size(); i++){
 			String pollKey = name + "-" + polls.get(i).toString();
 			Poll doomedPoll = getPoll(pollKey);
-			ArrayList <String> webKeys = new ArrayList <String>();
-			String webKeyString = jedis.get(CURRENTKEY);
-			Integer webKeyInt = Integer.parseInt(webKeyString);
 			if (doomedPoll.publishToWeb){
-				// Search through the available webkeys to find one that holds this poll
-				for (Integer index = 0; index <= webKeyInt; index++){
-					String indexStr = index.toString();
-					if (jedis.exists(indexStr)){
-						if (jedis.get(indexStr).equals(pollKey)){
-							webKeys.add(indexStr);
-						}
-					}
-				}
+				cutOffWebPoll(pollKey);
 			}
 			try{
 				jedis.del(pollKey);
-				++pollCounter;
-				for (String s : webKeys){
-					try{
-						jedis.del(s);
-						++webCounter;
-					}
-					catch (Exception e){
-						log.error("Webkey deletion failed.");
-					}
-				}
 			}
 			catch (Exception e){
 				log.error("Poll deletion failed.");
 			}
+		}
+	}
+	
+	public void cutOffWebPoll(String pollKey){
+		Jedis jedis = dbConnect();
+		String webKey = jedis.hget(pollKey, "webKey");
+		try{
+			jedis.del(webKey);
+		}
+		catch (Exception e){
+			log.warn("Error in deleting web key " + webKey);
 		}
 	}
 	
@@ -194,16 +182,5 @@ public class PollApplication {
 			nextIndex = "1";
 		}
 		return nextIndex;
-	}
-	
-	public void cutOffWebPoll(String pollKey){
-		Jedis jedis = dbConnect();
-		String webKey = jedis.hget(pollKey, "webKey");
-		try{
-			jedis.del(webKey);
-		}
-		catch (Exception e){
-			log.warn("Error in deleting web key " + webKey);
-		}
 	}
 }
