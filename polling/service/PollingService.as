@@ -417,10 +417,18 @@ package org.bigbluebutton.modules.polling.service
 		 	//--------------------------------------//
 			// Responder functions
 			function success(obj:Object):void{
-				var webKey:String = obj as String;
+				var webInfo:Array = obj as Array;
+				
+				var webKey:String = webInfo[0];
+				var webHostIP:String = webInfo[1];
+				var webHostPort:String = webInfo[2];
+				
 				var webKeyReturnEvent:GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.RETURN);
 				webKeyReturnEvent.poll = generateEvent.poll
 				webKeyReturnEvent.poll.webKey = webKey;
+				webKeyReturnEvent.webHostIP = webHostIP;
+				webKeyReturnEvent.webHostPort = webHostPort;
+				
 				dispatcher.dispatchEvent(webKeyReturnEvent);
 			}
 			function failure(obj:Object):void{

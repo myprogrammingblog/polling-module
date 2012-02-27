@@ -19,14 +19,15 @@
 
 package org.bigbluebutton.conference.service.poll;
 
-import java.net.InetAddress;
+import java.net.*;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
 import java.util.ArrayList;
-
+import java.io.*;
+import java.util.Scanner;
 
 import org.bigbluebutton.conference.service.poll.PollRoomsManager;
 import org.bigbluebutton.conference.service.poll.PollRoom;
@@ -45,7 +46,11 @@ public class PollApplication {
 	private static final String APP = "Poll";
 	private PollRoomsManager roomsManager;
 	private String CURRENTKEY = "bbb-polling-webID";
-	private int MAX_WEBKEYS	= 9999;
+	private Integer MAX_WEBKEYS	= 9999;
+	private Integer MIN_WEBKEYS	= 1000;
+	private String BBB_FILE = "/etc/nginx/sites-available/bigbluebutton";
+	private String BBB_SERVER_FIELD = "server_name";
+	private String BBB_PORT_FIELD = "listen";
 	
 	public PollHandler handler;
 	
@@ -61,22 +66,17 @@ public class PollApplication {
 		return true;
 	}
 	
+	// About to change dbConnect entirely, but if you can see this again you're back to normal.
 	public Jedis dbConnect(){
- 	   	// Reads IP from Java, for portability
- 	       String serverIP = "INVALID IP";
- 	       try
- 	       {
- 	    	   InetAddress addr = InetAddress.getLocalHost();
- 	           // Get hostname
- 	           String hostname = addr.getHostName();
- 	           serverIP = hostname;
- 	       } 
- 	       catch (Exception e)
- 	       {
- 	    	   log.error("IP capture failed.");
- 	       }
- 	       JedisPool redisPool = new JedisPool(serverIP, 6379);
- 	       return redisPool.getResource();
+		try{
+			String serverIP = getLocalIP();
+			JedisPool redisPool = new JedisPool(serverIP, 6379);
+			return redisPool.getResource();
+		}
+		catch (Exception e){
+			log.error("Error in PollApplication.dbConnect()");
+		}
+ 		return null;
     }
 	
 	public void destroyPolls(String name){
@@ -105,7 +105,7 @@ public class PollApplication {
 			jedis.del(webKey);
 		}
 		catch (Exception e){
-			log.warn("Error in deleting web key " + webKey);
+			log.error("Error in deleting web key " + webKey);
 		}
 	}
 	
@@ -118,7 +118,7 @@ public class PollApplication {
 			roomsManager.addRoomListener(room, listener);
 			return true;
 		}
-		log.warn("Adding listener to a non-existant room " + room);
+		log.error("Adding listener to a non-existant room " + room);
 		return false;
 	}
 	
@@ -158,12 +158,15 @@ public class PollApplication {
         pollRecorder.setStatus(pollKey, status);
 	}
 	
-	public String generate(String pollKey){
+	public ArrayList generate(String pollKey){
 		Jedis jedis = dbConnect();
 		if (!jedis.exists(CURRENTKEY)){
-			jedis.set(CURRENTKEY, "0");
+			Integer base = MIN_WEBKEYS -1;
+			jedis.set(CURRENTKEY, base.toString());
 		}
 		// The value stored in the bbb-polling-webID key represents the next available web-friendly poll ID 		
+		ArrayList webInfo = new ArrayList();
+		
 		String nextWebKey = webKeyIncrement(Integer.parseInt(jedis.get(CURRENTKEY)), jedis);
 		jedis.del(nextWebKey);
 		jedis.set(nextWebKey, pollKey);
@@ -171,7 +174,15 @@ public class PollApplication {
 		jedis.hset(pollKey, "webKey", nextWebKey);
 		// Replace the value stored in bbb-polling-webID
 		jedis.set(CURRENTKEY, nextWebKey);
-		return nextWebKey;
+		webInfo.add(nextWebKey);
+		
+		String hostname = getLocalIP();
+		webInfo.add(hostname);
+		
+		String hostPort = getLocalPort();
+		webInfo.add(hostPort);
+		
+		return webInfo;
 	}
 	
 	private String webKeyIncrement(Integer index, Jedis jedis){
@@ -179,8 +190,82 @@ public class PollApplication {
 		if (++index <= MAX_WEBKEYS){
 			nextIndex = index.toString();
 		}else{
-			nextIndex = "1";
+			nextIndex = MIN_WEBKEYS.toString();
 		}
 		return nextIndex;
 	}
+	
+    private String getLocalIP()
+    {
+    	File parseFile = new File(BBB_FILE);
+    	try{    		
+    		Scanner scanner = new Scanner(new FileReader(parseFile));
+        	Boolean found = false;
+    		String serverAddress = "";
+    		while (!found && scanner.hasNextLine()){
+    			serverAddress = processLine(scanner.nextLine(), BBB_SERVER_FIELD);
+    			if (!serverAddress.equals(""))
+    				found = true;
+    		}
+    		scanner.close();
+    		return serverAddress;
+    	}
+    	catch (Exception e){
+    		log.error("Error in scanning " + BBB_FILE + " to find server address.");
+    	}
+    	return null;
+    }
+    
+    private String getLocalPort()
+    {
+    	File parseFile = new File(BBB_FILE);
+    	try{    		
+    		Scanner scanner = new Scanner(new FileReader(parseFile));
+        	Boolean found = false;
+    		String serverAddress = "";
+    		while (!found && scanner.hasNextLine()){
+    			serverAddress = processLine(scanner.nextLine(), BBB_PORT_FIELD);
+    			if (!serverAddress.equals(""))
+    				found = true;
+    		}
+    		scanner.close();
+    		return serverAddress;
+    	}
+    	catch (Exception e){
+    		log.error("Error in scanning " + BBB_FILE + " to find server PORT.");
+    	}
+    	return null;
+    }
+    
+    private String processLine(String line, String option){
+    	//use a second Scanner to parse the content of each line 
+        Scanner scanner = new Scanner(line);
+        if ( scanner.hasNext() ){
+        	String name = scanner.next();
+        	String value = scanner.next();
+        	if (name.equals(option)){
+        		// Return the host address without the trailing semicolon
+        		return value.substring(0, value.length()-1);
+        	}
+        }
+        else {
+        	log.error("Error in processing server address from " + BBB_FILE);
+        }
+        return "";
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }

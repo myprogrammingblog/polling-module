@@ -101,10 +101,17 @@ package org.bigbluebutton.modules.polling.managers
 		  
 		  public function handleReturnWebKeyEvent(e:GenerateWebKeyEvent):void
 		  {
-			  if (!e.repost)
+			  var transferURL:String = e.webHostIP;
+		  	  if (e.webHostPort != "80")
+		  		  transferURL += (":" + e.webHostPort); 
+		  	  transferURL += "/bigbluebutton/polls.jsp?poll=" + e.poll.webKey;
+			  
+			  statsWindow.webPollUrl = transferURL;
+			  if (!e.repost){
 				  instructionsWindow._webKey = e.poll.webKey;
-			  else
+			  }else{
 				  statsWindow.trackingPoll.webKey = e.poll.webKey;
+			  }
 		  }
 
 		// Action makers (function that actually act on the windows )

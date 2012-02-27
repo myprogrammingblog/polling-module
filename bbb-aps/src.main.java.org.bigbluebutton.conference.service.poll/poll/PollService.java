@@ -94,10 +94,10 @@ public class PollService {
 		application.setStatus(pollKey, status);
 	}
 	
-	public String generate(String pollKey){
-		String webKey;
-		webKey = application.generate(pollKey);
-		return webKey;
+	public ArrayList generate(String pollKey){
+		ArrayList webInfo = new ArrayList();
+		webInfo = application.generate(pollKey);
+		return webInfo;
 	}
 	
 	public void cutOffWebPoll(String pollKey){

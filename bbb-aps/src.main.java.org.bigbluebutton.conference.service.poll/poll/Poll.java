@@ -34,6 +34,8 @@ import java.util.HashMap;
 @ThreadSafe
 public class Poll{
 	
+	// Poll URL http://142.204.133.24/bigbluebutton/polls.jsp?poll={webKey}
+	
 	/* KEY PLACES TO UPDATE, WHEN ADDING NEW FIELDS TO THE HASH:
 	 * PollService.java, getPoll()
 	 * PollInvoker.java, invoke()

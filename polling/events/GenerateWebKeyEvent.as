@@ -29,6 +29,8 @@ package org.bigbluebutton.modules.polling.events
 		public var repost:Boolean;
 		public var pollKey:String;
 		public var poll:PollObject;
+		public var webHostIP:String;
+		public var webHostPort:String;
 		
 		public function GenerateWebKeyEvent(type:String, bubbles:Boolean=true, cancelable:Boolean=false)
 		{
