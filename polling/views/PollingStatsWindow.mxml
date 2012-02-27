@@ -22,7 +22,7 @@
 
 <MDIWindow xmlns="flexlib.mdi.containers.*" xmlns:mx="http://www.adobe.com/2006/mxml" 
 		   height="150"
-		   width="380"  
+		   width="410"  
 		   xmlns:mate="http://mate.asfusion.com/"
 		   implements="org.bigbluebutton.common.IBbbModuleWindow"
 		   initialize="init();"
@@ -85,7 +85,7 @@
 				dispatchEvent(generate);
 			}
 		}
-
+0
 		private function onCreationComplete():void{
 			conference = UserManager.getInstance().getConference();
 			// If the statistics window is being opened to view a poll that has been published and closed, the interface will 

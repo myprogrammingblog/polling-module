@@ -48,9 +48,8 @@ public class PollApplication {
 	private String CURRENTKEY = "bbb-polling-webID";
 	private Integer MAX_WEBKEYS	= 9999;
 	private Integer MIN_WEBKEYS	= 1000;
-	private String BBB_FILE = "/etc/nginx/sites-available/bigbluebutton";
-	private String BBB_SERVER_FIELD = "server_name";
-	private String BBB_PORT_FIELD = "listen";
+	private String BBB_FILE = "/var/lib/tomcat6/webapps/bigbluebutton/WEB-INF/classes/bigbluebutton.properties";
+	private String BBB_SERVER_FIELD = "bigbluebutton.web.serverURL";
 	
 	public PollHandler handler;
 	
@@ -70,6 +69,7 @@ public class PollApplication {
 	public Jedis dbConnect(){
 		try{
 			String serverIP = getLocalIP();
+			serverIP = serverIP.substring(7);
 			JedisPool redisPool = new JedisPool(serverIP, 6379);
 			return redisPool.getResource();
 		}
@@ -175,12 +175,8 @@ public class PollApplication {
 		// Replace the value stored in bbb-polling-webID
 		jedis.set(CURRENTKEY, nextWebKey);
 		webInfo.add(nextWebKey);
-		
 		String hostname = getLocalIP();
 		webInfo.add(hostname);
-		
-		String hostPort = getLocalPort();
-		webInfo.add(hostPort);
 		
 		return webInfo;
 	}
@@ -203,7 +199,7 @@ public class PollApplication {
         	Boolean found = false;
     		String serverAddress = "";
     		while (!found && scanner.hasNextLine()){
-    			serverAddress = processLine(scanner.nextLine(), BBB_SERVER_FIELD);
+    			serverAddress = processLine(scanner.nextLine());
     			if (!serverAddress.equals(""))
     				found = true;
     		}
@@ -216,36 +212,16 @@ public class PollApplication {
     	return null;
     }
     
-    private String getLocalPort()
-    {
-    	File parseFile = new File(BBB_FILE);
-    	try{    		
-    		Scanner scanner = new Scanner(new FileReader(parseFile));
-        	Boolean found = false;
-    		String serverAddress = "";
-    		while (!found && scanner.hasNextLine()){
-    			serverAddress = processLine(scanner.nextLine(), BBB_PORT_FIELD);
-    			if (!serverAddress.equals(""))
-    				found = true;
-    		}
-    		scanner.close();
-    		return serverAddress;
-    	}
-    	catch (Exception e){
-    		log.error("Error in scanning " + BBB_FILE + " to find server PORT.");
-    	}
-    	return null;
-    }
     
-    private String processLine(String line, String option){
+    private String processLine(String line){
     	//use a second Scanner to parse the content of each line 
         Scanner scanner = new Scanner(line);
+        scanner.useDelimiter("=");
         if ( scanner.hasNext() ){
         	String name = scanner.next();
-        	String value = scanner.next();
-        	if (name.equals(option)){
-        		// Return the host address without the trailing semicolon
-        		return value.substring(0, value.length()-1);
+        	if (name.equals(BBB_SERVER_FIELD)){
+        		String value = scanner.next();
+        		return value;
         	}
         }
         else {
@@ -253,19 +229,4 @@ public class PollApplication {
         }
         return "";
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }
