@@ -46,6 +46,7 @@
 		import org.bigbluebutton.modules.polling.events.SavePollEvent;
 		import org.bigbluebutton.modules.polling.events.PublishPollEvent;
 		import org.bigbluebutton.modules.polling.events.GenerateWebKeyEvent;
+		import org.bigbluebutton.modules.chat.events.SendPublicChatMessageEvent;
 			
 		import org.bigbluebutton.modules.polling.model.PollObject;
 				
@@ -75,11 +76,15 @@
 		private var _userid:Number; 
 		private var window:PollingStatsWindow;
 		private var conference:Conference;
-		public var reviewing:Boolean = false;
+		[Bindable]public var reviewing:Boolean = false;
+		private var POLL_URL_COLOUR:String = "35071";
+		private var webClosed:Boolean;
 
 		private function init():void{
-			webPollBox.visible = (!reviewing && trackingPoll.publishToWeb);
-			if (!reviewing && trackingPoll.publishToWeb){
+			webPollText.visible = (!reviewing && trackingPoll.publishToWeb);
+			webPollBox.visible = webPollText.visible; 
+			if (webPollText.visible){
+				webClosed = false;
 				var generate: GenerateWebKeyEvent = new GenerateWebKeyEvent(GenerateWebKeyEvent.GENERATE);
 				generate.poll = trackingPoll;
 				dispatchEvent(generate);
@@ -92,8 +97,14 @@
 			// immediately appear with only the option to close the window. 
 			if(viewingClosedPoll)
 				stopPoll();
-			if (trackingPoll.publishToWeb){
+			if (webPollText.visible){
 				webPollURLBox.text = webPollUrl;
+				var chatMessage:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
+				chatMessage.message = trackingPoll.title + " is available online at " + webPollUrl;
+				chatMessage.time = "";
+				chatMessage.color = POLL_URL_COLOUR.toString();
+				chatMessage.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
+				dispatchEvent(chatMessage);
 			}
 			answers = trackingPoll.answers;
 			question = trackingPoll.question;
@@ -137,6 +148,15 @@
 			btnClosePoll.removeEventListener(MouseEvent.CLICK, closeWindow);
 			btnClosePoll.addEventListener(MouseEvent.CLICK, closeButtonClick); 
 			trackingPoll.status = false;
+			if (webPollText.visible && !webClosed){
+				webClosed = true;
+				var chatMessage:SendPublicChatMessageEvent = new SendPublicChatMessageEvent(SendPublicChatMessageEvent.SEND_PUBLIC_CHAT_MESSAGE_EVENT);
+				chatMessage.message = "Web polling has been closed for " + trackingPoll.title;
+				chatMessage.time = "";
+				chatMessage.color = POLL_URL_COLOUR.toString();
+				chatMessage.language = ResourceUtil.getInstance().getCurrentLanguageCode().split("_")[0];
+				dispatchEvent(chatMessage);
+			}
 			stopViewersPolls();					
 		}
 			
@@ -237,7 +257,8 @@
     		 paddingRight="10">
 		<mx:HBox width="90%" 
 				 paddingTop="10">
-			<mx:Text text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}" 
+			<mx:Text id="webPollText"
+					 text="{ResourceUtil.getInstance().getString('bbb.polling.stats.webPollURL')}" 
 					 width="140"/>
 		</mx:HBox>
 		<mx:HBox id="webPollBox" 
