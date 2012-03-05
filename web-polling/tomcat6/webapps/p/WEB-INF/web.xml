@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app 
+	xsi:schemaLocation='http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd' 
+	version='2.4' 
+	xmlns='http://java.sun.com/xml/ns/j2ee' 
+	xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+
+	<display-name>BigBlueButton Polls</display-name>
+	<description>
+		This is version 0.5 of the web-polling BigBlueButton application. 
+		It was written by Chad Pilkey (capilkey@gmail.com) in association 
+		with the Seneca Center for Development of Open Technology (CDOT).
+	</description>
+
+        <filter>
+           <filter-name>UrlRewriteFilter</filter-name>
+           <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
+        </filter>
+        <filter-mapping>
+           <filter-name>UrlRewriteFilter</filter-name>
+           <url-pattern>/*</url-pattern>
+           <dispatcher>REQUEST</dispatcher>
+           <dispatcher>FORWARD</dispatcher>
+        </filter-mapping>
+
+	<welcome-file-list>
+		<welcome-file>polls.jsp</welcome-file>
+	</welcome-file-list>
+
+</web-app>

@@ -30,6 +30,11 @@ import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
+/**
+ * @author 	Chad Pilkey <capilkey@gmail.com>
+ * @version	1.0
+ * @since	2012-03-05
+ */
 public class JedisConnection {
 	JedisPool redisPool;
 
@@ -53,11 +58,16 @@ public class JedisConnection {
 		redisPool = new JedisPool(serverIP, 6379);
 		return redisPool.getResource();
 	}
-
+	/**
+	 * Retrieves a poll from the local computer's Redis database.
+	 * 
+	 * @param webKey 	4 digit number for poll you want
+	 * @return 			Returns true if the poll is retrieved otherwise false
+	 */
 	public boolean retrievePoll(String webKey) {
 		Jedis jedis = dbConnect();
 
-		if (jedis.exists(webKey)) {
+		if (jedis.exists(webKey) && jedis.hget(jedis.get(webKey), "title") != null) {
 			curWebKey = webKey;
 			
 			pollKey = jedis.get(webKey);
@@ -81,6 +91,12 @@ public class JedisConnection {
 		
 	}
 	
+	/**
+	 * Increases the passed answer's vote count by one and also increases 
+	 * the total votes by one.
+	 * 
+	 * @param vote		the answer number of the answer to be increased
+	 */
 	public void recordRadioVote(String vote) {
 		Jedis jedis = dbConnect();
 		
@@ -90,6 +106,12 @@ public class JedisConnection {
 		pollsVoted.add(curWebKey);
 	}
 	
+	/**
+	 * Increases each of the passed answers' vote counts by one and
+	 * increases the total votes by one.
+	 * 
+	 * @param votes		the answer numbers to be increased
+	 */
 	public void recordCheckVote(String [] votes) {
 		Jedis jedis = dbConnect();
 		
@@ -102,18 +124,37 @@ public class JedisConnection {
 		pollsVoted.add(curWebKey);
 	}
 	
+	/**
+	 * Tries to find the passed webkey in the contents of the passed string.
+	 * 
+	 * @param cv		the contents of the bigbluebutton cookie
+	 * @param webkey	the webkey that you want to search for
+	 * @return			true if the webkey is found, otherwise false
+	 */
 	public boolean cookieCheck(String cv, String webkey) {
 		Pattern p = Pattern.compile(","+webkey+",");
 		Matcher m = p.matcher(cv);
 		return m.find(0);
 	}
 	
+	/**
+	 * Checks the passed webkey for any non-digit character.
+	 * 
+	 * @param key		the webkey that you want to check
+	 * @return			true if a non-digit character is found, otherwise false
+	 */
 	public boolean cleanWebKey(String key) {
 		Pattern p = Pattern.compile("[^\\d]");
 		Matcher m = p.matcher(key);
 		return m.find(0);
 	}
 	
+	/** 
+	 * Checks the current object to see if the poll has already been voted on.
+	 * 
+	 * @param poll		poll to try and find
+	 * @return			true if the poll has already been voted on, otherwise false
+	 */
 	public boolean sessionVoted(String poll) {
 		return pollsVoted.contains(poll);
 	}
