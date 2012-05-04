@@ -31,17 +31,25 @@ cd subscripts
 cd "$present"
 cd ..
 cp -r bigbluebutton ~/dev/bigbluebutton
+read -p "Press any key to continue... " -n1 -s
+echo " "
 
 # Build locales
 cd ~/dev/bigbluebutton/bigbluebutton-client
 ant locales
+read -p "Press any key to continue... " -n1 -s
+echo " "
 ant
+read -p "Press any key to continue... " -n1 -s
+echo " "
 
 # Stop Red5 and compile apps
 sudo /etc/init.d/red5 stop
 cd /home/firstuser/dev/bigbluebutton/bigbluebutton-apps
 gradle resolveDeps
 gradle clean war deploy
+read -p "Press any key to continue... " -n1 -s
+echo " "
 
 # Clean restart of Big Blue Button
 sudo bbb-conf --clean
