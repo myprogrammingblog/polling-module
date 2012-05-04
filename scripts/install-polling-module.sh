@@ -30,6 +30,7 @@ cd subscripts
 # Graft polling module file structure onto main BBB file structure
 cd "$present"
 cd ..
+sudo chmod -R 777 ~/dev/bigbluebutton
 cp -r bigbluebutton ~/dev/bigbluebutton
 read -p "Press any key to continue... " -n1 -s
 echo " "
