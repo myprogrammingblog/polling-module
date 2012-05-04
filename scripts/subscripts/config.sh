@@ -7,7 +7,7 @@ else
 	sed -i 's/<CLOSE-MODULE>/<\/modules>/' ~/dev/bigbluebutton/bigbluebutton-client/src/conf/config.xml
 fi
 
-echo "\n"
+echo " "
 
 if grep -q "<SERVER_IP>" ~/dev/bigbluebutton/bigbluebutton-client/src/conf/config.xml; then
 	echo "PollingModule is already looking at the right IP address or URL. Continuing with installation."
@@ -18,6 +18,6 @@ else
 	sed -i s/\<SERVER_IP\>/$serverURL/g ~/dev/bigbluebutton/bigbluebutton-client/src/conf/config.xml
 fi
 
-echo "\n"
+echo " "
 echo "Modifications to config.xml complete."
-echo "\n"
+echo " "
