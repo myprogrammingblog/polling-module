@@ -53,4 +53,5 @@ read -p "Press any key to continue... " -n1 -s
 echo " "
 
 # Clean restart of Big Blue Button
+sudo service nginx restart
 sudo bbb-conf --clean
