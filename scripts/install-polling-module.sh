@@ -31,7 +31,7 @@ cd subscripts
 cd "$present"
 cd ..
 sudo chmod -R 777 ~/dev/bigbluebutton
-cp -r bigbluebutton ~/dev/bigbluebutton
+cp -fr bigbluebutton ~/dev/bigbluebutton
 read -p "Press any key to continue... " -n1 -s
 echo " "
 
