@@ -1,0 +1,49 @@
+bbb.polling.createPoll = 
+bbb.polling.createPoll.moreThanOneResponse = 
+bbb.polling.createPoll.hint = 
+bbb.polling.createPoll.answers = 
+bbb.polling.createPoll.question = 
+bbb.polling.createPoll.title = 
+bbb.polling.createPoll.publishToWeb = 
+
+bbb.polling.pollPreview = 
+bbb.polling.pollPreview.modify = 
+bbb.polling.pollPreview.publish = 
+bbb.polling.pollPreview.preview = 
+bbb.polling.pollPreview.save = 
+bbb.polling.pollPreview.cancel = 
+bbb.polling.pollPreview.modify = 
+bbb.polling.pollPreview.hereIsYourPoll = 
+bbb.polling.pollPreview.ifYouWantChanges = 
+bbb.polling.pollPreview.checkAll = 
+bbb.polling.pollPreview.pollWillPublishOnline = 
+
+bbb.polling.validation.toolongAnswer = 
+bbb.polling.validation.toolongQuestion = 
+bbb.polling.validation.toolongTitle =  
+bbb.polling.validation.noQuestion = 
+bbb.polling.validation.noTitle = 
+bbb.polling.validation.toomuchAnswers = 
+bbb.polling.validation.eachNewLine = 
+bbb.polling.validation.answerUnique = 
+bbb.polling.validation.atLeast2Answers = 
+bbb.polling.validation.duplicateTitle = 
+
+bbb.polling.pollView.vote = 
+bbb.polling.toolbar.toolTip = 
+
+bbb.polling.stats.repost = 
+bbb.polling.stats.close = 
+bbb.polling.stats.didNotVote = 
+bbb.polling.stats.refresh = 
+bbb.polling.stats.stopPoll = 
+bbb.polling.stats.title = 
+bbb.polling.view.title = 
+bbb.polling.stats.webPollURL = 
+bbb.polling.stats.votes =   
+
+bbb.polling.webPollClosed = 
+bbb.polling.pollClosed = 
+
+bbb.polling.vote.error.radio = 
+bbb.polling.vote.error.check = 
