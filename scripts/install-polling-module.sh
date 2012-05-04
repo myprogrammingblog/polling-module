@@ -22,6 +22,11 @@ cd "$present"
 cd subscripts
 ./locales.sh
 
+# Make changes to bbb-apps.xml
+cd "$present"
+cd subscripts
+./bbb-apps.sh
+
 # Install web polling
 cd "$present"
 cd subscripts
