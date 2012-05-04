@@ -1,10 +1,7 @@
+This is a Polling Module created for Big Blue Button (compatible with earlier versions as well.).
 
-This is a Polling Module created for Big Blue Button beta 0.83 (compatible with earlier versions as well.).
+Created by team of programmers of Seneca College Center for Development of open Technology.
 
- Create by team of programmers of Seneca College Center for Development of open Technology.
+Project Website: http://zenit.senecac.on.ca/wiki/index.php/Big_Blue_Button
 
-  Project Website: http://zenit.senecac.on.ca/wiki/index.php/Big_Blue_Button
-
-  How to install ?
-
-       Please read the "Installation Steps"
+To install the Polling Module to your own development environment, follow the instructions laid out in installation.txt

@@ -1,0 +1,1 @@
+Welcome to the installation instructions for the Big Blue Button polling module! These instructions assume that you already have a BigBlueButton development environment in place on your server.
