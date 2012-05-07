@@ -41,12 +41,33 @@ read -p "Press any key to continue... " -n1 -s
 echo " "
 
 # Build locales
-cd ~/dev/bigbluebutton/bigbluebutton-client
-ant locales
-read -p "Press any key to continue... " -n1 -s
+repeat=true
+while $repeat; do
+    cd ~/dev/bigbluebutton/bigbluebutton-client
+    ant locales
+    echo "Was the build successful?"
+    select response in "Yes" "No"; do
+        case $response in
+	    Yes ) repeat=false; break;;
+            No ) break;;
+        esac
+    done
+done
 echo " "
-ant
-read -p "Press any key to continue... " -n1 -s
+
+# Build client
+repeat=true
+while $repeat; do
+    cd ~/dev/bigbluebutton/bigbluebutton-client
+    ant
+    echo "Was the build successful?"
+    select response in "Yes" "No"; do
+        case $response in
+	    Yes ) repeat=false; break;;
+            No ) break;;
+        esac
+    done
+done
 echo " "
 
 # Stop Red5 and compile apps
