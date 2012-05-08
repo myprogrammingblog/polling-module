@@ -10,9 +10,10 @@ fi
 echo " "
 
 if grep -q "<SERVER_IP>" $1; then
-	serverURL=`grep "help url" ~/dev/bigbluebutton/bigbluebutton-client/src/conf/config.xml`
+	serverURL=`grep "help url" $1`
 	serverURL=${serverURL:22}
 	serverURL=${serverURL%"/help.html\"/>"}
+	echo "Server url is $serverURL"
 	sed -i s/\<SERVER_IP\>/$serverURL/g $1	
 else
 	echo "PollingModule is already looking at the right IP address or URL. Continuing with installation."
