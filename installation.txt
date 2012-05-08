@@ -1,19 +1,28 @@
 Welcome to the installation instructions for the Big Blue Button polling module!
-These instructions assume that you already have a BigBlueButton development 
-environment in place on your server.
 
-Installation is very simple, there is only one step:
+If you are installing the polling module onto a development environment, simply run scripts/install-polling-module-dev.sh and follow the onscreen prompts.
 
-- Navigate into the Scripts folder and run install-polling-module.sh. 
+If you are installing the polling module onto a NON-DEVELOPMENT environment, PLEASE 
+BE ADVISED that any custom locale changes you have made will be overwritten by the 
+installation. To install:
+  - Back up any custome locale changes you have made
+  - Run scripts/install-polling-module.sh
 
-(NOTE: Ensure you have execute permission for install-polling-module.sh.)
 
+(NOTE: Ensure you have execute permission for the script you plan to run.)
+
+DEVELOPMENT INSTALL:
 This will edit your config.xml and build.xml files, modify Images.as to use the 
 Polling icon, set up web polling, append polling-related localization strings to 
 your locale files, graft the polling module file structure onto your development 
 environment, and finally compile the module.
 
-Compiling the module will be a lengthy process, due to the need to build locales, 
+Compiling the module can be a lengthy process, due to the need to build locales, 
 the client, and the apps. There is a chance that during the build process for 
 locales or client that Java may throw a runtime error; the script is built to take 
 care of this.
+
+NON-DEVELOPMENT INSTALL:
+This will migrate .swf and .class files necessary for the polling module into your 
+BigBlueButton installation, and modify config.xml and bbb-apps.xml. It will not take 
+very long.

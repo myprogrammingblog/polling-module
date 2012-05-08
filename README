@@ -6,6 +6,8 @@ Project Website: http://zenit.senecac.on.ca/wiki/index.php/Big_Blue_Button
 
 To install the Polling Module to your own development environment, follow the instructions laid out in installation.txt.
 
+PLEASE NOTE: Installing the NON-DEVELOPMENT version of this module will overwrite any custom locale changes you have made. Please back them up.
+
 If you would like to contribute to the localization of the Polling Module, please see locales-template for a complete list of localized strings. Please note: As of May 4 2012, the Russian and Portuguese (Brazilian) localizations are present, but incomplete.
 
 Seneca Centre for Development of Open Technology, 2012
