@@ -10,7 +10,7 @@ cd subscripts
 # Make changes to config.xml
 cd "$present"
 cd subscripts
-./config-dev.sh
+./config.sh ~/dev/bigbluebutton/bigbluebutton-client/src/conf/config.xml
 
 # Make changes to Images.as
 cd "$present"
@@ -25,7 +25,7 @@ cd subscripts
 # Make changes to bbb-apps.xml
 cd "$present"
 cd subscripts
-./bbb-apps-dev.sh
+./bbb-apps.sh ~/dev/bigbluebutton/bigbluebutton-apps/src/main/webapp/WEB-INF/bbb-apps.xml
 
 # Install web polling
 cd "$present"

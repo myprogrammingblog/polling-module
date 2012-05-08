@@ -3,81 +3,24 @@ clear
 present=`pwd`
 sudo chmod -R 755 ./subscripts
 
-# Make changes to build.xml
-cd subscripts
-./build.sh
-
 # Make changes to config.xml
 cd "$present"
 cd subscripts
-./config.sh
-
-# Make changes to Images.as
-cd "$present"
-cd subscripts
-./image-dep.sh
-
-# Make changes to locales
-cd "$present"
-cd subscripts
-./locales.sh
+./config.sh /var/www/bigbluebutton/client/conf/config.xml
 
 # Make changes to bbb-apps.xml
 cd "$present"
 cd subscripts
-./bbb-apps.sh
+./bbb-apps.sh /usr/share/red5/webapps/bigbluebutton/WEB-INF/bbb-apps.xml
 
-# Install web polling
+# Move server-side class files
 cd "$present"
-cd subscripts
-./web-polling.sh
+cd ../prod_files
+sudo chmod -R 777 /usr/share/red5/webapps/bigbluebutton/WEB-INF/classes
+cp -r classes /usr/share/red5/webapps/bigbluebutton/WEB-INF/
 
-# Graft polling module file structure onto main BBB file structure
+# Move client-side SWF files
 cd "$present"
-cd ..
-sudo chmod -R 777 ~/dev/bigbluebutton
-cp -r bigbluebutton ~/dev/
-read -p "Press any key to continue... " -n1 -s
-echo " "
-
-# Build locales
-repeat=true
-while $repeat; do
-    cd ~/dev/bigbluebutton/bigbluebutton-client
-    ant locales
-    echo "Was the build successful?"
-    select response in "Yes" "No"; do
-        case $response in
-	    Yes ) repeat=false; break;;
-            No ) break;;
-        esac
-    done
-done
-echo " "
-
-# Build client
-repeat=true
-while $repeat; do
-    cd ~/dev/bigbluebutton/bigbluebutton-client
-    ant
-    echo "Was the build successful?"
-    select response in "Yes" "No"; do
-        case $response in
-	    Yes ) repeat=false; break;;
-            No ) break;;
-        esac
-    done
-done
-echo " "
-
-# Stop Red5 and compile apps
-sudo /etc/init.d/red5 stop
-cd /home/firstuser/dev/bigbluebutton/bigbluebutton-apps
-gradle resolveDeps
-gradle clean war deploy
-read -p "Press any key to continue... " -n1 -s
-echo " "
-
-# Clean restart of Big Blue Button
-sudo service nginx restart
-sudo bbb-conf --clean
+cd ../prod_files
+sudo chmod -R 777 /var/www/bigbluebutton/client
+cp -r client /var/www/bigbluebutton/
