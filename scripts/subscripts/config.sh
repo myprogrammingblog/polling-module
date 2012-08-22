@@ -14,7 +14,7 @@ if grep -q "<SERVER_IP>" $1; then
 	serverURL=${serverURL:22}
 	serverURL=${serverURL%"/help.html\"/>"}
 	echo "Server url is $serverURL"
-	sudo sed -i s/\<SERVER_IP\>/$serverURL/g $1	
+	sudo sed -i s/\"<SERVER_IP\>"/$serverURL/g $1	
 else
 	echo "PollingModule is already looking at the right IP address or URL. Continuing with installation."
 fi
